@@ -1,6 +1,7 @@
 package kr.co.lunatalk.domain.member.domain;
 
 import jakarta.persistence.*;
+import kr.co.lunatalk.domain.common.domain.BaseTimeEntity;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,8 +15,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@EntityListeners(AuditingEntityListener.class)
-public class Member {
+public class Member extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,14 +26,6 @@ public class Member {
 
     @Column(nullable = false)
     private String password;
-
-    @CreatedDate
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate
-    @Column(nullable = false)
-    private LocalDateTime updatedAt;
 
     private LocalDateTime lastLoginAt;
 
@@ -47,7 +39,4 @@ public class Member {
         return Member.builder().loginId(loginId).password(password).build();
     }
 
-    public void updateLastLoginAt() {
-        this.lastLoginAt = LocalDateTime.now();
-    }
 }

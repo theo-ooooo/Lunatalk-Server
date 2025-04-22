@@ -32,10 +32,20 @@ public class Member extends BaseTimeEntity {
         this.password = password;
     }
 
+    /**
+     * Creates a new Member instance with the specified login ID and password.
+     *
+     * @param loginId the unique login identifier for the member
+     * @param password the password for the member
+     * @return a new Member object initialized with the given login ID and password
+     */
     public static Member of(String loginId, String password) {
         return Member.builder().loginId(loginId).password(password).build();
     }
 
+	/**
+	 * Updates the last login timestamp to the current date and time.
+	 */
 	public void updateLastLoginAt() {
 		this.lastLoginAt = LocalDateTime.now();
 	}

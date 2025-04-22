@@ -2,13 +2,8 @@ package kr.co.lunatalk.domain.member.domain;
 
 import jakarta.persistence.*;
 import kr.co.lunatalk.domain.common.domain.BaseTimeEntity;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import lombok.*;
+
 
 import java.time.LocalDateTime;
 
@@ -27,6 +22,8 @@ public class Member extends BaseTimeEntity {
     @Column(nullable = false)
     private String password;
 
+	//TODO: 멤버 기능 만들때 필드 추가 예정
+
     private LocalDateTime lastLoginAt;
 
     @Builder
@@ -38,5 +35,9 @@ public class Member extends BaseTimeEntity {
     public static Member of(String loginId, String password) {
         return Member.builder().loginId(loginId).password(password).build();
     }
+
+	public void updateLastLoginAt() {
+		this.lastLoginAt = LocalDateTime.now();
+	}
 
 }

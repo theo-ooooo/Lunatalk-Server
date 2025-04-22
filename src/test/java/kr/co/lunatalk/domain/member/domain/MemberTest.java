@@ -27,7 +27,6 @@ class MemberTest {
 
 	@Test
 	@DisplayName("멤버 생성일과 수정일 확인")
-	@Rollback(false)
 	void 멤버_정보를_수정했을때_생성일과_수정일은_달라야_한다() {
 		//given
 		Member member = Member.of("test", "test1");

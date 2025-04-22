@@ -1,21 +1,16 @@
 package kr.co.lunatalk.domain.member.domain;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import kr.co.lunatalk.domain.common.domain.BaseTimeEntity;
+import lombok.*;
+
 
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@EntityListeners(AuditingEntityListener.class)
-public class Member {
+public class Member extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,13 +22,7 @@ public class Member {
     @Column(nullable = false)
     private String password;
 
-    @CreatedDate
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate
-    @Column(nullable = false)
-    private LocalDateTime updatedAt;
+	//TODO: 멤버 기능 만들때 필드 추가 예정
 
     private LocalDateTime lastLoginAt;
 
@@ -43,11 +32,22 @@ public class Member {
         this.password = password;
     }
 
+    /**
+     * Creates a new Member instance with the specified login ID and password.
+     *
+     * @param loginId the unique login identifier for the member
+     * @param password the password for the member
+     * @return a new Member object initialized with the given login ID and password
+     */
     public static Member of(String loginId, String password) {
         return Member.builder().loginId(loginId).password(password).build();
     }
 
-    public void updateLastLoginAt() {
-        this.lastLoginAt = LocalDateTime.now();
-    }
+	/**
+	 * Updates the last login timestamp to the current date and time.
+	 */
+	public void updateLastLoginAt() {
+		this.lastLoginAt = LocalDateTime.now();
+	}
+
 }

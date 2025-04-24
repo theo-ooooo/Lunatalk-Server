@@ -22,10 +22,19 @@ public class Member {
     private Long id;
 
     @Column(unique = true, nullable = false)
-    private String loginId;
+    private String username;
 
     @Column(nullable = false)
     private String password;
+
+    @Embedded
+    private Profile profile = Profile.of("","");
+
+    @Enumerated(EnumType.STRING)
+    private MemberStatus status;
+
+    @Enumerated(EnumType.STRING)
+    private MemberRole role;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
@@ -37,14 +46,37 @@ public class Member {
 
     private LocalDateTime lastLoginAt;
 
-    @Builder
-    public Member(String loginId, String password) {
-        this.loginId = loginId;
+    @Builder(access = AccessLevel.PRIVATE)
+    public Member(String username, String password, Profile profile, MemberStatus status, MemberRole role, LocalDateTime lastLoginAt) {
+        this.username = username;
         this.password = password;
+        this.profile = profile;
+        this.status = status;
+        this.role = role;
+        this.lastLoginAt = lastLoginAt;
     }
 
-    public static Member of(String loginId, String password) {
-        return Member.builder().loginId(loginId).password(password).build();
+    public static Member of(String username, String password, Profile profile) {
+        return Member.builder()
+                .username(username)
+                .password(password)
+                .profile(profile)
+                .role(MemberRole.USER)
+                .status(MemberStatus.NORMAL)
+                .lastLoginAt(LocalDateTime.now())
+                .build();
+    }
+
+    public void updateProfile(Profile profile) {
+        this.profile = profile;
+    }
+
+    public void withdrawal() {
+        this.status = MemberStatus.DELETE;
+    }
+
+    public void updateNickname(String nickname) {
+        this.profile = Profile.of(nickname,this.profile.getProfileImageUrl());
     }
 
     public void updateLastLoginAt() {

@@ -30,6 +30,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 	public ResponseEntity<GlobalResponse> handleException(Exception e) {
 		ErrorCode errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
 
+		log.error("Exception : {}", e);
 		ErrorResponse errorResponse = ErrorResponse.of(e.getClass().getName(), e.getMessage());
 		GlobalResponse response = GlobalResponse.fail(errorCode.getHttpStatus().value(), errorResponse);
 		return ResponseEntity.status(errorCode.getHttpStatus().value()).body(response);

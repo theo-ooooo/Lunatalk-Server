@@ -8,6 +8,7 @@ spring:
       - security
       - actuator
       - datasource
+      - redis
 #spring:
 #  jpa:
 #    hibernate:

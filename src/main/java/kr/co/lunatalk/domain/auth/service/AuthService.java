@@ -1,11 +1,11 @@
 package kr.co.lunatalk.domain.auth.service;
 
-import jakarta.transaction.Transactional;
+import kr.co.lunatalk.domain.auth.dto.RefreshTokenDto;
 import kr.co.lunatalk.domain.auth.dto.request.LoginRequest;
+import kr.co.lunatalk.domain.auth.dto.request.RefreshTokenRequest;
 import kr.co.lunatalk.domain.auth.dto.response.AuthTokenResponse;
 import kr.co.lunatalk.domain.auth.dto.response.TokenResponse;
 import kr.co.lunatalk.domain.member.domain.Member;
-import kr.co.lunatalk.domain.member.domain.MemberRole;
 import kr.co.lunatalk.domain.member.domain.MemberStatus;
 import kr.co.lunatalk.domain.member.domain.Profile;
 import kr.co.lunatalk.domain.member.dto.request.CreateMemberRequest;
@@ -13,11 +13,11 @@ import kr.co.lunatalk.domain.member.repository.MemberRepository;
 import kr.co.lunatalk.global.exception.CustomException;
 import kr.co.lunatalk.global.exception.ErrorCode;
 import kr.co.lunatalk.global.security.JwtTokenProvider;
-import kr.co.lunatalk.global.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -41,7 +41,7 @@ public class AuthService {
 		Member member = Member.of(request.username(), encodePassword(request.password()), Profile.of("", ""));
 		memberRepository.save(member);
 
-		TokenResponse token = jwtTokenProvider.generateTokenPair(member.getId(), member.getRole());
+		TokenResponse token = getTokenResponse(member);
 
 		return AuthTokenResponse.from(token);
 	}
@@ -65,7 +65,30 @@ public class AuthService {
 			throw new CustomException(ErrorCode.AUTH_UNAUTHORIZED);
 		}
 
-		return AuthTokenResponse.from(jwtTokenProvider.generateTokenPair(member.getId(), member.getRole()));
+		return AuthTokenResponse.from(getTokenResponse(member));
+	}
+
+	private TokenResponse getTokenResponse(Member member) {
+		return jwtTokenProvider.generateTokenPair(member.getId(), member.getRole());
+	}
+
+	@Transactional(readOnly = true)
+	public AuthTokenResponse reissueTokenPair(RefreshTokenRequest request) {
+		RefreshTokenDto refreshTokenDto = jwtTokenProvider.retrieveRefreshToken(request.refreshToken());
+
+		if(refreshTokenDto == null) {
+			throw new CustomException(ErrorCode.AUTH_TOKEN_EXPIRED);
+		}
+
+		Optional<Member> findMember = memberRepository.findById(refreshTokenDto.memberId());
+
+		if (findMember.isEmpty()) {
+			throw new CustomException(ErrorCode.MEMBER_NOT_FOUND);
+		}
+
+		Member member = findMember.get();
+
+		return AuthTokenResponse.from(getTokenResponse(member));
 	}
 
 	private String encodePassword(String password) {

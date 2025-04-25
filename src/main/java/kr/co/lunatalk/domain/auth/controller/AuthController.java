@@ -2,6 +2,7 @@ package kr.co.lunatalk.domain.auth.controller;
 
 import jakarta.validation.Valid;
 import kr.co.lunatalk.domain.auth.dto.request.LoginRequest;
+import kr.co.lunatalk.domain.auth.dto.request.RefreshTokenRequest;
 import kr.co.lunatalk.domain.auth.dto.response.AuthTokenResponse;
 import kr.co.lunatalk.domain.auth.service.AuthService;
 import kr.co.lunatalk.domain.member.dto.request.CreateMemberRequest;
@@ -26,5 +27,11 @@ public class AuthController {
 	@PostMapping("/login")
 	public AuthTokenResponse login(@RequestBody @Valid LoginRequest request) {
 		return authService.loginMember(request);
+	}
+
+	// 리프레쉬 토큰으로 액세스 토큰 재발급
+	@PostMapping("/reissue")
+	public AuthTokenResponse reissue(@RequestBody @Valid RefreshTokenRequest request) {
+		return authService.reissueTokenPair(request);
 	}
 }

@@ -18,7 +18,8 @@ public enum ErrorCode {
 	// Auth
 	AUTH_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "아이디 또는 비밀번호를 확인해주세요"),
 	AUTH_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "시큐리티 인증 정보를 찾을수 없습니다."),
-	AUTH_FAILED(HttpStatus.UNAUTHORIZED, "인증에 실패하였습니다.");
+	AUTH_FAILED(HttpStatus.UNAUTHORIZED, "인증에 실패하였습니다."),
+	AUTH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "Token이 만료 되었습니다.");
 
 
 	private HttpStatus httpStatus;

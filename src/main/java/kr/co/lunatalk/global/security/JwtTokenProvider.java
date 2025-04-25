@@ -1,17 +1,22 @@
 package kr.co.lunatalk.global.security;
 
+import kr.co.lunatalk.domain.auth.domain.RefreshToken;
 import kr.co.lunatalk.domain.auth.dto.AccessTokenDto;
 import kr.co.lunatalk.domain.auth.dto.RefreshTokenDto;
 import kr.co.lunatalk.domain.auth.dto.response.TokenResponse;
+import kr.co.lunatalk.domain.auth.repository.RefreshRepository;
 import kr.co.lunatalk.domain.member.domain.MemberRole;
 import kr.co.lunatalk.global.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class JwtTokenProvider {
 	private final JwtUtil jwtUtil;
+	private final RefreshRepository refreshRepository;
 
 	public TokenResponse generateTokenPair(Long memberId, MemberRole memberRole) {
 		String accessToken = createAccessToken(memberId, memberRole);
@@ -25,7 +30,9 @@ public class JwtTokenProvider {
 	}
 
 	public String createRefreshToken(Long memberId, MemberRole memberRole) {
-		return jwtUtil.generateRefreshToken(memberId, memberRole);
+		String refreshToken = jwtUtil.generateRefreshToken(memberId, memberRole);
+		saveRefreshTokenToRedis(memberId, refreshToken, jwtUtil.getRefreshTokenExpirationTime());
+		return refreshToken;
 	}
 
 	public AccessTokenDto parseAccessToken(String token) {
@@ -42,5 +49,40 @@ public class JwtTokenProvider {
 		} catch (Exception e) {
 			return null;
 		}
+	}
+
+	public RefreshTokenDto retrieveRefreshToken(String tokenValue) {
+		RefreshTokenDto refreshTokenDto = parseRefreshToken(tokenValue);
+
+		if (refreshTokenDto == null) {
+			return null;
+		}
+
+		Optional<RefreshToken> optionalRefreshToken = getRefreshTokenFromRedis(refreshTokenDto.memberId());
+
+		if (optionalRefreshToken.isEmpty()) {
+			return null;
+		}
+		RefreshToken refreshToken = optionalRefreshToken.get();
+
+		if(!(refreshToken.getRefreshToken().equals(tokenValue))) {
+			return null;
+		}
+		return refreshTokenDto;
+	}
+
+
+
+	private Optional<RefreshToken> getRefreshTokenFromRedis(Long memberId) {
+		return refreshRepository.findById(memberId);
+	}
+
+	private void saveRefreshTokenToRedis(Long memberId, String refreshTokenValue, Long ttl) {
+		RefreshToken refreshToken = RefreshToken.of(memberId, refreshTokenValue, ttl);
+		refreshRepository.save(refreshToken);
+	}
+
+	public void deleteRefreshTokenFromRedis(Long memberId) {
+		refreshRepository.findById(memberId);
 	}
 }

@@ -94,5 +94,8 @@ public class JwtUtil {
 	}
 
 
+	public Long getRefreshTokenExpirationTime() {
+		return jwtProperties.refreshTokenExpirationTime();
+	}
 
 }

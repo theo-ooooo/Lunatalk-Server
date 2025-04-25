@@ -12,6 +12,7 @@ import kr.co.lunatalk.domain.member.dto.request.CreateMemberRequest;
 import kr.co.lunatalk.domain.member.repository.MemberRepository;
 import kr.co.lunatalk.global.exception.CustomException;
 import kr.co.lunatalk.global.exception.ErrorCode;
+import kr.co.lunatalk.global.security.JwtTokenProvider;
 import kr.co.lunatalk.global.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +28,7 @@ import java.util.Optional;
 public class AuthService {
 	private final MemberRepository memberRepository;
 	private final PasswordEncoder passwordEncoder;
-	private final JwtUtil jwtUtil;
+	private final JwtTokenProvider jwtTokenProvider;
 
 
 	public AuthTokenResponse registerMember(CreateMemberRequest request) {
@@ -40,7 +41,7 @@ public class AuthService {
 		Member member = Member.of(request.username(), encodePassword(request.password()), Profile.of("", ""));
 		memberRepository.save(member);
 
-		TokenResponse token = generateToken(member.getId(), member.getRole());
+		TokenResponse token = jwtTokenProvider.generateTokenPair(member.getId(), member.getRole());
 
 		return AuthTokenResponse.from(token);
 	}
@@ -64,7 +65,7 @@ public class AuthService {
 			throw new CustomException(ErrorCode.AUTH_UNAUTHORIZED);
 		}
 
-		return AuthTokenResponse.from(generateToken(member.getId(), member.getRole()));
+		return AuthTokenResponse.from(jwtTokenProvider.generateTokenPair(member.getId(), member.getRole()));
 	}
 
 	private String encodePassword(String password) {
@@ -73,12 +74,5 @@ public class AuthService {
 
 	private Boolean matchingPassword(String password, String encodedPassword) {
 		return passwordEncoder.matches(password, encodedPassword);
-	}
-
-	private TokenResponse generateToken(Long memberId, MemberRole memberRole) {
-		String accessToken = jwtUtil.generateAccessToken(memberId, memberRole);
-		String refreshToken = jwtUtil.generateRefreshToken(memberId, memberRole);
-
-		return TokenResponse.of(accessToken, refreshToken);
 	}
 }

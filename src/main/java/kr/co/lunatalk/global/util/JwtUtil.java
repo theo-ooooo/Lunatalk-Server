@@ -5,7 +5,8 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import kr.co.lunatalk.domain.auth.dto.TokenDto;
+import kr.co.lunatalk.domain.auth.dto.AccessTokenDto;
+import kr.co.lunatalk.domain.auth.dto.RefreshTokenDto;
 import kr.co.lunatalk.domain.member.domain.MemberRole;
 import kr.co.lunatalk.infra.jwt.JwtProperties;
 import lombok.RequiredArgsConstructor;
@@ -37,11 +38,11 @@ public class JwtUtil {
 		return generateToken(memberId, memberRole, issuedAt, expiredAt, getRefreshTokenKey());
 	}
 
-	public TokenDto parseAccessToken(String token) throws ExpiredJwtException {
+	public AccessTokenDto parseAccessToken(String token) throws ExpiredJwtException {
 		try {
 			Jws<Claims> claims = getClaims(token, getAccessTokenKey());
 
-			return new TokenDto(
+			return new AccessTokenDto(
 				Long.parseLong(claims.getBody().getSubject()),
 				MemberRole.valueOf(claims.getBody().get("role", String.class))
 			);
@@ -52,13 +53,14 @@ public class JwtUtil {
 		}
 	}
 
-	public TokenDto parseRefreshToken(String token) throws ExpiredJwtException {
+	public RefreshTokenDto parseRefreshToken(String token) throws ExpiredJwtException {
 		try {
 			Jws<Claims> claims = getClaims(token, getRefreshTokenKey());
 
-			return new TokenDto(
-				Long.parseLong(claims.getBody().getSubject()),
-				MemberRole.valueOf(claims.getBody().get("role", String.class))
+			return new RefreshTokenDto(
+					Long.parseLong(claims.getBody().getSubject()),
+					MemberRole.valueOf(claims.getBody().get("role", String.class)),
+					jwtProperties.refreshTokenExpirationTime()
 			);
 		} catch (ExpiredJwtException e) {
 			throw e;

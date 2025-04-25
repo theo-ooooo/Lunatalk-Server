@@ -1,9 +1,13 @@
 package kr.co.lunatalk.domain.member.domain;
 
+import com.navercorp.fixturemonkey.FixtureMonkey;
+import com.navercorp.fixturemonkey.api.introspector.ConstructorArbitraryIntrospector;
+import com.navercorp.fixturemonkey.api.introspector.ConstructorPropertiesArbitraryIntrospector;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import kr.co.lunatalk.domain.member.repository.MemberRepository;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,38 +17,61 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.NoSuchElementException;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 
 @SpringBootTest
 @Transactional
 class MemberTest {
 
-	@Autowired
-	private MemberRepository memberRepository;
+	FixtureMonkey fixtureMonkey;
 
-	@PersistenceContext
-	EntityManager em;
-
+	@BeforeEach
+	void setUp() {
+		fixtureMonkey = FixtureMonkey.builder()
+			.objectIntrospector(ConstructorPropertiesArbitraryIntrospector.INSTANCE).build();
+	}
 
 	@Test
-	@DisplayName("멤버 생성일과 수정일 확인")
-	void 멤버_정보를_수정했을때_생성일과_수정일은_달라야_한다() {
+	void createMember_성공() {
 		//given
-		Member member = Member.of("test", "test1", Profile.of("",""));
-		memberRepository.save(member);
-		member.updateLastLoginAt();
+		Profile profile = fixtureMonkey.giveMeOne(Profile.class);
 
-		// when
-		em.flush();
-		em.clear();
-
-		Member findMember = memberRepository.findById(member.getId()).orElseThrow();
+		//when
+		Member member = Member.of("user", "password", profile);
 
 		//then
-		System.out.println("member.getCreatedAt() = " + findMember.getCreatedAt());
-		System.out.println("member.getUpdatedAt() = " + findMember.getUpdatedAt());
-		Assertions.assertNotNull(findMember.getCreatedAt());
-		Assertions.assertNotNull(findMember.getUpdatedAt());
-		Assertions.assertNotEquals(findMember.getCreatedAt(), findMember.getUpdatedAt());
+		assertNotNull(member);
+		assertEquals(profile, member.getProfile());
+		assertEquals(MemberStatus.NORMAL, member.getStatus());
+		assertEquals(MemberRole.USER, member.getRole());
 	}
+
+	@Test
+	void updateLastLoginAt_성공() {
+		// given
+		Member member = fixtureMonkey.giveMeOne(Member.class);
+
+		//when
+		member.updateLastLoginAt();
+
+		//then
+		assertNotNull(member.getLastLoginAt());
+	}
+
+	@Test
+	void updateProfile() {
+		// given
+		Member member = fixtureMonkey.giveMeOne(Member.class);
+		Profile newProfile = fixtureMonkey.giveMeOne(Profile.class);
+		// when
+		System.out.println("member.getProfile() = " + member.getProfile());
+		member.updateProfile(newProfile);
+		System.out.println("member.getProfile() = " + member.getProfile());
+		// then
+		assertEquals(newProfile, member.getProfile());
+	}
+
 
 }

@@ -2,6 +2,7 @@ package kr.co.lunatalk.infra.jwt;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+
 @ConfigurationProperties(prefix = "jwt")
 public record JwtProperties(
 	String accessTokenSecret,

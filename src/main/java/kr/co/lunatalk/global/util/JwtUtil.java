@@ -25,14 +25,14 @@ public class JwtUtil {
 
 	public String generateAccessToken(Long memberId, MemberRole memberRole) {
 		Date issuedAt = new Date();
-		Date expiredAt = new Date(issuedAt.getTime() + jwtProperties.accessTokenExpirationTime());
+		Date expiredAt = new Date(issuedAt.getTime() + jwtProperties.getAccessTokenExpirationTime());
 
 		return generateToken(memberId, memberRole, issuedAt, expiredAt, getAccessTokenKey());
 	}
 
 	public String generateRefreshToken(Long memberId, MemberRole memberRole) {
 		Date issuedAt = new Date();
-		Date expiredAt = new Date(issuedAt.getTime() + jwtProperties.refreshTokenExpirationTime());
+		Date expiredAt = new Date(issuedAt.getTime() + jwtProperties.getRefreshTokenExpirationTime());
 
 		return generateToken(memberId, memberRole, issuedAt, expiredAt, getRefreshTokenKey());
 	}

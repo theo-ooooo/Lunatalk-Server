@@ -31,8 +31,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
 		if(token != null && token.startsWith("Bearer ")) {
 			String jwtToken = token.replaceFirst("Bearer ", "");
-			TokenDto tokenDto = jwtUtil.parseAccessToken(token);
-			log.info("tokenDto: {}", tokenDto);
+			TokenDto tokenDto = jwtUtil.parseAccessToken(jwtToken);
 			//토큰 검증 완료후 SecurityContextHolder 내 인증 정보가 없는 경우만 저장
 			if(tokenDto != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 				setAuthenticationToContext(tokenDto);

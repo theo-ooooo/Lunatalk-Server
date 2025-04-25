@@ -2,7 +2,9 @@ package kr.co.lunatalk.global.util;
 
 import kr.co.lunatalk.global.exception.CustomException;
 import kr.co.lunatalk.global.exception.ErrorCode;
+import kr.co.lunatalk.global.security.PrincipalDetails;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
@@ -11,20 +13,19 @@ public class SecurityUtil {
 	public Long getCurrentMemberId() {
 		 Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-		try {
-			return Long.parseLong(authentication.getName());
-		}catch (Exception e) {
-			throw new CustomException(ErrorCode.AUTH_SERVER_ERROR);
+		Object principal = authentication.getPrincipal();
+		if (principal instanceof PrincipalDetails) {
+			return Long.parseLong(((PrincipalDetails) principal).getUsername());
 		}
+		throw new CustomException(ErrorCode.AUTH_SERVER_ERROR);
 	}
 
-	public Long getCurrentMemberRole() {
+	public String getCurrentMemberRole() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-		try {
-			return Long.parseLong(authentication.getAuthorities().stream().findFirst().get().getAuthority());
-		}catch (Exception e) {
-			throw new CustomException(ErrorCode.AUTH_SERVER_ERROR);
-		}
+		return authentication.getAuthorities().stream()
+			.map(GrantedAuthority::getAuthority)
+			.findFirst()
+			.orElseThrow(() -> new CustomException(ErrorCode.AUTH_SERVER_ERROR));
 	}
 }

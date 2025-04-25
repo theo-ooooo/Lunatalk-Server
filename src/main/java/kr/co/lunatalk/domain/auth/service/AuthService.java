@@ -6,6 +6,7 @@ import kr.co.lunatalk.domain.auth.dto.response.AuthTokenResponse;
 import kr.co.lunatalk.domain.auth.dto.response.TokenResponse;
 import kr.co.lunatalk.domain.member.domain.Member;
 import kr.co.lunatalk.domain.member.domain.MemberRole;
+import kr.co.lunatalk.domain.member.domain.Profile;
 import kr.co.lunatalk.domain.member.dto.request.CreateMemberRequest;
 import kr.co.lunatalk.domain.member.repository.MemberRepository;
 import kr.co.lunatalk.global.exception.CustomException;
@@ -35,7 +36,7 @@ public class AuthService {
 			throw new CustomException(ErrorCode.MEMBER_EXISTS);
 		}
 
-		Member member = Member.of(request.username(), encodePassword(request.password()));
+		Member member = Member.of(request.username(), encodePassword(request.password()), Profile.of("", ""));
 		memberRepository.save(member);
 
 		TokenResponse token = generateToken(member.getId(), member.getRole());
@@ -43,7 +44,7 @@ public class AuthService {
 		return AuthTokenResponse.from(token);
 	}
 
-	public AuthTokenResponse login(LoginRequest request) {
+	public AuthTokenResponse loginMember(LoginRequest request) {
 		Optional<Member> findMember = memberRepository.findByUsername(request.username());
 		if(findMember.isPresent()) {
 			final Member member = findMember.get();

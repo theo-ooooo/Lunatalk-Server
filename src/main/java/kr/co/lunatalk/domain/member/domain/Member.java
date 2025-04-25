@@ -43,11 +43,10 @@ public class Member extends BaseTimeEntity {
         this.lastLoginAt = lastLoginAt;
     }
 
-    public static Member of(String username, String password, Profile profile) {
+    public static Member of(String username, String password) {
         return Member.builder()
                 .username(username)
                 .password(password)
-                .profile(profile)
                 .role(MemberRole.USER)
                 .status(MemberStatus.NORMAL)
                 .lastLoginAt(LocalDateTime.now())

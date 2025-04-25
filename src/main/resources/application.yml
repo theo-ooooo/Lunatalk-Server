@@ -1,11 +1,21 @@
 spring:
-  jpa:
-    hibernate:
-      ddl-auto: create
-    properties:
-      hibernate:
-        format_sql: true
-#        show_sql: true
-
-logging.level:
-  org.hibernate.SQL: debug
+  profiles:
+    group:
+      local: "local"
+      dev: "dev"
+      prod: "prod"
+    include:
+      - security
+      - actuator
+      - datasource
+#spring:
+#  jpa:
+#    hibernate:
+#      ddl-auto: create
+#    properties:
+#      hibernate:
+#        format_sql: true
+##        show_sql: true
+#
+#logging.level:
+#  org.hibernate.SQL: debug

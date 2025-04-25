@@ -1,0 +1,14 @@
+spring:
+  config:
+    activate:
+      on-profile: "actuator"
+
+management:
+  endpoints:
+    web:
+      base-path: /lunatalk-actuator
+      exposure:
+        include: health, prometheus
+    jmx:
+      exposure:
+        exclude: "*"

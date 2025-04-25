@@ -6,6 +6,7 @@ import kr.co.lunatalk.domain.auth.dto.response.AuthTokenResponse;
 import kr.co.lunatalk.domain.auth.dto.response.TokenResponse;
 import kr.co.lunatalk.domain.member.domain.Member;
 import kr.co.lunatalk.domain.member.domain.MemberRole;
+import kr.co.lunatalk.domain.member.domain.MemberStatus;
 import kr.co.lunatalk.domain.member.domain.Profile;
 import kr.co.lunatalk.domain.member.dto.request.CreateMemberRequest;
 import kr.co.lunatalk.domain.member.repository.MemberRepository;
@@ -46,15 +47,24 @@ public class AuthService {
 
 	public AuthTokenResponse loginMember(LoginRequest request) {
 		Optional<Member> findMember = memberRepository.findByUsername(request.username());
-		if(findMember.isPresent()) {
-			final Member member = findMember.get();
-			Boolean isMatching = matchingPassword(request.password(), member.getPassword());
-			if(isMatching) {
-				TokenResponse token = generateToken(member.getId(), member.getRole());
-				return AuthTokenResponse.from(token);
-			}
+
+		if (findMember.isEmpty()) {
+			throw new CustomException(ErrorCode.MEMBER_NOT_FOUND);
 		}
-		throw new CustomException(ErrorCode.AUTH_UNAUTHORIZED);
+
+		Member member = findMember.get();
+
+		if (member.getStatus() == MemberStatus.DELETE) {
+			throw new CustomException(ErrorCode.MEMBER_NOT_FOUND);
+		}
+
+		Boolean isMatching = matchingPassword(request.password(), member.getPassword());
+
+		if(!isMatching) {
+			throw new CustomException(ErrorCode.AUTH_UNAUTHORIZED);
+		}
+
+		return AuthTokenResponse.from(generateToken(member.getId(), member.getRole()));
 	}
 
 	private String encodePassword(String password) {

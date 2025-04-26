@@ -1,4 +1,4 @@
-package kr.co.lunatalk.infra.jwt;
+package kr.co.lunatalk.infra.config.jwt;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

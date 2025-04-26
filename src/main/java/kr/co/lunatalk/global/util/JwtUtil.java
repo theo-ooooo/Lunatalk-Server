@@ -8,14 +8,13 @@ import io.jsonwebtoken.security.Keys;
 import kr.co.lunatalk.domain.auth.dto.AccessTokenDto;
 import kr.co.lunatalk.domain.auth.dto.RefreshTokenDto;
 import kr.co.lunatalk.domain.member.domain.MemberRole;
-import kr.co.lunatalk.infra.jwt.JwtProperties;
+import kr.co.lunatalk.infra.config.jwt.JwtProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
-import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor

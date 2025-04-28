@@ -1,69 +1,77 @@
 package kr.co.lunatalk.domain.auth.service;
 
-import kr.co.lunatalk.FixtureMonkeySetUp;
 import kr.co.lunatalk.TestRedisConfig;
 import kr.co.lunatalk.domain.auth.dto.request.LoginRequest;
 import kr.co.lunatalk.domain.auth.dto.response.AuthTokenResponse;
+import kr.co.lunatalk.domain.auth.dto.response.TokenResponse;
 import kr.co.lunatalk.domain.member.domain.Member;
+import kr.co.lunatalk.domain.member.domain.MemberRole;
 import kr.co.lunatalk.domain.member.domain.Profile;
+import kr.co.lunatalk.domain.member.dto.request.CreateMemberRequest;
 import kr.co.lunatalk.domain.member.repository.MemberRepository;
-import kr.co.lunatalk.infra.config.redis.RedisProperties;
-import org.junit.jupiter.api.BeforeEach;
+import kr.co.lunatalk.global.exception.CustomException;
+import kr.co.lunatalk.global.security.JwtTokenProvider;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.data.redis.DataRedisTest;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Optional;
+
+import static org.mockito.BDDMockito.given;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-
-@ActiveProfiles("test")
+@ExtendWith(MockitoExtension.class)
+@DisplayName("인증 서비스 단위테스트")
 @Import({TestRedisConfig.class})
-@DataRedisTest
-class AuthServiceTest extends FixtureMonkeySetUp {
+class AuthServiceTest {
 
-	@Autowired
-	private AuthService authService;
-	@Autowired private MemberRepository memberRepository;
+	@Mock
+	MemberRepository memberRepository;
 
-	String username;
-	String password;
+	@Mock
+	PasswordEncoder passwordEncoder;
 
-	@BeforeEach
-	void setUp() {
-		username = fixtureMonkey.giveMeOne(String.class);
-		password = fixtureMonkey.giveMeOne(String.class);
-	}
+	@Mock
+	JwtTokenProvider jwtTokenProvider;
 
-	@Test
-	void 일반_로그인() {
-		//given
-
-		Member member = Member.of(username, password, Profile.of("test", "test"));
-		memberRepository.save(member);
-		//when
-		AuthTokenResponse authTokenResponse = authService.loginMember(new LoginRequest(username, password));
-		//then
-		assertNotNull(authTokenResponse.accessToken());
-		assertNotNull(authTokenResponse.refreshToken());
-	}
+	@InjectMocks
+	AuthService authService;
 
 	@Test
 	void 회원가입() {
+		TokenResponse tempTokenPair = new TokenResponse("accessToken", "refreshToken");
 
+		Member newMember = Member.of("username", "password", Profile.of("", ""));
+
+
+		when(memberRepository.findByUsername("username")).thenReturn(Optional.empty());
+		when(memberRepository.save(any(Member.class))).thenReturn(newMember);
+		when(jwtTokenProvider.generateTokenPair(newMember.getId(), newMember.getRole())).thenReturn(tempTokenPair);
+
+		AuthTokenResponse response = authService.registerMember(new CreateMemberRequest("username", "password"));
+
+		assertNotNull(response);
+		assertEquals("accessToken", response.accessToken());
+		assertEquals("refreshToken", response.refreshToken());
 	}
 
 	@Test
-	void 틸퇴() {
+	void 로그인() {
+		Member member = Member.of("login", "password", Profile.of("", ""));
+		when(memberRepository.findByUsername("login")).thenReturn(Optional.of(member));
 
-	}
+		when(jwtTokenProvider.generateTokenPair(member.getId(), member.getRole())).thenReturn(new TokenResponse("accessToken", "refreshToken"));
+		AuthTokenResponse response = authService.loginMember(new LoginRequest("login", "password"));
 
-	@Test
-	void 토큰_재발급() {
-
+		assertNotNull(response);
+		assertEquals("accessToken", response.accessToken());
+		assertEquals("refreshToken", response.refreshToken());
 	}
 }

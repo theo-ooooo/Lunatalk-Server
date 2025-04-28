@@ -18,9 +18,9 @@ public class RedisConfig {
 	@Bean
 	public RedisConnectionFactory redisConnectionFactory() {
 		RedisStandaloneConfiguration redisConfig = new RedisStandaloneConfiguration(redisProperties.host(), redisProperties.port());
-		if(!redisProperties.password().isBlank()) {
-			redisConfig.setPassword(redisProperties.password());
-		}
+//		if(!redisProperties.password().isBlank()) {
+//			redisConfig.setPassword(redisProperties.password());
+//		}
 		LettuceClientConfiguration clientConfig = LettuceClientConfiguration.builder()
 			.commandTimeout(Duration.ofSeconds(1))
 			.shutdownTimeout(Duration.ZERO)

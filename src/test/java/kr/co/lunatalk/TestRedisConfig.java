@@ -9,5 +9,5 @@ import org.springframework.context.annotation.Import;
 @TestConfiguration
 @EnableConfigurationProperties({RedisProperties.class})
 @Import(RedisConfig.class)
-public class TestRedisConfig {,lpp
+public class TestRedisConfig {
 }

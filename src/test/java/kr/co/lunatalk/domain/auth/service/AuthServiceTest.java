@@ -75,7 +75,8 @@ class AuthServiceTest {
 		Member member = Member.of("login", "password", Profile.of("", ""));
 		when(memberRepository.findByUsername("login")).thenReturn(Optional.of(member));
 
-		when(passwordEncoder.matches(anyString(), anyString())).thenReturn(true);
+//		when(passwordEncoder.matches(anyString(), anyString())).thenReturn(true);
+		doReturn(true).when(passwordEncoder).matches(anyString(), anyString());
 
 		when(jwtTokenProvider.generateTokenPair(member.getId(), member.getRole())).thenReturn(new TokenResponse("accessToken", "refreshToken"));
 		AuthTokenResponse response = authService.loginMember(new LoginRequest("login", "password"));

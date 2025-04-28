@@ -83,6 +83,6 @@ public class JwtTokenProvider {
 	}
 
 	public void deleteRefreshTokenFromRedis(Long memberId) {
-		refreshRepository.findById(memberId);
+		refreshRepository.deleteById(memberId);
 	}
 }

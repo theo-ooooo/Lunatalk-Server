@@ -14,6 +14,7 @@ public enum ErrorCode {
 	// Member
 	MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 회원입니다."),
 	MEMBER_EXISTS(HttpStatus.CONFLICT, "존재하는 회원입니다."),
+	MEMBER_ALREADY_DELETED(HttpStatus.CONFLICT, "이미 탈퇴한 회원 입니다."),
 
 	// Auth
 	AUTH_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "아이디 또는 비밀번호를 확인해주세요"),

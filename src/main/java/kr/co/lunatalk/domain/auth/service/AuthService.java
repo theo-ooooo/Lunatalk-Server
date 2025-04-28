@@ -13,6 +13,7 @@ import kr.co.lunatalk.domain.member.repository.MemberRepository;
 import kr.co.lunatalk.global.exception.CustomException;
 import kr.co.lunatalk.global.exception.ErrorCode;
 import kr.co.lunatalk.global.security.JwtTokenProvider;
+import kr.co.lunatalk.global.util.MemberUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,6 +30,7 @@ public class AuthService {
 	private final MemberRepository memberRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final JwtTokenProvider jwtTokenProvider;
+	private final MemberUtil memberUtil;
 
 
 	public AuthTokenResponse registerMember(CreateMemberRequest request) {
@@ -61,11 +63,26 @@ public class AuthService {
 
 		Boolean isMatching = matchingPassword(request.password(), member.getPassword());
 
+		System.out.println("isMatching = " + isMatching);
+		System.out.println("request = " + request.password());
+		System.out.println("member.getPassword() = " + member.getPassword());
+
 		if(!isMatching) {
 			throw new CustomException(ErrorCode.AUTH_UNAUTHORIZED);
 		}
 
 		return AuthTokenResponse.from(getTokenResponse(member));
+	}
+
+	public void withdraw() {
+		Member currentMember = memberUtil.getCurrentMember();
+
+		if(currentMember.getStatus() == MemberStatus.DELETE) {
+			throw new CustomException(ErrorCode.MEMBER_ALREADY_DELETED);
+		}
+		currentMember.withdrawal();
+		memberRepository.deleteById(currentMember.getId());
+		jwtTokenProvider.deleteRefreshTokenFromRedis(currentMember.getId());
 	}
 
 	private TokenResponse getTokenResponse(Member member) {

@@ -7,10 +7,8 @@ import kr.co.lunatalk.domain.auth.dto.response.AuthTokenResponse;
 import kr.co.lunatalk.domain.auth.service.AuthService;
 import kr.co.lunatalk.domain.member.dto.request.CreateMemberRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -33,5 +31,11 @@ public class AuthController {
 	@PostMapping("/reissue")
 	public AuthTokenResponse reissue(@RequestBody @Valid RefreshTokenRequest request) {
 		return authService.reissueTokenPair(request);
+	}
+
+	@DeleteMapping("/withdraw")
+	public ResponseEntity<Void> withdraw() {
+		authService.withdraw();
+		return ResponseEntity.ok().build();
 	}
 }

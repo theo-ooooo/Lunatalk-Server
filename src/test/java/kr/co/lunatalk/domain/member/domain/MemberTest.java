@@ -66,9 +66,7 @@ class MemberTest {
 		Member member = fixtureMonkey.giveMeOne(Member.class);
 		Profile newProfile = fixtureMonkey.giveMeOne(Profile.class);
 		// when
-		System.out.println("member.getProfile() = " + member.getProfile());
 		member.updateProfile(newProfile);
-		System.out.println("member.getProfile() = " + member.getProfile());
 		// then
 		assertEquals(newProfile, member.getProfile());
 	}

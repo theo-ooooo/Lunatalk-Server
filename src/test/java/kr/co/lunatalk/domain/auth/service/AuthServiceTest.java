@@ -73,7 +73,6 @@ class AuthServiceTest {
 	@Test
 	void 로그인() {
 		Member member = Member.of("login", "password", Profile.of("", ""));
-		System.out.println("member = " + member);
 		when(memberRepository.findByUsername("login")).thenReturn(Optional.of(member));
 
 		when(passwordEncoder.matches(anyString(), anyString())).thenReturn(true);

@@ -63,10 +63,6 @@ public class AuthService {
 
 		Boolean isMatching = matchingPassword(request.password(), member.getPassword());
 
-		System.out.println("isMatching = " + isMatching);
-		System.out.println("request = " + request.password());
-		System.out.println("member.getPassword() = " + member.getPassword());
-
 		if(!isMatching) {
 			throw new CustomException(ErrorCode.AUTH_UNAUTHORIZED);
 		}

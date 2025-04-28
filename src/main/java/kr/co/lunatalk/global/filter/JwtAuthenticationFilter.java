@@ -1,10 +1,12 @@
-package kr.co.lunatalk.global.security;
+package kr.co.lunatalk.global.filter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import kr.co.lunatalk.domain.auth.dto.TokenDto;
+import kr.co.lunatalk.domain.auth.dto.AccessTokenDto;
+import kr.co.lunatalk.global.security.JwtTokenProvider;
+import kr.co.lunatalk.global.security.PrincipalDetails;
 import kr.co.lunatalk.global.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,8 +22,8 @@ import java.io.IOException;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class JwtAuthFilter extends OncePerRequestFilter {
-	private final JwtUtil jwtUtil;
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
+	private final JwtTokenProvider jwtTokenProvider;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -31,7 +33,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
 		if(token != null && token.startsWith("Bearer ")) {
 			String jwtToken = token.replaceFirst("Bearer ", "");
-			TokenDto tokenDto = jwtUtil.parseAccessToken(jwtToken);
+			AccessTokenDto tokenDto = jwtTokenProvider.parseAccessToken(jwtToken);
 			//토큰 검증 완료후 SecurityContextHolder 내 인증 정보가 없는 경우만 저장
 			if(tokenDto != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 				setAuthenticationToContext(tokenDto);
@@ -40,7 +42,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 		filterChain.doFilter(request, response);
 	}
 
-	private static void setAuthenticationToContext(TokenDto tokenDto) {
+	private static void setAuthenticationToContext(AccessTokenDto tokenDto) {
 		UserDetails userDetails = new PrincipalDetails(tokenDto.memberId(), tokenDto.memberRole());
 		Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 

@@ -1,6 +1,7 @@
 package kr.co.lunatalk.global.config.security;
 
-import kr.co.lunatalk.global.security.JwtAuthFilter;
+import kr.co.lunatalk.global.filter.JwtAuthenticationFilter;
+import kr.co.lunatalk.global.security.JwtTokenProvider;
 import kr.co.lunatalk.global.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -18,7 +19,7 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class WebSecurityConfig {
-	private final JwtUtil jwtUtil;
+	private final JwtTokenProvider jwtTokenProvider;
 
 	@Bean
 	public BCryptPasswordEncoder bCryptPasswordEncoder() {
@@ -40,13 +41,13 @@ public class WebSecurityConfig {
 				.anyRequest()
 				.permitAll());
 
-		http.addFilterBefore(jwtAuthFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
+		http.addFilterBefore(jwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
 	}
 
 	@Bean
-	public JwtAuthFilter jwtAuthFilter(JwtUtil jwtUtil) {
-		return new JwtAuthFilter(jwtUtil);
+	public JwtAuthenticationFilter jwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider) {
+		return new JwtAuthenticationFilter(jwtTokenProvider);
 	}
 }

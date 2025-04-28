@@ -2,37 +2,70 @@ package kr.co.lunatalk.global.exception;
 
 import kr.co.lunatalk.global.common.response.ErrorResponse;
 import kr.co.lunatalk.global.common.response.GlobalResponse;
-import lombok.RequiredArgsConstructor;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-@Slf4j
+
 @RestControllerAdvice
-@RequiredArgsConstructor
-public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+@Slf4j
+public class GlobalExceptionHandler {
 
-	//	CustomException 에러
-	@ExceptionHandler(CustomException.class)
-	public ResponseEntity<GlobalResponse> handleCustomException(CustomException e) {
-		log.error("CustomException : {}", e);
-		ErrorCode errorCode = e.getErrorCode();
+	// MethodArgumentNotValidException 발생 시
+	@ExceptionHandler(MethodArgumentNotValidException.class)
+	public ResponseEntity<GlobalResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+		log.error("MethodArgumentNotValidException : {}", ex.getMessage());
 
-		ErrorResponse errorResponse = ErrorResponse.of(errorCode.name(), errorCode.getMessage());
+		ErrorCode errorCode = ErrorCode.BAD_REQUEST;
+
+		ErrorResponse errorResponse = ErrorResponse.of(
+			ex.getClass().getSimpleName(),
+			ex.getBindingResult().getFieldError().getDefaultMessage()
+		);
+
 		GlobalResponse response = GlobalResponse.fail(errorCode.getHttpStatus().value(), errorResponse);
-		return ResponseEntity.status(errorCode.getHttpStatus().value()).body(response);
+
+		return ResponseEntity.status(errorCode.getHttpStatus()).body(response);
 	}
 
-	// 이외 에러
-	@ExceptionHandler(Exception.class)
-	public ResponseEntity<GlobalResponse> handleException(Exception e) {
-		ErrorCode errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
+	@ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+	public ResponseEntity<GlobalResponse> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException ex) {
+		log.error("HttpRequestMethodNotSupportedException : {}", ex.getMessage());
 
-		log.error("Exception : {}", e);
-		ErrorResponse errorResponse = ErrorResponse.of(e.getClass().getName(), e.getMessage());
+		ErrorCode errorCode = ErrorCode.METHOD_NOT_ALLOWED;
+
+		ErrorResponse errorResponse = ErrorResponse.of(ex.getClass().getSimpleName(), errorCode.getMessage());
+
 		GlobalResponse response = GlobalResponse.fail(errorCode.getHttpStatus().value(), errorResponse);
-		return ResponseEntity.status(errorCode.getHttpStatus().value()).body(response);
+		return ResponseEntity.status(errorCode.getHttpStatus()).body(response);
+	}
+
+	// CustomException
+	@ExceptionHandler(CustomException.class)
+	public ResponseEntity<GlobalResponse> handleCustomException(CustomException ex) {
+		log.error("CustomException : {}", ex.getMessage());
+
+		ErrorCode errorCode = ex.getErrorCode();
+		ErrorResponse errorResponse = ErrorResponse.of(errorCode.name(), errorCode.getMessage());
+		GlobalResponse response = GlobalResponse.fail(errorCode.getHttpStatus().value(), errorResponse);
+
+		return ResponseEntity.status(errorCode.getHttpStatus()).body(response);
+	}
+
+	// 그 외 Exception
+	@ExceptionHandler(Exception.class)
+	public ResponseEntity<GlobalResponse> handleException(Exception ex) {
+		log.error("Exception : {}", ex.getMessage(), ex);
+
+		ErrorCode errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
+		ErrorResponse errorResponse = ErrorResponse.of(ex.getClass().getSimpleName(), ex.getMessage());
+		GlobalResponse response = GlobalResponse.fail(errorCode.getHttpStatus().value(), errorResponse);
+
+		return ResponseEntity.status(errorCode.getHttpStatus()).body(response);
 	}
 }

@@ -10,6 +10,9 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -29,6 +32,9 @@ public class Product extends BaseTimeEntity {
 	@Column(name = "status", nullable = false)
 	@ColumnDefault("'DISABLE'")
 	private ProductStatus status;
+
+	@OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<ProductColor> productColor = new ArrayList<>();
 
 	@Builder(access = AccessLevel.PRIVATE)
 	public Product(String name, Long price, Integer quantity, ProductStatus status) {
@@ -52,5 +58,9 @@ public class Product extends BaseTimeEntity {
 		if(request.price() != null) this.price = request.price();
 		if(request.quantity() != null) this.quantity = request.quantity();
 		if(request.status() != null) this.status = request.status();
+	}
+
+	public void addProductColor(ProductColor productColor) {
+		this.productColor.add(productColor);
 	}
 }

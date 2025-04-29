@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum ProductStatus {
-	ENABLE("ENABLE"),
-	DISABLE("DISABLE");
+	ACTIVE("active"),
+	DELETED("deleted"),;
 	private String value;
 }

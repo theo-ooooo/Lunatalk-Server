@@ -1,11 +1,13 @@
 package kr.co.lunatalk.global.config.security;
 
+import kr.co.lunatalk.domain.member.domain.MemberRole;
 import kr.co.lunatalk.global.filter.JwtAuthenticationFilter;
 import kr.co.lunatalk.global.security.JwtTokenProvider;
 import kr.co.lunatalk.global.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -18,6 +20,7 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+@EnableMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig {
 	private final JwtTokenProvider jwtTokenProvider;
 	private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
@@ -40,11 +43,10 @@ public class WebSecurityConfig {
 			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
 		http.authorizeHttpRequests(authorize ->
-			authorize
-				.requestMatchers("/members/**")
-				.authenticated()
-				.anyRequest()
-				.permitAll());
+				authorize
+						.requestMatchers("/members/**").hasAnyRole(MemberRole.ADMIN.name(), MemberRole.USER.name())
+						.anyRequest()
+						.permitAll());
 
 		http.addFilterBefore(jwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
 

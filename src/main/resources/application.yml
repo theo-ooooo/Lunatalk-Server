@@ -2,9 +2,10 @@ spring:
   profiles:
     group:
       local: "local"
-      dev: "dev, datasource"
-      prod: "prod, datasource"
+      dev: "dev"
+      prod: "prod"
     include:
       - security
       - actuator
       - redis
+      - datasource

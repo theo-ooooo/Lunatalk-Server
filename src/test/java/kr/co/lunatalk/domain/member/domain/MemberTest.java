@@ -39,7 +39,7 @@ class MemberTest {
 		Profile profile = fixtureMonkey.giveMeOne(Profile.class);
 
 		//when
-		Member member = Member.of("user", "password", profile);
+		Member member = Member.createMember("user", "password", profile);
 
 		//then
 		assertNotNull(member);

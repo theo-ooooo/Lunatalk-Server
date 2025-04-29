@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@ToString
 public class Member extends BaseTimeEntity {
 
     @Id
@@ -44,7 +43,7 @@ public class Member extends BaseTimeEntity {
         this.lastLoginAt = lastLoginAt;
     }
 
-    public static Member of(String username, String password, Profile profile) {
+    public static Member createMember(String username, String password, Profile profile) {
         return Member.builder()
                 .username(username)
                 .password(password)

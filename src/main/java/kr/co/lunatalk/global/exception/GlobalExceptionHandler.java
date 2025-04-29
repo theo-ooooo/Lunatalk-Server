@@ -6,6 +6,7 @@ import kr.co.lunatalk.global.common.response.GlobalResponse;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -15,6 +16,17 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
+
+	@ExceptionHandler(HttpMessageNotReadableException.class)
+	public ResponseEntity<GlobalResponse> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
+		log.error("HttpMessageNotReadableException: {}", e.getMessage());
+
+		ErrorCode errorCode = ErrorCode.BAD_REQUEST;
+		ErrorResponse errorResponse = ErrorResponse.of("HttpMessageNotReadableException", errorCode.getMessage());
+		GlobalResponse response = GlobalResponse.fail(errorCode.getHttpStatus().value(), errorResponse);
+
+		return ResponseEntity.status(errorCode.getHttpStatus()).body(response);
+	}
 
 	// MethodArgumentNotValidException 발생 시
 	@ExceptionHandler(MethodArgumentNotValidException.class)

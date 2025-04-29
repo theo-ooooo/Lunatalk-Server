@@ -20,6 +20,8 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 @RequiredArgsConstructor
 public class WebSecurityConfig {
 	private final JwtTokenProvider jwtTokenProvider;
+	private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+	private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
 	@Bean
 	public BCryptPasswordEncoder bCryptPasswordEncoder() {
@@ -32,6 +34,9 @@ public class WebSecurityConfig {
 		http.formLogin(AbstractHttpConfigurer::disable)
 			.logout(AbstractHttpConfigurer::disable)
 			.csrf(AbstractHttpConfigurer::disable)
+			.exceptionHandling(exception -> exception
+				.authenticationEntryPoint(customAuthenticationEntryPoint)
+				.accessDeniedHandler(customAccessDeniedHandler))
 			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
 		http.authorizeHttpRequests(authorize ->

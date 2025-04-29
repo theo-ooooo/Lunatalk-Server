@@ -30,26 +30,33 @@ public class Product extends BaseTimeEntity {
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "status", nullable = false)
-	@ColumnDefault("'DISABLE'")
-	private ProductStatus status;
+	@ColumnDefault("'active'")
+	private ProductStatus status = ProductStatus.ACTIVE;
+
+	@Enumerated(EnumType.STRING)
+	@Column(name = "visibility", nullable = false)
+	@ColumnDefault("'hidden'")
+	private ProductVisibility visibility = ProductVisibility.HIDDEN;
 
 	@OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<ProductColor> productColor = new ArrayList<>();
 
 	@Builder(access = AccessLevel.PRIVATE)
-	public Product(String name, Long price, Integer quantity, ProductStatus status) {
+	public Product(String name, Long price, Integer quantity, ProductStatus status, ProductVisibility visibility) {
 		this.name = name;
 		this.price = price;
 		this.quantity = quantity;
 		this.status = status;
+		this.visibility = visibility;
 	}
 
-	public static Product createProduct(String name, Long price, Integer quantity, ProductStatus status) {
+	public static Product createProduct(String name, Long price, Integer quantity, ProductStatus status, ProductVisibility visibility) {
 		return Product.builder()
 			.name(name)
 			.price(price)
 			.quantity(quantity)
 			.status(status)
+			.visibility(visibility)
 			.build();
 	}
 
@@ -58,9 +65,31 @@ public class Product extends BaseTimeEntity {
 		if(request.price() != null) this.price = request.price();
 		if(request.quantity() != null) this.quantity = request.quantity();
 		if(request.status() != null) this.status = request.status();
+
+		if(!request.colors().isEmpty()) {
+			clearProductColor();
+			request.colors().forEach(color -> {
+				addProductColor(ProductColor.createProductColor(this, color));
+			});
+		}
 	}
 
 	public void addProductColor(ProductColor productColor) {
 		this.productColor.add(productColor);
+	}
+
+	public void clearProductColor() {
+		this.productColor.clear();
+	}
+
+	public void deleteProduct() {
+		if(this.visibility == ProductVisibility.VISIBLE) {
+			this.visibility = ProductVisibility.HIDDEN;
+		}
+
+		if(this.status == ProductStatus.ACTIVE) {
+			this.status = ProductStatus.DELETED;
+
+		}
 	}
 }

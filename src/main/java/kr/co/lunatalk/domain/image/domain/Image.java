@@ -31,6 +31,9 @@ public class Image extends BaseTimeEntity {
 	@Enumerated(EnumType.STRING)
 	private ImageFileExtension imageFileExtension;
 
+	@Enumerated(EnumType.STRING)
+	private ImageStatus imageStatus;
+
 
 	@Builder(access = AccessLevel.PRIVATE)
 	public Image(ImageType imageType, Long referenceId, String imageKey, String imagePath, ImageFileExtension imageFileExtension) {
@@ -39,6 +42,7 @@ public class Image extends BaseTimeEntity {
 		this.imageKey = imageKey;
 		this.imagePath = imagePath;
 		this.imageFileExtension = imageFileExtension;
+		this.imageStatus = ImageStatus.PENDING;
 	}
 
 	public static Image createImage(ImageType imageType, Long referenceId, String imageKey, String imagePath, ImageFileExtension imageFileExtension) {
@@ -49,5 +53,13 @@ public class Image extends BaseTimeEntity {
 			.imagePath(imagePath)
 			.imageFileExtension(imageFileExtension)
 			.build();
+	}
+
+	public void uploadedImage() {
+		this.imageStatus = ImageStatus.COMPLETED;
+	}
+
+	public void deletedImage() {
+		this.imageStatus = ImageStatus.DELETED;
 	}
 }

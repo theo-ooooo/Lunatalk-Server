@@ -8,140 +8,139 @@ import kr.co.lunatalk.domain.image.dto.request.ProductImageCompletedRequest;
 import kr.co.lunatalk.domain.image.dto.request.ProductImageUploadRequest;
 import kr.co.lunatalk.domain.image.dto.response.PresignedUrlResponse;
 import kr.co.lunatalk.domain.image.repository.ImageRepository;
-import kr.co.lunatalk.domain.member.domain.MemberRole;
-import kr.co.lunatalk.domain.member.repository.MemberRepository;
 import kr.co.lunatalk.domain.product.domain.Product;
 import kr.co.lunatalk.domain.product.domain.ProductStatus;
 import kr.co.lunatalk.domain.product.domain.ProductVisibility;
-import kr.co.lunatalk.domain.product.dto.request.ProductCreateRequest;
-import kr.co.lunatalk.domain.product.service.ProductService;
+import kr.co.lunatalk.domain.product.repository.ProductRepository;
 import kr.co.lunatalk.global.exception.CustomException;
 import kr.co.lunatalk.global.exception.ErrorCode;
-import kr.co.lunatalk.global.security.PrincipalDetails;
-import org.junit.jupiter.api.Assertions;
+import kr.co.lunatalk.global.util.SpringEnvironmentUtil;
+import kr.co.lunatalk.infra.config.s3.S3Properties;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.junit.jupiter.api.extension.ExtendWith;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
-import java.util.List;
+import java.net.URL;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.BDDMockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.verify;
 
-@SpringBootTest
-@ActiveProfiles("test")
-@Transactional
+@ExtendWith(MockitoExtension.class)
 class ImageServiceTest {
-	@Autowired private ImageService imageService;
-	@Autowired private ImageRepository imageRepository;
-	@Autowired private ProductService productService;
 
+	@InjectMocks
+	private ImageService imageService;
+
+	@Mock
+	private ImageRepository imageRepository;
+
+	@Mock
+	private ProductRepository productRepository;
+
+	@Mock
+	private S3Client s3Client;
+
+	@Mock
+	private S3Presigner s3Presigner;
+
+	@Mock
+	private S3Properties s3Properties;
+
+	@Mock
+	private SpringEnvironmentUtil springEnvironmentUtil;
+
+	private Product testProduct;
+
+	@BeforeEach
+	void setUp() {
+		testProduct = Product.createProduct("테스트", 10000L, 100, ProductStatus.ACTIVE, ProductVisibility.VISIBLE);
+	}
 
 	@Test
 	void 상품_이미지_PresignedUrl_생성() {
-		//given
-		ProductCreateRequest productCreateRequest = new ProductCreateRequest("test", 10000L, 1000, ProductStatus.ACTIVE, ProductVisibility.VISIBLE, List.of("A", "B"));
-		Product saveProduct = productService.save(productCreateRequest);
+		ProductImageUploadRequest request = new ProductImageUploadRequest(1L, ImageType.PRODUCT_THUMBNAIL, ImageFileExtension.PNG);
+		given(productRepository.findById(anyLong())).willReturn(Optional.of(testProduct));
 
-		//when
-		ProductImageUploadRequest request = new ProductImageUploadRequest(saveProduct.getId(), ImageType.PRODUCT_THUMBNAIL, ImageFileExtension.PNG);
-		PresignedUrlResponse presignedUrlResponse = imageService.productImageUpload(request);
+		URL fakeUrl = mock(URL.class);
+		given(fakeUrl.toString()).willReturn("http://fake-presigned-url");
+		PresignedPutObjectRequest presignedRequest = mock(PresignedPutObjectRequest.class);
+		given(presignedRequest.url()).willReturn(fakeUrl);
+		given(s3Presigner.presignPutObject((PutObjectPresignRequest) any())).willReturn(presignedRequest);
 
-		//then
-		assertNotNull(saveProduct);
-		assertNotNull(presignedUrlResponse.presignedUrl());
+		PresignedUrlResponse result = imageService.productImageUpload(request);
+
+		assertThat(result.presignedUrl()).isEqualTo("http://fake-presigned-url");
+		verify(productRepository).findById(1L);
+		verify(imageRepository).save(any(Image.class));
 	}
 
 	@Test
-	void 없는_상품으로_PresignedUrl_생성() {
-		//given
-		ProductImageUploadRequest request = new ProductImageUploadRequest(1L, ImageType.PRODUCT_THUMBNAIL, ImageFileExtension.PNG);
-		//when, then
+	void 없는_상품으로_PresignedUrl_생성_예외() {
+		ProductImageUploadRequest request = new ProductImageUploadRequest(999L, ImageType.PRODUCT_THUMBNAIL, ImageFileExtension.PNG);
+		given(productRepository.findById(anyLong())).willReturn(Optional.empty());
+
 		assertThatThrownBy(() -> imageService.productImageUpload(request))
 			.isInstanceOf(CustomException.class)
 			.hasMessage(ErrorCode.PRODUCT_NOT_FOUND.getMessage());
+		verify(productRepository).findById(999L);
 	}
 
 	@Test
-	void 상품_이미지_등록_완료후_완료_처리() {
-		//given
-		ProductCreateRequest productCreateRequest = new ProductCreateRequest("test", 10000L, 1000, ProductStatus.ACTIVE, ProductVisibility.VISIBLE, List.of("A", "B"));
-		Product saveProduct = productService.save(productCreateRequest);
+	void 상품_이미지_업로드_완료처리() {
+		Image image = Image.createImage(ImageType.PRODUCT_THUMBNAIL, 1L, "image-key", "path", ImageFileExtension.PNG);
+		given(imageRepository.findByImageKey("image-key")).willReturn(Optional.of(image));
 
-		ProductImageUploadRequest request = new ProductImageUploadRequest(saveProduct.getId(), ImageType.PRODUCT_THUMBNAIL, ImageFileExtension.PNG);
-		PresignedUrlResponse presignedUrlResponse = imageService.productImageUpload(request);
-		//when
-		ProductImageCompletedRequest requestComplete = new ProductImageCompletedRequest(presignedUrlResponse.imageKey());
-		imageService.productImageCompleteUpload(requestComplete);
-		Optional<Image> image = imageRepository.findByImageKey(presignedUrlResponse.imageKey());
+		imageService.productImageCompleteUpload(new ProductImageCompletedRequest("image-key"));
 
-		//then
-		assertThat(image).isNotNull();
-		assertThat(image.get().getImageStatus()).isEqualTo(ImageStatus.COMPLETED);
+		assertThat(image.getImageStatus()).isEqualTo(ImageStatus.COMPLETED);
+		verify(imageRepository).findByImageKey("image-key");
 	}
 
 	@Test
-	void 없는_상품_이미지_키로_완료_처리() {
-		//given
-		ProductImageCompletedRequest requestComplete = new ProductImageCompletedRequest("TEST");
-		//when, then
-		assertThatThrownBy(() -> imageService.productImageCompleteUpload(requestComplete))
+	void 없는_이미지_업로드_완료처리_예외() {
+		given(imageRepository.findByImageKey("invalid-key")).willReturn(Optional.empty());
+
+		assertThatThrownBy(() -> imageService.productImageCompleteUpload(new ProductImageCompletedRequest("invalid-key")))
 			.isInstanceOf(CustomException.class)
 			.hasMessage(ErrorCode.IMAGE_NOT_FOUND.getMessage());
+		verify(imageRepository).findByImageKey("invalid-key");
 	}
 
 	@Test
-	void 이미지를_삭제_한다_성공() {
-		//given
-		// 상품 저장
-		ProductCreateRequest productCreateRequest = new ProductCreateRequest("test", 10000L, 1000, ProductStatus.ACTIVE, ProductVisibility.VISIBLE, List.of("A", "B"));
-		Product saveProduct = productService.save(productCreateRequest);
+	void 이미지_삭제_성공() {
+		Image image = Image.createImage(ImageType.PRODUCT_THUMBNAIL, 1L, "image-key", "local/product/1/image-key.png", ImageFileExtension.PNG);
+		given(imageRepository.findByImageKey("image-key")).willReturn(Optional.of(image));
 
-		// 이미지 업로드 url
-		ProductImageUploadRequest request = new ProductImageUploadRequest(saveProduct.getId(), ImageType.PRODUCT_THUMBNAIL, ImageFileExtension.PNG);
-		PresignedUrlResponse presignedUrlResponse = imageService.productImageUpload(request);
-		//when
-		//아마자 완료처리
-		ProductImageCompletedRequest requestComplete = new ProductImageCompletedRequest(presignedUrlResponse.imageKey());
-		imageService.productImageCompleteUpload(requestComplete);
+		imageService.deleteByImageKey("image-key");
 
-		//이미지 삭제
-		imageService.deleteByImageKey(presignedUrlResponse.imageKey());
-		Optional<Image> image = imageRepository.findByImageKey(presignedUrlResponse.imageKey());
-		//then
-		assertThat(image).isNotNull();
-		assertThat(image.get().getImageStatus()).isEqualTo(ImageStatus.DELETED);
+		assertThat(image.getImageStatus()).isEqualTo(ImageStatus.DELETED);
+		verify(imageRepository).findByImageKey("image-key");
+		verify(s3Client).deleteObject((DeleteObjectRequest) any());
 	}
 
 	@Test
-	void 이미_삭제한_이미지를_삭제_요청_한다() {
-		//given
-		// 상품 저장
-		ProductCreateRequest productCreateRequest = new ProductCreateRequest("test", 10000L, 1000, ProductStatus.ACTIVE, ProductVisibility.VISIBLE, List.of("A", "B"));
-		Product saveProduct = productService.save(productCreateRequest);
+	void 삭제된_이미지_다시_삭제시_예외() {
+		Image image = Image.createImage(ImageType.PRODUCT_THUMBNAIL, 1L, "image-key", "local/product/1/image-key.png", ImageFileExtension.PNG);
+		image.deletedImage();
+		given(imageRepository.findByImageKey("deleted-key")).willReturn(Optional.of(image));
 
-		// 이미지 업로드 url
-		ProductImageUploadRequest request = new ProductImageUploadRequest(saveProduct.getId(), ImageType.PRODUCT_THUMBNAIL, ImageFileExtension.PNG);
-		PresignedUrlResponse presignedUrlResponse = imageService.productImageUpload(request);
-		//when
-		//아마자 완료처리
-		ProductImageCompletedRequest requestComplete = new ProductImageCompletedRequest(presignedUrlResponse.imageKey());
-		imageService.productImageCompleteUpload(requestComplete);
-
-		//이미지 삭제
-		imageService.deleteByImageKey(presignedUrlResponse.imageKey());
-		// then
-
-		assertThatThrownBy(() -> imageService.deleteByImageKey(presignedUrlResponse.imageKey()))
+		assertThatThrownBy(() -> imageService.deleteByImageKey("deleted-key"))
 			.isInstanceOf(CustomException.class)
 			.hasMessage(ErrorCode.IMAGE_EXISTS_DELETED.getMessage());
+		verify(imageRepository).findByImageKey("deleted-key");
 	}
 }

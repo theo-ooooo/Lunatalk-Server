@@ -29,3 +29,8 @@ services:
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
       - /var/log/nginx:/var/log/nginx
+      - /home/ubuntu/letsencrypt:/etc/letsencrypt
+      - /home/ubuntu/letsencrypt/www:/var/www/certbot
+    ports:
+      - "80:80"
+      - "443:443"

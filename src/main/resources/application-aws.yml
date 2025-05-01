@@ -1,0 +1,9 @@
+spring:
+  config:
+    activate:
+      on-profile: "aws"
+aws:
+  profile: ${AWS_PROFILE:default}
+  bucket: ${S3_BUCKET:lunatalk-images}
+  region: ${AWS_REGION:ap-northeast-2}
+  endpoint: ${S3_ENDPOINT:https://s3.ap-northeast-2.amazonaws.com}

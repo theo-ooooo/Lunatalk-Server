@@ -7,10 +7,13 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.nio.file.AccessDeniedException;
 
 
 @RestControllerAdvice
@@ -57,6 +60,15 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(errorCode.getHttpStatus()).body(response);
 	}
 
+	@ExceptionHandler(AuthorizationDeniedException.class)
+	public ResponseEntity<GlobalResponse> handleAccessDeniedException(AuthorizationDeniedException ex) {
+		log.error("AuthorizationDeniedException : {}", ex.getMessage());
+
+		ErrorCode errorCode = ErrorCode.FORBIDDEN;
+		ErrorResponse errorResponse = ErrorResponse.of(ex.getClass().getSimpleName(), errorCode.getMessage());
+		GlobalResponse response = GlobalResponse.fail(errorCode.getHttpStatus().value(), errorResponse);
+		return ResponseEntity.status(errorCode.getHttpStatus()).body(response);
+	}
 	// CustomException
 	@ExceptionHandler(CustomException.class)
 	public ResponseEntity<GlobalResponse> handleCustomException(CustomException ex) {

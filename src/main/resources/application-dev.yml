@@ -1,14 +1,12 @@
 spring:
   config:
     activate:
-      on-profile: "local"
+      on-profile: "dev"
+
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true
 #        show_sql: true
-
-logging.level:
-  org.hibernate.SQL: debug

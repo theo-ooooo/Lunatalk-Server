@@ -1,0 +1,90 @@
+name: Develop Build & Deploy
+
+on:
+  push:
+    branches: [ "develop" ]
+
+env:
+  DOCKERHUB_IMAGE_NAME: lunatalk-server
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    environment: DEV
+    strategy:
+      matrix:
+        java-version: [ 21 ]
+        distribution: [ 'temurin' ]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ matrix.java-version }}
+          distribution: ${{ matrix.distribution }}
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+      - name: Build with Gradle
+        id: gradle
+        uses: gradle/gradle-build-action@v3
+        with:
+          arguments: build
+          cache-read-only: ${{ github.ref != 'refs/heads/main' && github.ref != 'refs/heads/develop' }}
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Extract Docker metadata
+        id: metadata
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKERHUB_IMAGE_NAME }}
+          tags: |
+            type=sha,prefix=
+
+      - name: Docker Build and Push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.metadata.outputs.tags }}
+
+
+      # docker-compose.yaml 복사
+      - name: Copy docker-compose.yaml to EC2
+        uses: burnett01/rsync-deployments@7.0.1
+        with:
+          switches: -avzr --delete
+          path: ./docker-compose.yaml
+          remote_path: /home/ubuntu/app/
+          remote_host: ${{ secrets.EC2_HOST }}
+          remote_user: ${{ secrets.EC2_USERNAME }}
+          remote_key: ${{ secrets.EC2_PRIVATE_KEY }}
+
+      - name: Deploy to EC2 Server
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          IMAGE_FULL_URL: ${{ steps.metadata.outputs.tags }}
+          DOCKERHUB_IMAGE_NAME: ${{ env.DOCKERHUB_IMAGE_NAME }}
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          envs: IMAGE_FULL_URL, DOCKERHUB_IMAGE_NAME
+          debug: true
+          script: |
+            echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+            cd ~/app
+            docker compose down
+            docker compose pull
+            docker compose up -d
+            docker exec -d nginx nginx -s reload
+            docker image prune -a -f

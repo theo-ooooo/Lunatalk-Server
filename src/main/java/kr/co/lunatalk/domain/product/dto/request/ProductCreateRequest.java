@@ -17,7 +17,7 @@ public record ProductCreateRequest(
 	Long price,
 
 	@NotNull(message = "상품 갯수는 필수로 입력해야 합니다.")
-	@Min(value = 0, message = "상품 갯수는 1개 이상이여야 합니다.")
+	@Min(value = 1, message = "상품 갯수는 1개 이상이여야 합니다.")
 	Integer quantity,
 
 	@NotNull(message = "상품 상태는 필수 입니다.")

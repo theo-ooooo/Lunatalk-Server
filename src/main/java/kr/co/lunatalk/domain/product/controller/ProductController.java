@@ -20,7 +20,7 @@ public class ProductController {
 
 
 	@PostMapping("/create")
-//	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	public ProductCreateResponse create(@Valid @RequestBody ProductCreateRequest request) {
 		Product product = productService.save(request);
 		return ProductCreateResponse.from(product);

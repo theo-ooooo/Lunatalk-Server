@@ -4,10 +4,12 @@ import jakarta.persistence.*;
 import kr.co.lunatalk.domain.common.domain.BaseTimeEntity;
 import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
 public class ProductColor extends BaseTimeEntity {
 
 	@Id

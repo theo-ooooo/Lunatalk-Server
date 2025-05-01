@@ -2,8 +2,10 @@ package kr.co.lunatalk.domain.product.service;
 
 import kr.co.lunatalk.domain.product.domain.Product;
 import kr.co.lunatalk.domain.product.domain.ProductColor;
+import kr.co.lunatalk.domain.product.dto.FindProductDto;
 import kr.co.lunatalk.domain.product.dto.request.ProductCreateRequest;
 import kr.co.lunatalk.domain.product.dto.request.ProductUpdateRequest;
+import kr.co.lunatalk.domain.product.dto.response.ProductFindResponse;
 import kr.co.lunatalk.domain.product.repository.ProductRepository;
 import kr.co.lunatalk.global.exception.CustomException;
 import kr.co.lunatalk.global.exception.ErrorCode;
@@ -46,5 +48,16 @@ public class ProductService {
 	@Transactional(readOnly = true)
 	public Product findById(Long id) {
 		return productRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
+	}
+
+	@Transactional(readOnly = true)
+	public ProductFindResponse findProductOne(Long productId) {
+		FindProductDto productOne = productRepository.findProductById(productId);
+
+		if (productOne == null) {
+			throw new CustomException(ErrorCode.PRODUCT_NOT_FOUND);
+		}
+
+		return ProductFindResponse.from(productOne);
 	}
 }

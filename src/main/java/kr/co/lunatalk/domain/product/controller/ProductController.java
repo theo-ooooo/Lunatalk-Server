@@ -1,10 +1,12 @@
 package kr.co.lunatalk.domain.product.controller;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import kr.co.lunatalk.domain.product.domain.Product;
 import kr.co.lunatalk.domain.product.dto.request.ProductCreateRequest;
 import kr.co.lunatalk.domain.product.dto.request.ProductUpdateRequest;
 import kr.co.lunatalk.domain.product.dto.response.ProductCreateResponse;
+import kr.co.lunatalk.domain.product.dto.response.ProductFindResponse;
 import kr.co.lunatalk.domain.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +19,11 @@ import org.springframework.web.bind.annotation.*;
 public class ProductController {
 
 	private final ProductService productService;
+
+	@GetMapping("{id}")
+	public ProductFindResponse getProduct(@PathVariable Long id) {
+		return productService.findProductOne(id);
+	}
 
 
 	@PostMapping("/create")

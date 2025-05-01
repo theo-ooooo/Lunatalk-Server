@@ -32,6 +32,7 @@ public enum ErrorCode {
 	// Image
 	IMAGE_FILE_EXTENSION_NOT_FOUND(HttpStatus.NOT_FOUND, "지원하지 않는 파일 포맷 입니다."),
 	IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "이미지가 존재하지 않습니다."),
+	IMAGE_EXISTS_DELETED(HttpStatus.CONFLICT, "이미 삭제된 이미지입니다."),
 	;
 	private HttpStatus httpStatus;
 	private String message;

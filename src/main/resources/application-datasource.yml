@@ -3,13 +3,8 @@ spring:
     activate:
       on-profile: "datasource"
 
-  jpa:
-    hibernate:
-      ddl-auto: create
-    properties:
-      hibernate:
-        format_sql: true
-#        show_sql: true
-
-logging.level:
-  org.hibernate.SQL: debug
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${DB_NAME}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    password: ${MYSQL_PASSWORD}
+    username: ${MYSQL_USERNAME}

@@ -27,21 +27,21 @@ public class ProductController {
 
 
 	@PostMapping("/create")
-	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	@PreAuthorize("hasRole('ADMIN')")
 	public ProductCreateResponse create(@Valid @RequestBody ProductCreateRequest request) {
 		Product product = productService.save(request);
 		return ProductCreateResponse.from(product);
 	}
 
 	@PutMapping("/{id}")
-	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<Void> update(@PathVariable Long id, @Valid @RequestBody ProductUpdateRequest request) {
 		productService.update(id, request);
 		return ResponseEntity.ok().build();
 	}
 
 	@DeleteMapping("/{id}")
-	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<Void> delete(@PathVariable Long id) {
 		productService.delete(id);
 		return ResponseEntity.ok().build();

@@ -5,6 +5,7 @@ import kr.co.lunatalk.domain.common.domain.BaseTimeEntity;
 import kr.co.lunatalk.domain.product.domain.Product;
 import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 
@@ -13,6 +14,7 @@ import java.util.List;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
 public class Category extends BaseTimeEntity {
 
 	@Id
@@ -41,10 +43,10 @@ public class Category extends BaseTimeEntity {
 		this.visibility = visibility;
 	}
 
-	public static Category createCategory(String name, CategoryStatus status, CategoryVisibility visibility) {
+	public static Category createCategory(String name, CategoryVisibility visibility) {
 		return Category.builder()
 			.name(name)
-			.status(status)
+			.status(CategoryStatus.ACTIVE)
 			.visibility(visibility)
 			.build();
 	}

@@ -1,13 +1,19 @@
 package kr.co.lunatalk.domain.category.service;
 
 import kr.co.lunatalk.domain.category.domain.Category;
+import kr.co.lunatalk.domain.category.domain.CategoryVisibility;
 import kr.co.lunatalk.domain.category.dto.request.CategoryAddProductRequest;
 import kr.co.lunatalk.domain.category.dto.request.CategoryCreateRequest;
+import kr.co.lunatalk.domain.category.dto.request.CategoryUpdateRequest;
 import kr.co.lunatalk.domain.category.dto.response.CategoryAddProductResponse;
 import kr.co.lunatalk.domain.category.dto.response.CategoryCreateResponse;
+import kr.co.lunatalk.domain.category.dto.response.CategoryProductResponse;
 import kr.co.lunatalk.domain.category.repository.CategoryRepository;
+import kr.co.lunatalk.domain.image.repository.ImageRepository;
 import kr.co.lunatalk.domain.product.domain.Product;
+import kr.co.lunatalk.domain.product.dto.response.ProductFindResponse;
 import kr.co.lunatalk.domain.product.repository.ProductRepository;
+import kr.co.lunatalk.domain.product.service.ProductService;
 import kr.co.lunatalk.global.exception.CustomException;
 import kr.co.lunatalk.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -22,6 +29,7 @@ import java.util.List;
 public class CategoryService {
 	private final CategoryRepository categoryRepository;
 	private final ProductRepository productRepository;
+	private final ProductService productService;
 
 
 	public CategoryCreateResponse create(CategoryCreateRequest request) {
@@ -34,6 +42,34 @@ public class CategoryService {
 		categoryRepository.save(category);
 
 		return CategoryCreateResponse.of(category);
+	}
+
+	public void update(Long categoryId, CategoryUpdateRequest request) {
+		Category findCategory = findById(categoryId);
+
+		findCategory.updateName(request.name());
+		findCategory.updateVisibility(request.visibility());
+	}
+
+	public void delete(Long categoryId) {
+		Category findCategory = findById(categoryId);
+
+		findCategory.deleteStatus();
+		findCategory.updateVisibility(CategoryVisibility.HIDDEN);
+	}
+
+	@Transactional(readOnly = true)
+	public CategoryProductResponse getCategory(Long categoryId) {
+		Category withProducts = categoryRepository.findWithProducts(categoryId)
+			.orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
+
+		List<Long> productIds = withProducts.getProducts().stream().map(Product::getId).toList();
+
+		List<ProductFindResponse> allProducts = productService.findAllProducts(productIds);
+
+		return CategoryProductResponse.of(withProducts.getId(), withProducts.getName(), allProducts);
+
+
 	}
 
 	public CategoryAddProductResponse addProduct(Long categoryId, CategoryAddProductRequest request) {
@@ -56,5 +92,10 @@ public class CategoryService {
 	@Transactional(readOnly = true)
 	public boolean existsByName(String name) {
 		return categoryRepository.existsByName(name);
+	}
+
+	@Transactional(readOnly = true)
+	public Category findById(Long id) {
+		return categoryRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
 	}
 }

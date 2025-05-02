@@ -1,9 +1,11 @@
 package kr.co.lunatalk.domain.category.service;
 
 import kr.co.lunatalk.domain.category.domain.Category;
+import kr.co.lunatalk.domain.category.domain.CategoryStatus;
 import kr.co.lunatalk.domain.category.domain.CategoryVisibility;
 import kr.co.lunatalk.domain.category.dto.request.CategoryAddProductRequest;
 import kr.co.lunatalk.domain.category.dto.request.CategoryCreateRequest;
+import kr.co.lunatalk.domain.category.dto.request.CategoryUpdateRequest;
 import kr.co.lunatalk.domain.category.dto.response.CategoryAddProductResponse;
 import kr.co.lunatalk.domain.category.dto.response.CategoryCreateResponse;
 import kr.co.lunatalk.domain.category.repository.CategoryRepository;
@@ -13,7 +15,6 @@ import kr.co.lunatalk.domain.product.domain.ProductVisibility;
 import kr.co.lunatalk.domain.product.repository.ProductRepository;
 import kr.co.lunatalk.global.exception.CustomException;
 import kr.co.lunatalk.global.exception.ErrorCode;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,7 +31,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 
@@ -114,6 +114,31 @@ class CategoryServiceTest {
 		assertThatThrownBy(() -> categoryService.addProduct(1L, request))
 			.isInstanceOf(CustomException.class)
 			.hasMessage(ErrorCode.CATEGORY_NOT_FOUND.getMessage());
+	}
+
+	@Test
+	void 상품_업데이트() {
+		//given
+		CategoryUpdateRequest request = new CategoryUpdateRequest("변경", CategoryVisibility.HIDDEN);
+		given(categoryRepository.findById(anyLong())).willReturn(Optional.of(testCategory));
+
+		//when
+		categoryService.update(1L, request);
+
+		//then
+		assertThat(testCategory.getName()).isEqualTo("변경");
+		assertThat(testCategory.getVisibility()).isEqualTo(CategoryVisibility.HIDDEN);
+	}
+
+	@Test
+	void 상품_삭제() {
+		//given
+		given(categoryRepository.findById(anyLong())).willReturn(Optional.of(testCategory));
+		//when
+		categoryService.delete(1L);
+		//then
+		assertThat(testCategory.getVisibility()).isEqualTo(CategoryVisibility.HIDDEN);
+		assertThat(testCategory.getStatus()).isEqualTo(CategoryStatus.DELETED);
 	}
 
 }

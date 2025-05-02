@@ -15,7 +15,7 @@ public record ProductFindResponse(
 ) {
 
 	public static ProductFindResponse from(FindProductDto findProductDto) {
-		List<String> colors = findProductDto.colors().stream()
+		List<String> colors = findProductDto.product().getProductColor().stream()
 			.map(ProductColor::getColor)
 			.toList();
 
@@ -24,9 +24,9 @@ public record ProductFindResponse(
 			.toList();
 
 		return new ProductFindResponse(
-			findProductDto.productId(),
-			findProductDto.name(),
-			findProductDto.price(),
+			findProductDto.product().getId(),
+			findProductDto.product().getName(),
+			findProductDto.product().getPrice(),
 			colors,
 			images
 		);

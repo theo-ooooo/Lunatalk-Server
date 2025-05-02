@@ -1,6 +1,7 @@
 package kr.co.lunatalk.domain.product.domain;
 
 import jakarta.persistence.*;
+import kr.co.lunatalk.domain.category.domain.Category;
 import kr.co.lunatalk.domain.common.domain.BaseTimeEntity;
 import kr.co.lunatalk.domain.product.dto.request.ProductUpdateRequest;
 import lombok.AccessLevel;
@@ -40,6 +41,10 @@ public class Product extends BaseTimeEntity {
 
 	@OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<ProductColor> productColor = new ArrayList<>();
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "category_id")
+	private Category category;
 
 	@Builder(access = AccessLevel.PRIVATE)
 	public Product(String name, Long price, Integer quantity, ProductStatus status, ProductVisibility visibility) {
@@ -91,5 +96,9 @@ public class Product extends BaseTimeEntity {
 			this.status = ProductStatus.DELETED;
 
 		}
+	}
+
+	public void setCategory(Category category) {
+		this.category = category;
 	}
 }

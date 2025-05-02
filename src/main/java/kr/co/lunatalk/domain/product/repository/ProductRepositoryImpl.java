@@ -1,12 +1,8 @@
 package kr.co.lunatalk.domain.product.repository;
 
-import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import kr.co.lunatalk.domain.image.domain.Image;
-import kr.co.lunatalk.domain.image.domain.QImage;
 import kr.co.lunatalk.domain.product.domain.*;
-import kr.co.lunatalk.domain.product.dto.FindProductDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -23,40 +19,39 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 	private final JPAQueryFactory queryFactory;
 
 	@Override
-	public FindProductDto findProductById(Long productId) {
-		Product product = fetchProduct(productId);
-		if (product == null) {
-			return null;
-		}
-
-		List<ProductColor> colors = fetchColorsByProductId(productId);
-		List<Image> images = fetchImagesByReferenceId(productId);
-
-		return FindProductDto.from(product, colors, images);
-	}
-
-	private Product fetchProduct(Long productId) {
+	public Product findProductById(Long productId) {
 		return queryFactory
 			.selectFrom(product)
-			.where(
-				product.id.eq(productId)
-					.and(product.status.eq(ProductStatus.ACTIVE)
-					.and(product.visibility.eq(ProductVisibility.VISIBLE)))
-			)
+			.leftJoin(product.productColor).fetchJoin()
+			.where(product.id.eq(productId)
+				.and(isActiveAndVisible()))
 			.fetchOne();
 	}
 
-	private List<ProductColor> fetchColorsByProductId(Long productId) {
+	@Override
+	public List<Product> findAllProductsByProductIds(List<Long> productIds) {
 		return queryFactory
-			.selectFrom(productColor)
-			.where(productColor.product.id.eq(productId))
-			.fetch();
+			.selectFrom(product)
+			.where(
+				product.id.in(productIds)
+					.and(isActiveAndVisible())
+			).fetch();
 	}
 
-	private List<Image> fetchImagesByReferenceId(Long referenceId) {
+	@Override
+	public List<Product> findAllProductDtoByIdsWithJoin(List<Long> productIds) {
 		return queryFactory
-			.selectFrom(image)
-			.where(image.referenceId.eq(referenceId))
-			.fetch();
+			.selectFrom(product)
+			.leftJoin(product.productColor, productColor)
+			.fetchJoin()
+			.where(
+				product.id.in(productIds)
+					.and(isActiveAndVisible())
+			).fetch();
+	}
+
+	private BooleanExpression isActiveAndVisible() {
+		return product.status.eq(ProductStatus.ACTIVE)
+			.and(product.visibility.eq(ProductVisibility.VISIBLE));
 	}
 }

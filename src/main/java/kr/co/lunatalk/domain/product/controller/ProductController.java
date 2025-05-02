@@ -27,7 +27,7 @@ public class ProductController {
 
 
 	@PostMapping("/create")
-	@PreAuthorize("hasRole('ADMIN')")
+//	@PreAuthorize("hasRole('ADMIN')")
 	public ProductCreateResponse create(@Valid @RequestBody ProductCreateRequest request) {
 		Product product = productService.save(request);
 		return ProductCreateResponse.from(product);

@@ -1,20 +1,27 @@
 package kr.co.lunatalk.domain.category.service;
 
 import kr.co.lunatalk.domain.category.domain.Category;
+import kr.co.lunatalk.domain.category.dto.request.CategoryAddProductRequest;
 import kr.co.lunatalk.domain.category.dto.request.CategoryCreateRequest;
+import kr.co.lunatalk.domain.category.dto.response.CategoryAddProductResponse;
 import kr.co.lunatalk.domain.category.dto.response.CategoryCreateResponse;
 import kr.co.lunatalk.domain.category.repository.CategoryRepository;
+import kr.co.lunatalk.domain.product.domain.Product;
+import kr.co.lunatalk.domain.product.repository.ProductRepository;
 import kr.co.lunatalk.global.exception.CustomException;
 import kr.co.lunatalk.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class CategoryService {
 	private final CategoryRepository categoryRepository;
+	private final ProductRepository productRepository;
 
 
 	public CategoryCreateResponse create(CategoryCreateRequest request) {
@@ -29,12 +36,21 @@ public class CategoryService {
 		return CategoryCreateResponse.of(category);
 	}
 
+	public CategoryAddProductResponse addProduct(Long categoryId, CategoryAddProductRequest request) {
+		Category findCategory = categoryRepository.findWithProducts(categoryId)
+			.orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
 
-	@Transactional(readOnly = true)
-	public Category findByName(String name) {
-		return categoryRepository.findByName(name).orElseThrow(
-			() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND)
-		);
+		// 기존 연관 끊기.
+		productRepository.bulkClearCategory(findCategory.getId());
+
+		// 전달 받은 상품 조회. IN
+		List<Product> products = productRepository.findAllProductsByProductIds(request.productIds());
+
+		// 연결.
+		// TODO: 현재 update가 단건으로 날아가는데.. 한 쿼리로 바꿔야함.
+		products.forEach(findCategory::addProduct);
+
+		return CategoryAddProductResponse.of(findCategory, products);
 	}
 
 	@Transactional(readOnly = true)

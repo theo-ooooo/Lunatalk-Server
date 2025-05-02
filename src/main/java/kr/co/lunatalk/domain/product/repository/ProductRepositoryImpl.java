@@ -35,13 +35,22 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 		return FindProductDto.from(product, colors, images);
 	}
 
+	@Override
+	public List<Product> findAllProductsByProductIds(List<Long> productIds) {
+		return queryFactory
+			.selectFrom(product)
+			.where(
+				product.id.in(productIds)
+					.and(isActiveAndVisible())
+			).fetch();
+	}
+
 	private Product fetchProduct(Long productId) {
 		return queryFactory
 			.selectFrom(product)
 			.where(
 				product.id.eq(productId)
-					.and(product.status.eq(ProductStatus.ACTIVE)
-					.and(product.visibility.eq(ProductVisibility.VISIBLE)))
+					.and(isActiveAndVisible())
 			)
 			.fetchOne();
 	}
@@ -58,5 +67,10 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 			.selectFrom(image)
 			.where(image.referenceId.eq(referenceId))
 			.fetch();
+	}
+
+	private BooleanExpression isActiveAndVisible() {
+		return product.status.eq(ProductStatus.ACTIVE)
+			.and(product.visibility.eq(ProductVisibility.VISIBLE));
 	}
 }

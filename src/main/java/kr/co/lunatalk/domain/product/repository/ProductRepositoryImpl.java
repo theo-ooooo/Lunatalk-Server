@@ -1,12 +1,8 @@
 package kr.co.lunatalk.domain.product.repository;
 
-import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import kr.co.lunatalk.domain.image.domain.Image;
-import kr.co.lunatalk.domain.image.domain.QImage;
 import kr.co.lunatalk.domain.product.domain.*;
-import kr.co.lunatalk.domain.product.dto.FindProductDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -23,16 +19,13 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 	private final JPAQueryFactory queryFactory;
 
 	@Override
-	public FindProductDto findProductById(Long productId) {
-		Product product = fetchProduct(productId);
-		if (product == null) {
-			return null;
-		}
-
-		List<ProductColor> colors = fetchColorsByProductId(productId);
-		List<Image> images = fetchImagesByReferenceId(productId);
-
-		return FindProductDto.from(product, colors, images);
+	public Product findProductById(Long productId) {
+		return queryFactory
+			.selectFrom(product)
+			.leftJoin(product.productColor).fetchJoin()
+			.where(product.id.eq(productId)
+				.and(isActiveAndVisible()))
+			.fetchOne();
 	}
 
 	@Override
@@ -45,27 +38,22 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 			).fetch();
 	}
 
-	private Product fetchProduct(Long productId) {
+	@Override
+	public List<Product> findAllProductDtoByIdsWithJoin(List<Long> productIds) {
 		return queryFactory
 			.selectFrom(product)
+			.leftJoin(product.productColor, productColor)
+			.fetchJoin()
 			.where(
-				product.id.eq(productId)
+				product.id.in(productIds)
 					.and(isActiveAndVisible())
-			)
-			.fetchOne();
+			).fetch();
 	}
 
 	private List<ProductColor> fetchColorsByProductId(Long productId) {
 		return queryFactory
 			.selectFrom(productColor)
 			.where(productColor.product.id.eq(productId))
-			.fetch();
-	}
-
-	private List<Image> fetchImagesByReferenceId(Long referenceId) {
-		return queryFactory
-			.selectFrom(image)
-			.where(image.referenceId.eq(referenceId))
 			.fetch();
 	}
 

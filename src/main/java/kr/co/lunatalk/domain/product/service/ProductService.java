@@ -1,5 +1,7 @@
 package kr.co.lunatalk.domain.product.service;
 
+import kr.co.lunatalk.domain.image.domain.Image;
+import kr.co.lunatalk.domain.image.repository.ImageRepository;
 import kr.co.lunatalk.domain.product.domain.Product;
 import kr.co.lunatalk.domain.product.domain.ProductColor;
 import kr.co.lunatalk.domain.product.dto.FindProductDto;
@@ -13,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -20,6 +23,7 @@ import java.util.Optional;
 @Transactional
 public class ProductService {
 	private final ProductRepository productRepository;
+	private final ImageRepository imageRepository;
 
 	public Product save(ProductCreateRequest request) {
 		// 상품 저장.
@@ -52,12 +56,15 @@ public class ProductService {
 
 	@Transactional(readOnly = true)
 	public ProductFindResponse findProductOne(Long productId) {
-		FindProductDto productOne = productRepository.findProductById(productId);
+		Product findProduct = productRepository.findProductById(productId);
 
-		if (productOne == null) {
+		if (findProduct == null) {
 			throw new CustomException(ErrorCode.PRODUCT_NOT_FOUND);
 		}
 
-		return ProductFindResponse.from(productOne);
+		List<Image> images = imageRepository.fetchProductImagesByProductId(findProduct.getId());
+
+
+		return ProductFindResponse.from(FindProductDto.from(findProduct, images));
 	}
 }

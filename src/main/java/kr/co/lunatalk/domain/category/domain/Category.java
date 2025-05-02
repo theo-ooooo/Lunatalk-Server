@@ -26,11 +26,11 @@ public class Category extends BaseTimeEntity {
 	private String name;
 
 	@Enumerated(EnumType.STRING)
-	@ColumnDefault("'active'")
+	@ColumnDefault("'ACTIVE'")
 	private CategoryStatus status;
 
 	@Enumerated(EnumType.STRING)
-	@ColumnDefault("'visible'")
+	@ColumnDefault("'VISIBLE'")
 	private CategoryVisibility visibility;
 
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "category")

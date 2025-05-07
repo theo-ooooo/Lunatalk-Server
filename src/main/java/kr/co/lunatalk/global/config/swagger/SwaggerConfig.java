@@ -24,8 +24,13 @@ public class SwaggerConfig {
 
 
 		return new OpenAPI()
+			.addSecurityItem(securityRequirement())
 			.components(authSetting())
 			.info(swaggerInfo());
+	}
+
+	private SecurityRequirement securityRequirement() {
+		return new SecurityRequirement().addList("accessToken");
 	}
 
 	private Info swaggerInfo() {
@@ -43,7 +48,7 @@ public class SwaggerConfig {
 	private Components authSetting() {
 		return new Components()
 			.addSecuritySchemes(
-				"access-token",
+				"accessToken",
 				new SecurityScheme()
 					.type(Type.HTTP)
 					.scheme("bearer")

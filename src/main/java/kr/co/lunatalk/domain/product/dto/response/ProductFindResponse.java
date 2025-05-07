@@ -1,5 +1,6 @@
 package kr.co.lunatalk.domain.product.dto.response;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import kr.co.lunatalk.domain.image.dto.FindImageDto;
 import kr.co.lunatalk.domain.product.domain.ProductColor;
 import kr.co.lunatalk.domain.product.dto.FindProductDto;
@@ -7,10 +8,15 @@ import kr.co.lunatalk.domain.product.dto.FindProductDto;
 import java.util.List;
 
 public record ProductFindResponse(
+	@Schema(description = "상품 ID")
 	Long productId,
+	@Schema(description = "상품 이름")
 	String name,
+	@Schema(description = "상품 가격")
 	Long price,
+	@Schema(description = "상품 색상들")
 	List<String> colors,
+	@Schema(description = "상품 이미지")
 	List<FindImageDto> images
 ) {
 

@@ -1,0 +1,23 @@
+spring:
+  config:
+    activate:
+      on-profile: "docs"
+
+springdoc:
+  swagger-ui:
+    default-consumes-media-type: application/json;charset=UTF-8
+    default-produces-media-type: application/json;charset=UTF-8
+    enabled: true
+    groups-order: ASC
+    syntax-highlight:
+      theme: none
+    tags-sorter: alpha
+    operations-sorter: alpha
+    disable-swagger-default-url: true
+    display-request-duration: true
+    doc-expansion: none
+    urls-primary-name: LUNATALK API DOCS
+
+swagger:
+  user: ${SWAGGER_USER:lunatalk}
+  password: ${SWAGGER_PASSWORD:lunatalk01}

@@ -60,7 +60,6 @@ public class WebSecurityConfig {
 	}
 
 	@Bean
-	@Order(1)
 	public SecurityFilterChain swaggerFilterChain(HttpSecurity http) throws Exception {
 		defaultFilterChain(http);
 

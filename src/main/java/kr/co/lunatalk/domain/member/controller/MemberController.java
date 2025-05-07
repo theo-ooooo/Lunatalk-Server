@@ -1,5 +1,7 @@
 package kr.co.lunatalk.domain.member.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.co.lunatalk.domain.member.domain.Member;
 import kr.co.lunatalk.domain.member.domain.Profile;
 import kr.co.lunatalk.domain.member.dto.response.MemberInfoResponse;
@@ -13,11 +15,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/members")
 @RequiredArgsConstructor
+@Tag(name = "회원", description = "회원 관련 API")
 public class MemberController {
 	private final MemberService memberService;
 
-
 	@GetMapping("/me")
+	@Operation(summary = "나의 회원 조회", description = "현재 로그인된 회원을 조회합니다.")
 	public MemberInfoResponse myInformation() {
 		return memberService.myInformation();
 	}

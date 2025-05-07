@@ -15,7 +15,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 public class GlobalResponseAdvice implements ResponseBodyAdvice<Object> {
 	@Override
 	public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
-		return true;
+		return !returnType.getDeclaringClass().getPackageName().contains("springdoc");
 	}
 
 	@Override
@@ -27,6 +27,7 @@ public class GlobalResponseAdvice implements ResponseBodyAdvice<Object> {
 		ServerHttpRequest request,
 		ServerHttpResponse response) {
 		HttpServletResponse httpResponse = ((ServletServerHttpResponse) response).getServletResponse();
+
 
 		int status = httpResponse.getStatus();
 		// 유효한 status가 맞는지.

@@ -9,3 +9,4 @@ spring:
       - actuator
       - redis
       - aws
+      - docs

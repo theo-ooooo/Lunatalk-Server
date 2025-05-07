@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ROLE_ADMIN')")
+@PreAuthorize("hasRole('ADMIN')")
 @Tag(name = "이미지 업로드/삭제", description = "이미지 관련 API")
 public class ImageController {
 	private final ImageService imageService;

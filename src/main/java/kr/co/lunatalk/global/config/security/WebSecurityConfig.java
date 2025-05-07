@@ -1,8 +1,10 @@
 package kr.co.lunatalk.global.config.security;
 
 import kr.co.lunatalk.domain.member.domain.MemberRole;
+import kr.co.lunatalk.global.common.constants.UrlConstants;
 import kr.co.lunatalk.global.filter.JwtAuthenticationFilter;
 import kr.co.lunatalk.global.security.JwtTokenProvider;
+import kr.co.lunatalk.global.util.SpringEnvironmentUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -20,7 +22,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
+
+import java.util.List;
 
 import static org.springframework.security.config.Customizer.*;
 
@@ -32,6 +39,7 @@ public class WebSecurityConfig {
 	private final JwtTokenProvider jwtTokenProvider;
 	private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 	private final CustomAccessDeniedHandler customAccessDeniedHandler;
+	private final SpringEnvironmentUtil springEnvironmentUtil;
 	private static final String[] SwaggerPatterns = {
 		"/swagger-resources/**", "/swagger-ui/**", "/v3/api-docs/**",
 	};
@@ -100,6 +108,29 @@ public class WebSecurityConfig {
 			.logout(AbstractHttpConfigurer::disable)
 			.csrf(AbstractHttpConfigurer::disable)
 			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+	}
+
+	@Bean
+	public CorsConfigurationSource corsConfigurationSource() {
+		CorsConfiguration configuration = new CorsConfiguration();
+
+		if(springEnvironmentUtil.isProdProfile()) {
+			configuration.addAllowedOriginPattern(UrlConstants.PROD_SERVER_URL.getValue());
+		}
+
+		if(springEnvironmentUtil.isDevProfile()) {
+			configuration.addAllowedOriginPattern(UrlConstants.DEV_SERVER_URL.getValue());
+		}
+
+		configuration.addAllowedHeader("*");
+		configuration.addAllowedMethod("*");
+		configuration.setAllowCredentials(true);
+
+
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", configuration);
+
+		return source;
 	}
 
 	@Bean

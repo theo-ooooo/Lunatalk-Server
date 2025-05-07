@@ -72,7 +72,7 @@ public class ImageService {
 		findImage.deletedImage();
 
 		// 프로덕션 환경이면, S3에 이미지 지우지 않는다.
-		if(!springEnvironmentUtil.getProdProfile()) {
+		if(!springEnvironmentUtil.isProdProfile()) {
 			deleteObject(findImage);
 		}
 	}

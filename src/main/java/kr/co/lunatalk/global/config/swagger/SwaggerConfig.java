@@ -6,13 +6,23 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.servers.Server;
+import kr.co.lunatalk.global.common.constants.UrlConstants;
+import kr.co.lunatalk.global.util.SpringEnvironmentUtil;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.List;
 
 import static io.swagger.v3.oas.models.security.SecurityScheme.*;
 
 @Configuration
+@RequiredArgsConstructor
 public class SwaggerConfig {
+
+	private final SpringEnvironmentUtil springEnvironmentUtil;
+
 	@Bean
 	public OpenAPI openAPI() {
 
@@ -24,9 +34,23 @@ public class SwaggerConfig {
 
 
 		return new OpenAPI()
+				.servers(swaggerServer())
 			.addSecurityItem(securityRequirement())
 			.components(authSetting())
 			.info(swaggerInfo());
+	}
+
+	private List<Server> swaggerServer() {
+		return List.of(new Server().url(getServerUrl()).description("LUNATALK API"));
+	}
+
+
+	private String getServerUrl() {
+		return switch (springEnvironmentUtil.getCurrentProfile()) {
+			case "dev" -> UrlConstants.DEV_SERVER_URL.getValue();
+			case "prod" -> UrlConstants.PROD_SERVER_URL.getValue();
+			default -> UrlConstants.LOCAL_SERVER_URL.getValue();
+		};
 	}
 
 	private SecurityRequirement securityRequirement() {

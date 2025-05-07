@@ -27,7 +27,7 @@ public class S3Config {
 		log.info("S3Properties : {}", properties);
 		S3ClientBuilder builder = S3Client.builder().region(Region.of(properties.region()));
 
-		if(springEnvironmentUtil.getLocalProfile()) {
+		if(springEnvironmentUtil.isLocalProfile()) {
 			builder.credentialsProvider(ProfileCredentialsProvider.create(properties.profile()));
 		} else {
 			builder.credentialsProvider(DefaultCredentialsProvider.create());
@@ -40,7 +40,7 @@ public class S3Config {
 	public S3Presigner s3Presigner() {
 		S3Presigner.Builder builder = S3Presigner.builder().region(Region.of(properties.region()));
 
-		if(springEnvironmentUtil.getLocalProfile()) {
+		if(springEnvironmentUtil.isLocalProfile()) {
 			builder.credentialsProvider(ProfileCredentialsProvider.create(properties.profile()));
 		} else {
 			builder.credentialsProvider(DefaultCredentialsProvider.create());

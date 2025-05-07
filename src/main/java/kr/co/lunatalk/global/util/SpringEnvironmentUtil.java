@@ -22,15 +22,15 @@ public class SpringEnvironmentUtil {
 			.orElse(LOCAL);
 	}
 
-	public boolean getProdProfile() {
+	public boolean isProdProfile() {
 		return getActiveProfiles().anyMatch(PROD::equals);
 	}
 
-	public boolean getDevProfile() {
+	public boolean isDevProfile() {
 		return getActiveProfiles().anyMatch(DEV::equals);
 	}
 
-	public boolean getLocalProfile() {
+	public boolean isLocalProfile() {
 		return getActiveProfiles().anyMatch(LOCAL::equals);
 	}
 

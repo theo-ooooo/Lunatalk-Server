@@ -89,7 +89,7 @@ public class OrderService {
 	}
 
 	@Transactional(readOnly = true)
-	private boolean isMyOrder(Order order) {
+	public boolean isMyOrder(Order order) {
 		Member currentMember = memberUtil.getCurrentMember();
 
 		return order.getMember().getId().equals(currentMember.getId());

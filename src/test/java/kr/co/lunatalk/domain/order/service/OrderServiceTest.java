@@ -28,6 +28,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -83,9 +84,11 @@ class OrderServiceTest {
 		assertNotNull(response.orderNumber());
 		assertNotNull(response.orderId());
 
-		Order order = orderRepository.findByOrderWithItems(response.orderNumber());
-		assertEquals(1, order.getOrderItems().size());
-		assertEquals(5000L * 2, order.getTotalPrice());
+		Optional<Order> order = orderRepository.findByOrderWithItems(response.orderNumber());
+
+		assertNotNull(order.get());
+		assertEquals(1, order.get().getOrderItems().size());
+		assertEquals(5000L * 2, order.get().getTotalPrice());
 	}
 
 	@Test

@@ -17,7 +17,7 @@ public class SecurityUtil {
 		if (principal instanceof PrincipalDetails) {
 			return Long.parseLong(((PrincipalDetails) principal).getUsername());
 		}
-		throw new CustomException(ErrorCode.AUTH_SERVER_ERROR);
+		throw new CustomException(ErrorCode.UNAUTHORIZED);
 	}
 
 	public String getCurrentMemberRole() {
@@ -26,6 +26,6 @@ public class SecurityUtil {
 		return authentication.getAuthorities().stream()
 			.map(GrantedAuthority::getAuthority)
 			.findFirst()
-			.orElseThrow(() -> new CustomException(ErrorCode.AUTH_SERVER_ERROR));
+			.orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED));
 	}
 }

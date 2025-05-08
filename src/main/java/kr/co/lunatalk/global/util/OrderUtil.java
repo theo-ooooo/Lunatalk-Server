@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter;
 @Component
 public class OrderUtil {
 	private static final SecureRandom random = new SecureRandom();
-	private static final String ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYXZ";
+	private static final String ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	private static final String ORDER_NUMBER_PREFIX = "L";
 
 	public String generateOrderNumber() {

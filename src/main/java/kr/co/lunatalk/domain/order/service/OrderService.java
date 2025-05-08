@@ -74,6 +74,7 @@ public class OrderService {
 		return OrderCreateResponse.of(order.getOrderNumber(), order.getId());
 	}
 
+	@Transactional(readOnly = true)
 	public OrderFIndResponse findOrder(String orderNumber) {
 		Order findOrder = orderRepository.findByOrderWithItems(orderNumber);
 
@@ -87,6 +88,7 @@ public class OrderService {
 		return OrderFIndResponse.from(findOrder);
 	}
 
+	@Transactional(readOnly = true)
 	private boolean isMyOrder(Order order) {
 		Member currentMember = memberUtil.getCurrentMember();
 

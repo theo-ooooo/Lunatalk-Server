@@ -1,4 +1,4 @@
-# 🛍️ Lunatalk Backend (Spring Boot 3.4.x / Java 21)
+# 🛍️ Lunatalk Server
 
 **Lunatalk**는 Laravel로 운영되던 쇼핑몰 백엔드를 Java 21과 Spring Boot 3.4.x 기반으로 전면 재구축한 프로젝트입니다.  
 JWT 기반 인증, 결제 연동, AWS 인프라, CI/CD 자동화 등 실제 서비스 수준의 기능을 포함하고 있으며, 기능 단위로 모듈화된 레이어드 아키텍처 구조로 구성되어 있습니다.

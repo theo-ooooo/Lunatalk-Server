@@ -12,7 +12,7 @@ public enum ErrorCode {
 	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류, 관리자에게 문의하세요"),
 	BAD_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
 	FORBIDDEN(HttpStatus.FORBIDDEN, "잘못된 접근 입니다."),
-
+	UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 실패했습니다."),
 	// Member
 	MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 회원입니다."),
 	MEMBER_EXISTS(HttpStatus.CONFLICT, "존재하는 회원입니다."),
@@ -37,6 +37,10 @@ public enum ErrorCode {
 	// Category
 	CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "카테고리를 찾을수 없습니다."),
 	CATEGORY_EXISTS(HttpStatus.CONFLICT, "이미 존재하는 카테고리 명 입니다."),
+
+
+	// Order
+	ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 주문은 찾을 수 없습니다."),
 	;
 	private HttpStatus httpStatus;
 	private String message;

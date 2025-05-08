@@ -2,6 +2,7 @@ package kr.co.lunatalk.domain.order.domain;
 
 import jakarta.persistence.*;
 import kr.co.lunatalk.domain.common.domain.BaseTimeEntity;
+import kr.co.lunatalk.domain.delivery.domain.Delivery;
 import kr.co.lunatalk.domain.member.domain.Member;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -34,6 +35,9 @@ public class Order extends BaseTimeEntity {
 
 	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<OrderItem> orderItems = new ArrayList<>();
+
+	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+	private List<Delivery> deliverys = new ArrayList<>();
 
 	@Builder(access = AccessLevel.PRIVATE)
 	public Order(String orderNumber, Member member, Long totalPrice, OrderStatus status) {

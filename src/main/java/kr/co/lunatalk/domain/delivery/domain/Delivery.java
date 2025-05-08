@@ -23,6 +23,7 @@ public class Delivery extends BaseTimeEntity {
 	private String addressLine1;
 	private String addressLine2;
 	private String zipcode;
+	private String message;
 
 	private String trackingNumber;
 
@@ -38,16 +39,17 @@ public class Delivery extends BaseTimeEntity {
 
 
 	@Builder(access = AccessLevel.PRIVATE)
-	public Delivery(Order order, String receiverName, String receiverPhone, String addressLine1, String addressLine2, String zipcode) {
+	public Delivery(Order order, String receiverName, String receiverPhone, String addressLine1, String addressLine2, String zipcode, String message) {
 		this.order = order;
 		this.receiverName = receiverName;
 		this.receiverPhone = receiverPhone;
 		this.addressLine1 = addressLine1;
 		this.addressLine2 = addressLine2;
 		this.zipcode = zipcode;
+		this.message = message;
 	}
 
-	public static Delivery createDelivery(Order order, String receiverName, String receiverPhone, String addressLine1, String addressLine2, String zipcode) {
+	public static Delivery createDelivery(Order order, String receiverName, String receiverPhone, String addressLine1, String addressLine2, String zipcode, String message) {
 		return Delivery.builder()
 			.order(order)
 			.receiverName(receiverName)
@@ -55,6 +57,7 @@ public class Delivery extends BaseTimeEntity {
 			.addressLine1(addressLine1)
 			.addressLine2(addressLine2)
 			.zipcode(zipcode)
+			.message(message)
 			.build();
 	}
 
@@ -64,5 +67,9 @@ public class Delivery extends BaseTimeEntity {
 
 	public void updateTrackingNumber(String trackingNumber) {
 		this.trackingNumber = trackingNumber;
+	}
+
+	public void updateCourierCompany(CourierCompany courierCompany) {
+		this.courierCompany = courierCompany;
 	}
 }

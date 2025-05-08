@@ -1,9 +1,12 @@
 package kr.co.lunatalk.domain.order.service;
 
+import kr.co.lunatalk.domain.delivery.domain.Delivery;
+import kr.co.lunatalk.domain.delivery.repository.DeliveryRepository;
 import kr.co.lunatalk.domain.member.domain.Member;
 import kr.co.lunatalk.domain.order.domain.OptionSnapshot;
 import kr.co.lunatalk.domain.order.domain.Order;
 import kr.co.lunatalk.domain.order.domain.OrderItem;
+import kr.co.lunatalk.domain.order.dto.request.OrderCreateDeliveryRequest;
 import kr.co.lunatalk.domain.order.dto.request.OrderCreateRequest;
 import kr.co.lunatalk.domain.order.dto.request.OrderProductRequest;
 import kr.co.lunatalk.domain.order.dto.response.OrderCreateResponse;
@@ -25,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class OrderService {
 	private final OrderRepository orderRepository;
 	private final ProductRepository productRepository;
+	private final DeliveryRepository deliveryRepository;
 	private final OrderUtil orderUtil;
 	private final MemberUtil memberUtil;
 
@@ -76,20 +80,48 @@ public class OrderService {
 
 	@Transactional(readOnly = true)
 	public OrderFIndResponse findOrder(String orderNumber) {
-		Order findOrder = orderRepository.findByOrderWithItems(orderNumber);
+		Order findOrder = findOrderWithOrderItemsByOrderNumber(orderNumber);
+
+
+
+		if(findOrder == null) {
+			throw new CustomException(ErrorCode.ORDER_NOT_FOUND);
+		}
 
 		// 검증 내꺼 주문이 맞는지
 		boolean isMyOrder = isMyOrder(findOrder);
 
-		if(findOrder == null ||  !isMyOrder) {
+		if(!isMyOrder) {
 			throw new CustomException(ErrorCode.ORDER_NOT_FOUND);
 		}
 
 		return OrderFIndResponse.from(findOrder);
 	}
 
-	@Transactional(readOnly = true)
-	public boolean isMyOrder(Order order) {
+
+
+	public void createDelivery(String OrderNumber, OrderCreateDeliveryRequest request) {
+		Order findOrder = findOrderWithOrderItemsByOrderNumber(OrderNumber);
+
+		if(findOrder == null) {
+			throw new CustomException(ErrorCode.ORDER_NOT_FOUND);
+		}
+		// 검증 내꺼 주문이 맞는지
+		boolean isMyOrder = isMyOrder(findOrder);
+		if(!isMyOrder) {
+			throw new CustomException(ErrorCode.ORDER_NOT_FOUND);
+		}
+		Delivery delivery = Delivery.createDelivery(findOrder, request.name(), request.phoneNumber(), request.address1(), request.address2(), request.zipCode(), request.message());
+
+		deliveryRepository.save(delivery);
+	}
+
+	private Order findOrderWithOrderItemsByOrderNumber(String orderNumber) {
+		return orderRepository.findByOrderWithItems(orderNumber);
+	}
+
+
+	private boolean isMyOrder(Order order) {
 		Member currentMember = memberUtil.getCurrentMember();
 
 		return order.getMember().getId().equals(currentMember.getId());

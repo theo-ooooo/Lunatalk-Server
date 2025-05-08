@@ -117,7 +117,9 @@ public class OrderService {
 	}
 
 	private Order findOrderWithOrderItemsByOrderNumber(String orderNumber) {
-		return orderRepository.findByOrderWithItems(orderNumber);
+		return orderRepository.findByOrderWithItems(orderNumber).orElseThrow(
+			() -> new CustomException(ErrorCode.ORDER_NOT_FOUND)
+		);
 	}
 
 

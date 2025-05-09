@@ -1,12 +1,14 @@
 package kr.co.lunatalk.domain.category.service;
 
 import kr.co.lunatalk.domain.category.domain.Category;
+import kr.co.lunatalk.domain.category.domain.CategoryStatus;
 import kr.co.lunatalk.domain.category.domain.CategoryVisibility;
 import kr.co.lunatalk.domain.category.dto.request.CategoryAddProductRequest;
 import kr.co.lunatalk.domain.category.dto.request.CategoryCreateRequest;
 import kr.co.lunatalk.domain.category.dto.request.CategoryUpdateRequest;
 import kr.co.lunatalk.domain.category.dto.response.CategoryAddProductResponse;
 import kr.co.lunatalk.domain.category.dto.response.CategoryCreateResponse;
+import kr.co.lunatalk.domain.category.dto.response.CategoryListResponse;
 import kr.co.lunatalk.domain.category.dto.response.CategoryProductResponse;
 import kr.co.lunatalk.domain.category.repository.CategoryRepository;
 import kr.co.lunatalk.domain.image.repository.ImageRepository;
@@ -68,8 +70,28 @@ public class CategoryService {
 		List<ProductFindResponse> allProducts = productService.findAllProducts(productIds);
 
 		return CategoryProductResponse.of(withProducts.getId(), withProducts.getName(), allProducts);
+	}
+
+	@Transactional(readOnly = true)
+	public List<CategoryListResponse> getCategoryList() {
+		List<Category> activeCategories = categoryRepository.findAllByStatus(CategoryStatus.ACTIVE);
+
+		return activeCategories.stream().map(CategoryListResponse::from).toList();
+
+	}
 
 
+	@Transactional(readOnly = true)
+	public List<CategoryProductResponse> getCategoryProducts() {
+		List<Category> allWithProducts = categoryRepository.findAllWithProducts();
+
+		return allWithProducts.stream().map(category -> {
+			List<Long> productIds = category.getProducts().stream().map(Product::getId).toList();
+
+			List<ProductFindResponse> allProducts = productService.findAllProducts(productIds);
+
+			return CategoryProductResponse.of(category.getId(), category.getName(), allProducts);
+		}).toList();
 	}
 
 	public CategoryAddProductResponse addProduct(Long categoryId, CategoryAddProductRequest request) {

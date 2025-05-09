@@ -8,6 +8,7 @@ import kr.co.lunatalk.domain.category.dto.request.CategoryCreateRequest;
 import kr.co.lunatalk.domain.category.dto.request.CategoryUpdateRequest;
 import kr.co.lunatalk.domain.category.dto.response.CategoryAddProductResponse;
 import kr.co.lunatalk.domain.category.dto.response.CategoryCreateResponse;
+import kr.co.lunatalk.domain.category.dto.response.CategoryListResponse;
 import kr.co.lunatalk.domain.category.dto.response.CategoryProductResponse;
 import kr.co.lunatalk.domain.category.service.CategoryService;
 import lombok.RequiredArgsConstructor;
@@ -16,12 +17,20 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/categories")
 @RequiredArgsConstructor
 @Tag(name = "카테고리 정보", description = "카테고리 관련 API")
 public class CategoryController {
 	private final CategoryService categoryService;
+
+	@GetMapping()
+	@Operation(summary = "카테고리 리스트", description = "카테고리 리스트를 전달합니다.")
+	public List<CategoryListResponse> getCategories() {
+		return categoryService.getCategoryList();
+	}
 
 	@GetMapping("/{id}/products")
 	@Operation(summary = "카테고리 별 상품 리스트", description = "카테고리 별 상품 리스트를 전달합니다.")
@@ -31,7 +40,7 @@ public class CategoryController {
 
 
 	@PostMapping("/create")
-	@PreAuthorize("hasRole('ADMIN')")
+//	@PreAuthorize("hasRole('ADMIN')")
 	@Operation(summary = "카테고리 생성", description = "카테고리를 생성합니다.")
 	public CategoryCreateResponse create(@Valid @RequestBody CategoryCreateRequest request) {
 		return categoryService.create(request);

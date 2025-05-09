@@ -39,13 +39,13 @@ public class CategoryController {
 
 
 	@PostMapping("/create")
-//	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize("hasRole('ADMIN')")
 	@Operation(summary = "카테고리 생성", description = "카테고리를 생성합니다.")
 	public CategoryCreateResponse create(@Valid @RequestBody CategoryCreateRequest request) {
 		return categoryService.create(request);
 	}
 
-	@GetMapping("{id}")
+	@GetMapping("/{id}")
 	@PreAuthorize("hasRole('ADMIN')")
 	@Operation(summary = "키텍리 개별 조회", description = "카테고리를 조회합니다.")
 	public CategoryResponse getOneCategory(@PathVariable Long id) {

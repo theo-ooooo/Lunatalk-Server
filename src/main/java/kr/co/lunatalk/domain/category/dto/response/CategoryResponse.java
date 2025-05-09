@@ -5,7 +5,7 @@ import kr.co.lunatalk.domain.category.domain.Category;
 import kr.co.lunatalk.domain.category.domain.CategoryStatus;
 import kr.co.lunatalk.domain.category.domain.CategoryVisibility;
 
-public record CategoryListResponse(
+public record CategoryResponse(
 	@Schema(description = "카테고리 ID")
 	Long categoryId,
 
@@ -19,7 +19,7 @@ public record CategoryListResponse(
 	CategoryVisibility visibility
 ) {
 
-	public static CategoryListResponse from(Category category) {
-		return new CategoryListResponse(category.getId(), category.getName(), category.getStatus(), category.getVisibility());
+	public static CategoryResponse from(Category category) {
+		return new CategoryResponse(category.getId(), category.getName(), category.getStatus(), category.getVisibility());
 	}
 }

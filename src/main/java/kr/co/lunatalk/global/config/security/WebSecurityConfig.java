@@ -6,6 +6,7 @@ import kr.co.lunatalk.global.filter.JwtAuthenticationFilter;
 import kr.co.lunatalk.global.security.JwtTokenProvider;
 import kr.co.lunatalk.global.util.SpringEnvironmentUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,6 +36,7 @@ import static org.springframework.security.config.Customizer.*;
 @EnableWebSecurity
 @RequiredArgsConstructor
 @EnableMethodSecurity(prePostEnabled = true)
+@Slf4j
 public class WebSecurityConfig {
 	private final JwtTokenProvider jwtTokenProvider;
 	private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
@@ -105,9 +107,10 @@ public class WebSecurityConfig {
 	private void defaultFilterChain(HttpSecurity http) throws Exception {
 		// form login disable
 		http.formLogin(AbstractHttpConfigurer::disable)
-			.logout(AbstractHttpConfigurer::disable)
-			.csrf(AbstractHttpConfigurer::disable)
-			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+				.logout(AbstractHttpConfigurer::disable)
+				.csrf(AbstractHttpConfigurer::disable)
+				.cors(withDefaults())
+				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 	}
 
 	@Bean
@@ -115,12 +118,19 @@ public class WebSecurityConfig {
 		CorsConfiguration configuration = new CorsConfiguration();
 
 		if(springEnvironmentUtil.isProdProfile()) {
-			configuration.addAllowedOriginPattern(UrlConstants.PROD_SERVER_URL.getValue());
+			configuration.addAllowedOriginPattern(UrlConstants.PROD_DOMAIN_URL.getValue());
+			configuration.addAllowedOriginPattern(UrlConstants.PROD_DOMAIN_ADMIN_URL.getValue());
 		}
 
 		if(springEnvironmentUtil.isDevProfile()) {
-			configuration.addAllowedOriginPattern(UrlConstants.DEV_SERVER_URL.getValue());
+			configuration.addAllowedOriginPattern(UrlConstants.DEV_DOMAIN_URL.getValue());
+			configuration.addAllowedOriginPattern(UrlConstants.DEV_DOMAIN_ADMIN_URL.getValue());
 		}
+
+		if(springEnvironmentUtil.isLocalProfile()) {
+			configuration.addAllowedOriginPattern(UrlConstants.LOCAL_DOMAIN_URL.getValue());
+		}
+
 
 		configuration.addAllowedHeader("*");
 		configuration.addAllowedMethod("*");

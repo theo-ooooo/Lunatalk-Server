@@ -41,6 +41,9 @@ public enum ErrorCode {
 
 	// Order
 	ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 주문은 찾을 수 없습니다."),
+
+	// Payment
+	PAYMENT_ALREADY_CLOSED(HttpStatus.CONFLICT, "이미 종료된 주문건입니다."),
 	;
 	private HttpStatus httpStatus;
 	private String message;

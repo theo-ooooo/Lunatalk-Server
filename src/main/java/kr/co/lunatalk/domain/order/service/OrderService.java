@@ -6,6 +6,7 @@ import kr.co.lunatalk.domain.member.domain.Member;
 import kr.co.lunatalk.domain.order.domain.OptionSnapshot;
 import kr.co.lunatalk.domain.order.domain.Order;
 import kr.co.lunatalk.domain.order.domain.OrderItem;
+import kr.co.lunatalk.domain.order.domain.OrderStatus;
 import kr.co.lunatalk.domain.order.dto.request.OrderCreateDeliveryRequest;
 import kr.co.lunatalk.domain.order.dto.request.OrderCreateRequest;
 import kr.co.lunatalk.domain.order.dto.request.OrderProductRequest;
@@ -111,9 +112,12 @@ public class OrderService {
 		if(!isMyOrder) {
 			throw new CustomException(ErrorCode.ORDER_NOT_FOUND);
 		}
+		// 배송지 등록
 		Delivery delivery = Delivery.createDelivery(findOrder, request.name(), request.phoneNumber(), request.address1(), request.address2(), request.zipCode(), request.message());
-
 		deliveryRepository.save(delivery);
+
+		// 주문 상태 변경
+		findOrder.updateStatus(OrderStatus.PAYMENT_PENDING);
 	}
 
 	private Order findOrderWithOrderItemsByOrderNumber(String orderNumber) {

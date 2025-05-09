@@ -7,7 +7,9 @@ import kr.co.lunatalk.domain.member.domain.Profile;
 import kr.co.lunatalk.domain.member.dto.response.MemberInfoResponse;
 import kr.co.lunatalk.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,6 +25,14 @@ public class MemberController {
 	@Operation(summary = "나의 회원 조회", description = "현재 로그인된 회원을 조회합니다.")
 	public MemberInfoResponse myInformation() {
 		return memberService.myInformation();
+	}
+
+
+	@GetMapping()
+	@PreAuthorize("hasRole('ADMIN')")
+	@Operation(summary = "전체 회원 조회", description = "전체 회원을 조회합니다.")
+	public void getMembers(Pageable pageable) {
+
 	}
 
 }

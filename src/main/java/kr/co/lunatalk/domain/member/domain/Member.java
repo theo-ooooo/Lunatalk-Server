@@ -31,27 +31,34 @@ public class Member extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private MemberRole role;
 
+	private String phone;
+	private String email;
+
     private LocalDateTime lastLoginAt;
 
     @Builder(access = AccessLevel.PRIVATE)
-    public Member(String username, String password, Profile profile, MemberStatus status, MemberRole role, LocalDateTime lastLoginAt) {
+    public Member(String username, String password, Profile profile, MemberStatus status, MemberRole role, LocalDateTime lastLoginAt, String phone, String email) {
         this.username = username;
         this.password = password;
         this.profile = profile;
         this.status = status;
         this.role = role;
         this.lastLoginAt = lastLoginAt;
+		this.phone = phone;
+		this.email = email;
     }
 
-    public static Member createMember(String username, String password, Profile profile) {
-        return Member.builder()
-                .username(username)
-                .password(password)
-				.profile(profile)
-                .role(MemberRole.USER)
-                .status(MemberStatus.NORMAL)
-                .lastLoginAt(LocalDateTime.now())
-                .build();
+    public static Member createMember(String username, String password, Profile profile, String phone, String email) {
+		return Member.builder()
+			.username(username)
+			.password(password)
+			.profile(profile)
+			.role(MemberRole.USER)
+			.status(MemberStatus.NORMAL)
+			.email(email)
+			.phone(phone)
+			.lastLoginAt(LocalDateTime.now())
+			.build();
     }
 
     public void updateProfile(Profile profile) {

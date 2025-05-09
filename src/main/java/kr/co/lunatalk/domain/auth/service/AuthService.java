@@ -41,7 +41,13 @@ public class AuthService {
 			throw new CustomException(ErrorCode.MEMBER_EXISTS);
 		}
 
-		Member member = Member.createMember(request.username(), encodePassword(request.password()), Profile.of("", ""));
+		Member member = Member.createMember(
+			request.username(),
+			encodePassword(request.password()),
+			Profile.of("", ""),
+			request.phone(),
+			request.email()
+		);
 		memberRepository.save(member);
 
 		TokenResponse token = getTokenResponse(member);

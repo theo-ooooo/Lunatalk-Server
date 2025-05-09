@@ -38,7 +38,8 @@ class DeliveryRepositoryTest {
 
 	@BeforeEach
 	void setUp() {
-		Member member = Member.createMember("test", "1234", Profile.of("test", "test"));
+		Member member = Member.createMember("test", "1234", Profile.of("test", "test"),	"01012341234",
+			"kkwondev@gmail.com");
 		memberRepository.save(member); // ✅ 먼저 저장
 
 		testOrder = Order.createOrder("abcdef", member, 10L);

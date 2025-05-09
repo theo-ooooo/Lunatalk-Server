@@ -56,7 +56,13 @@ class AuthServiceTest {
 	void 회원가입() {
 		TokenResponse tempTokenPair = new TokenResponse("accessToken", "refreshToken");
 
-		Member newMember = Member.createMember("username", "password", Profile.of("", ""));
+		Member newMember = Member.createMember(
+			"username",
+			"password",
+			Profile.of("", ""),
+			"01012341234",
+			"kkwondev@gmail.com"
+		);
 
 
 		when(memberRepository.findByUsername("username")).thenReturn(Optional.empty());
@@ -72,7 +78,8 @@ class AuthServiceTest {
 
 	@Test
 	void 로그인() {
-		Member member = Member.createMember("login", "password", Profile.of("", ""));
+		Member member = Member.createMember("login", "password", Profile.of("", ""),	"01012341234",
+			"kkwondev@gmail.com");
 		when(memberRepository.findByUsername("login")).thenReturn(Optional.of(member));
 
 //		when(passwordEncoder.matches(anyString(), anyString())).thenReturn(true);
@@ -88,7 +95,8 @@ class AuthServiceTest {
 
 	@Test
 	void 탈퇴_기능() {
-		Member member = Member.createMember("withdraw", "password", Profile.of("", ""));
+		Member member = Member.createMember("withdraw", "password", Profile.of("", ""),	"01012341234",
+			"kkwondev@gmail.com");
 
 		when(memberUtil.getCurrentMember()).thenReturn(member);
 
@@ -112,7 +120,8 @@ class AuthServiceTest {
 		String rawPassword = "wrong-password"; // 로그인 요청 비번
 		String encodedPassword = passwordEncoder.encode("real-password"); // 저장된 비번 (암호화)
 
-		Member member = Member.createMember("loginUser", encodedPassword, Profile.of("", ""));
+		Member member = Member.createMember("loginUser", encodedPassword, Profile.of("", ""),	"01012341234",
+			"kkwondev@gmail.com");
 
 		when(memberRepository.findByUsername("loginUser")).thenReturn(Optional.of(member));
 		// when & then

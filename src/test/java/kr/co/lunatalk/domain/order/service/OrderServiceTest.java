@@ -55,7 +55,13 @@ class OrderServiceTest {
 
 	@BeforeEach
 	void setup() {
-		member = Member.createMember("testuser", "1234", Profile.of("테스트닉", "img"));
+		member = Member.createMember(
+			"testuser",
+			"1234",
+			Profile.of("테스트닉", "img"),
+			"01012341234",
+			"kkwondev@gmail.com"
+		);
 		memberRepository.save(member);
 
 		product = Product.createProduct("테스트", 5000L, 1, ProductStatus.ACTIVE, ProductVisibility.VISIBLE);

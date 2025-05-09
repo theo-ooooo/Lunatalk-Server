@@ -8,10 +8,9 @@ import kr.co.lunatalk.domain.category.dto.request.CategoryCreateRequest;
 import kr.co.lunatalk.domain.category.dto.request.CategoryUpdateRequest;
 import kr.co.lunatalk.domain.category.dto.response.CategoryAddProductResponse;
 import kr.co.lunatalk.domain.category.dto.response.CategoryCreateResponse;
-import kr.co.lunatalk.domain.category.dto.response.CategoryListResponse;
 import kr.co.lunatalk.domain.category.dto.response.CategoryProductResponse;
+import kr.co.lunatalk.domain.category.dto.response.CategoryResponse;
 import kr.co.lunatalk.domain.category.repository.CategoryRepository;
-import kr.co.lunatalk.domain.image.repository.ImageRepository;
 import kr.co.lunatalk.domain.product.domain.Product;
 import kr.co.lunatalk.domain.product.dto.response.ProductFindResponse;
 import kr.co.lunatalk.domain.product.repository.ProductRepository;
@@ -73,11 +72,19 @@ public class CategoryService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<CategoryListResponse> getCategoryList() {
+	public List<CategoryResponse> getCategoryList() {
 		List<Category> activeCategories = categoryRepository.findAllByStatus(CategoryStatus.ACTIVE);
 
-		return activeCategories.stream().map(CategoryListResponse::from).toList();
+		return activeCategories.stream().map(CategoryResponse::from).toList();
+	}
 
+
+	@Transactional(readOnly = true)
+	public CategoryResponse getOneCategory(Long categoryId) {
+		Category category = categoryRepository.findByIdAndStatus(categoryId, CategoryStatus.ACTIVE)
+			.orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
+
+		return CategoryResponse.from(category);
 	}
 
 

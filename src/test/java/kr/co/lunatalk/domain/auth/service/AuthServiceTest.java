@@ -69,7 +69,7 @@ class AuthServiceTest {
 		when(memberRepository.save(any(Member.class))).thenReturn(newMember);
 		when(jwtTokenProvider.generateTokenPair(newMember.getId(), newMember.getRole())).thenReturn(tempTokenPair);
 
-		AuthTokenResponse response = authService.registerMember(new CreateMemberRequest("username", "password"));
+		AuthTokenResponse response = authService.registerMember(new CreateMemberRequest("username", "password","01012341234", "kkwondev@gmail.com"));
 
 		assertNotNull(response);
 		assertEquals("accessToken", response.accessToken());

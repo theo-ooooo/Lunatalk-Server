@@ -8,6 +8,8 @@ import java.time.LocalDateTime;
 public record MemberInfoResponse(
 	@Schema(description = "회원 고유 ID")
 	Long memberId,
+	@Schema(description = "로그인 ID")
+	String username,
 	@Schema(description = "회원 닉네임")
 	String nickname,
 	@Schema(description = "핸드폰 번호")
@@ -23,6 +25,7 @@ public record MemberInfoResponse(
 	public static MemberInfoResponse from(Member member) {
 		return new MemberInfoResponse(
 			member.getId(),
+			member.getUsername(),
 			member.getProfile().getNickname(),
 			member.getPhone(),
 			member.getEmail(),

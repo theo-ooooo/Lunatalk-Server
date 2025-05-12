@@ -41,6 +41,9 @@ public enum ErrorCode {
 
 	// Order
 	ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 주문은 찾을 수 없습니다."),
+
+	// Delivery
+	DELIVERY_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 배송 정보를 찾을수 없습니다."),
 	;
 	private HttpStatus httpStatus;
 	private String message;

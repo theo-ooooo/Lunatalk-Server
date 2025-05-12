@@ -7,7 +7,7 @@ import kr.co.lunatalk.domain.order.domain.OrderStatus;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public record OrderFIndResponse(
+public record OrderFindResponse(
 	@Schema(description = "주문 ID", defaultValue = "1") Long orderId,
 	@Schema(description = "주문 번호", defaultValue = "L3ABCDEFG") String orderNumber,
 	@Schema(description = "주문 상태", defaultValue = "ORDERED") OrderStatus status,
@@ -16,8 +16,8 @@ public record OrderFIndResponse(
 	@Schema(description = "주문일")LocalDateTime createdAt
 	) {
 
-	public static OrderFIndResponse from(Order order) {
-		return new OrderFIndResponse(
+	public static OrderFindResponse from(Order order) {
+		return new OrderFindResponse(
 			order.getId(),
 			order.getOrderNumber(),
 			order.getStatus(),

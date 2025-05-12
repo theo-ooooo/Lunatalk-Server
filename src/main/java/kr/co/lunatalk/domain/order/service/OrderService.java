@@ -6,11 +6,13 @@ import kr.co.lunatalk.domain.member.domain.Member;
 import kr.co.lunatalk.domain.order.domain.OptionSnapshot;
 import kr.co.lunatalk.domain.order.domain.Order;
 import kr.co.lunatalk.domain.order.domain.OrderItem;
+import kr.co.lunatalk.domain.order.domain.OrderStatus;
 import kr.co.lunatalk.domain.order.dto.request.OrderCreateDeliveryRequest;
 import kr.co.lunatalk.domain.order.dto.request.OrderCreateRequest;
 import kr.co.lunatalk.domain.order.dto.request.OrderProductRequest;
 import kr.co.lunatalk.domain.order.dto.response.OrderCreateResponse;
 import kr.co.lunatalk.domain.order.dto.response.OrderFIndResponse;
+import kr.co.lunatalk.domain.order.dto.response.OrderListResponse;
 import kr.co.lunatalk.domain.order.repository.OrderRepository;
 import kr.co.lunatalk.domain.product.domain.Product;
 import kr.co.lunatalk.domain.product.repository.ProductRepository;
@@ -105,6 +107,21 @@ public class OrderService {
 		Page<Order> orders = orderRepository.findOrdersWithItemsByMemberId(memberId, pageable);
 
 		return orders.map(OrderFIndResponse::from);
+	}
+
+	@Transactional(readOnly = true)
+	public Page<OrderListResponse> findOrders(
+		String orderNumber,
+		OrderStatus orderStatus,
+		String username,
+		String email,
+		String nickname,
+		String phone,
+		Pageable pageable
+	) {
+		Page<Order> orders = orderRepository.findOrders(orderNumber, orderStatus, username, email, nickname, phone, pageable);
+
+		return orders.map(OrderListResponse::from);
 	}
 
 

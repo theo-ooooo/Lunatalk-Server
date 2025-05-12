@@ -4,12 +4,18 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import kr.co.lunatalk.domain.order.domain.Order;
+import kr.co.lunatalk.domain.order.domain.OrderStatus;
 import kr.co.lunatalk.domain.order.dto.request.OrderCreateDeliveryRequest;
 import kr.co.lunatalk.domain.order.dto.request.OrderCreateRequest;
 import kr.co.lunatalk.domain.order.dto.response.OrderCreateResponse;
 import kr.co.lunatalk.domain.order.dto.response.OrderFIndResponse;
+import kr.co.lunatalk.domain.order.dto.response.OrderListResponse;
 import kr.co.lunatalk.domain.order.service.OrderService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,5 +47,19 @@ public class OrderController {
 		orderService.createDelivery(orderNumber, request);
 
 		return ResponseEntity.ok().build();
+	}
+
+	//관리자용
+	@GetMapping()
+	@Operation(description = "전체 주문 조회")
+	public Page<OrderListResponse> getOrders(
+		@RequestParam(required = false) String orderNumber,
+		@RequestParam(required = false) OrderStatus status,
+		@RequestParam(required = false) String username,
+		@RequestParam(required = false) String email,
+		@RequestParam(required = false) String nickname,
+		@RequestParam(required = false) String phone,
+		@PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+		return orderService.findOrders(orderNumber, status, username, email, nickname, phone, pageable);
 	}
 }

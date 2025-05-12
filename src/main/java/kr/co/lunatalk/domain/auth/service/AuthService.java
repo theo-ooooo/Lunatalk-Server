@@ -114,7 +114,7 @@ public class AuthService {
 		RefreshTokenDto refreshTokenDto = jwtTokenProvider.retrieveRefreshToken(request.refreshToken());
 
 		if(refreshTokenDto == null) {
-			throw new CustomException(ErrorCode.AUTH_TOKEN_EXPIRED);
+			throw new CustomException(ErrorCode.AUTH_REFRESH_TOKEN_EXPIRED);
 		}
 
 		Optional<Member> findMember = memberRepository.findById(refreshTokenDto.memberId());

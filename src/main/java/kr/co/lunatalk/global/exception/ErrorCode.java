@@ -23,6 +23,7 @@ public enum ErrorCode {
 	AUTH_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "시큐리티 인증 정보를 찾을수 없습니다."),
 	AUTH_FAILED(HttpStatus.UNAUTHORIZED, "인증에 실패하였습니다."),
 	AUTH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "Token이 만료 되었습니다."),
+	AUTH_REFRESH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "RefreshToken이 만료되었습니다."),
 
 
 	// Product

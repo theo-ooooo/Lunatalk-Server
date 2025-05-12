@@ -11,7 +11,7 @@ import kr.co.lunatalk.domain.order.domain.Order;
 import kr.co.lunatalk.domain.order.dto.request.OrderCreateRequest;
 import kr.co.lunatalk.domain.order.dto.request.OrderProductRequest;
 import kr.co.lunatalk.domain.order.dto.response.OrderCreateResponse;
-import kr.co.lunatalk.domain.order.dto.response.OrderFIndResponse;
+import kr.co.lunatalk.domain.order.dto.response.OrderFindResponse;
 import kr.co.lunatalk.domain.order.repository.OrderRepository;
 import kr.co.lunatalk.domain.product.domain.Product;
 import kr.co.lunatalk.domain.product.domain.ProductColor;
@@ -136,7 +136,7 @@ class OrderServiceTest {
 
 		//when
 		PageRequest pageable = PageRequest.of(0, 2, Sort.by("createdAt").descending());
-		Page<OrderFIndResponse> result = orderService.findOrdersByMemberId(member.getId(), pageable);
+		Page<OrderFindResponse> result = orderService.findOrdersByMemberId(member.getId(), pageable);
 
 		//then
 		assertNotNull(result);

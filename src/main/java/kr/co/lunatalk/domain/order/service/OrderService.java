@@ -11,7 +11,7 @@ import kr.co.lunatalk.domain.order.dto.request.OrderCreateDeliveryRequest;
 import kr.co.lunatalk.domain.order.dto.request.OrderCreateRequest;
 import kr.co.lunatalk.domain.order.dto.request.OrderProductRequest;
 import kr.co.lunatalk.domain.order.dto.response.OrderCreateResponse;
-import kr.co.lunatalk.domain.order.dto.response.OrderFIndResponse;
+import kr.co.lunatalk.domain.order.dto.response.OrderFindResponse;
 import kr.co.lunatalk.domain.order.dto.response.OrderListResponse;
 import kr.co.lunatalk.domain.order.repository.OrderRepository;
 import kr.co.lunatalk.domain.product.domain.Product;
@@ -83,7 +83,7 @@ public class OrderService {
 	}
 
 	@Transactional(readOnly = true)
-	public OrderFIndResponse findOrder(String orderNumber) {
+	public OrderFindResponse findOrder(String orderNumber) {
 		Order findOrder = findOrderWithOrderItemsByOrderNumber(orderNumber);
 
 
@@ -99,14 +99,14 @@ public class OrderService {
 			throw new CustomException(ErrorCode.ORDER_NOT_FOUND);
 		}
 
-		return OrderFIndResponse.from(findOrder);
+		return OrderFindResponse.from(findOrder);
 	}
 
 	@Transactional(readOnly = true)
-	public Page<OrderFIndResponse> findOrdersByMemberId(Long memberId, Pageable pageable) {
+	public Page<OrderFindResponse> findOrdersByMemberId(Long memberId, Pageable pageable) {
 		Page<Order> orders = orderRepository.findOrdersWithItemsByMemberId(memberId, pageable);
 
-		return orders.map(OrderFIndResponse::from);
+		return orders.map(OrderFindResponse::from);
 	}
 
 	@Transactional(readOnly = true)

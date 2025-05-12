@@ -3,12 +3,11 @@ package kr.co.lunatalk.domain.order.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import kr.co.lunatalk.domain.order.domain.Order;
 import kr.co.lunatalk.domain.order.domain.OrderStatus;
 import kr.co.lunatalk.domain.order.dto.request.OrderCreateDeliveryRequest;
 import kr.co.lunatalk.domain.order.dto.request.OrderCreateRequest;
 import kr.co.lunatalk.domain.order.dto.response.OrderCreateResponse;
-import kr.co.lunatalk.domain.order.dto.response.OrderFIndResponse;
+import kr.co.lunatalk.domain.order.dto.response.OrderFindResponse;
 import kr.co.lunatalk.domain.order.dto.response.OrderListResponse;
 import kr.co.lunatalk.domain.order.service.OrderService;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +35,7 @@ public class OrderController {
 	// 주문 조회
 	@GetMapping("/{orderNumber}")
 	@Operation(summary = "주문번호로 주문 조회", description = "주문 번호로 주문을 조회합니다.")
-	public OrderFIndResponse getOrderByOrderNumber(@PathVariable String orderNumber) {
+	public OrderFindResponse getOrderByOrderNumber(@PathVariable String orderNumber) {
 		return orderService.findOrder(orderNumber);
 	}
 

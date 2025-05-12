@@ -2,18 +2,15 @@ package kr.co.lunatalk.domain.member.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import kr.co.lunatalk.domain.member.domain.Member;
-import kr.co.lunatalk.domain.member.domain.Profile;
 import kr.co.lunatalk.domain.member.dto.response.MemberInfoResponse;
 import kr.co.lunatalk.domain.member.service.MemberService;
-import kr.co.lunatalk.domain.order.dto.response.OrderFIndResponse;
+import kr.co.lunatalk.domain.order.dto.response.OrderFindResponse;
 import kr.co.lunatalk.domain.order.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -45,7 +42,7 @@ public class MemberController {
 	@GetMapping("/{id}/orders")
 	@PreAuthorize("hasRole('ADMIN')")
 	@Operation(summary = "회원 주문 조회", description = "회원의 주믄을 조회합니다.")
-	public Page<OrderFIndResponse> getMemberOrders(@PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable, @PathVariable Long id) {
+	public Page<OrderFindResponse> getMemberOrders(@PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable, @PathVariable Long id) {
 		return orderService.findOrdersByMemberId(id, pageable);
 	}
 

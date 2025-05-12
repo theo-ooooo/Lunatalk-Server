@@ -1,6 +1,7 @@
 package kr.co.lunatalk.domain.order.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import kr.co.lunatalk.domain.delivery.dto.response.DeliveryFindResponse;
 import kr.co.lunatalk.domain.order.domain.Order;
 import kr.co.lunatalk.domain.order.domain.OrderStatus;
 
@@ -12,7 +13,8 @@ public record OrderFindResponse(
 	@Schema(description = "주문 번호", defaultValue = "L3ABCDEFG") String orderNumber,
 	@Schema(description = "주문 상태", defaultValue = "ORDERED") OrderStatus status,
 	@Schema(description = "주문 총 금액", defaultValue = "1000") Long totalPrice,
-	@Schema(description = "구매 상품들") List<OrderItemDto> orderItems,
+	@Schema(description = "구매 상품들") List<OrderItemResponse> orderItems,
+	@Schema(description = "배송 정보") List<DeliveryFindResponse> deliveries,
 	@Schema(description = "주문일")LocalDateTime createdAt
 	) {
 
@@ -22,7 +24,8 @@ public record OrderFindResponse(
 			order.getOrderNumber(),
 			order.getStatus(),
 			order.getTotalPrice(),
-			order.getOrderItems().stream().map(OrderItemDto::from).toList(),
+			order.getOrderItems().stream().map(OrderItemResponse::from).toList(),
+			order.getDeliverys().stream().map(DeliveryFindResponse::from).toList(),
 			order.getCreatedAt()
 		);
 	}

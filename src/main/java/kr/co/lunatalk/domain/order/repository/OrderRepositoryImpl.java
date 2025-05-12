@@ -3,6 +3,7 @@ package kr.co.lunatalk.domain.order.repository;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import kr.co.lunatalk.domain.delivery.domain.QDelivery;
 import kr.co.lunatalk.domain.order.domain.Order;
 import kr.co.lunatalk.domain.order.domain.OrderStatus;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
+import static kr.co.lunatalk.domain.delivery.domain.QDelivery.delivery;
 import static kr.co.lunatalk.domain.member.domain.QMember.*;
 import static kr.co.lunatalk.domain.order.domain.QOrder.order;
 import static kr.co.lunatalk.domain.order.domain.QOrderItem.*;
@@ -28,8 +30,8 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom {
 		return Optional.ofNullable(
 			queryFactory
 				.selectFrom(order)
-				.innerJoin(order.orderItems, orderItem).fetchJoin()
-				.innerJoin(order.member, member).fetchJoin()
+				.join(order.orderItems, orderItem).fetchJoin()
+				.join(order.member, member).fetchJoin()
 				.where(orderNumberEq(orderNumber))
 				.fetchOne()
 		);

@@ -19,6 +19,8 @@ import kr.co.lunatalk.global.exception.ErrorCode;
 import kr.co.lunatalk.global.util.MemberUtil;
 import kr.co.lunatalk.global.util.OrderUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -96,6 +98,13 @@ public class OrderService {
 		}
 
 		return OrderFIndResponse.from(findOrder);
+	}
+
+	@Transactional(readOnly = true)
+	public Page<OrderFIndResponse> findOrdersByMemberId(Long memberId, Pageable pageable) {
+		Page<Order> orders = orderRepository.findOrdersWithItemsByMemberId(memberId, pageable);
+
+		return orders.map(OrderFIndResponse::from);
 	}
 
 

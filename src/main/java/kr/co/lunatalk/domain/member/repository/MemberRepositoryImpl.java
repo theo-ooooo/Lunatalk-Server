@@ -34,9 +34,6 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
 				.fetchOne()
 		).orElse(0L);
 
-		System.out.println("OFFSET = " + pageable.getOffset());
-		System.out.println("PAGE = " + pageable.getPageNumber());
-
 		return new PageImpl<>(content,pageable, total);
 	}
 }

@@ -20,7 +20,7 @@ public record ProductCreateRequest(
 	Long price,
 
 	@NotNull(message = "상품 갯수는 필수로 입력해야 합니다.")
-	@Min(value = 1, message = "상품 갯수는 1개 이상이여야 합니다.")
+//	@Min(value = 1, message = "상품 갯수는 1개 이상이여야 합니다.")
 	@Schema(description = "상품 갯수")
 	Integer quantity,
 

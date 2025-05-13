@@ -26,6 +26,7 @@ public class CategoryController {
 	private final CategoryService categoryService;
 
 	@GetMapping()
+	@PreAuthorize("hasRole('ADMIN')")
 	@Operation(summary = "카테고리 리스트", description = "카테고리 리스트를 전달합니다.")
 	public List<CategoryResponse> getCategories() {
 		return categoryService.getCategoryList();

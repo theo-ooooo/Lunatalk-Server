@@ -9,4 +9,5 @@ public interface ProductRepositoryCustom {
 	Product findProductById(Long productId);
 	List<Product> findAllProductsByProductIds(List<Long> productIds);
 	List<Product> findAllProductDtoByIdsWithJoin(List<Long> productIds);
+	List<Product> findAll();
 }

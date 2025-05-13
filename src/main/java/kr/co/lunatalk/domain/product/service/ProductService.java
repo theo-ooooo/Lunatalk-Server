@@ -89,4 +89,26 @@ public class ProductService {
 					return ProductFindResponse.from(FindProductDto.from(product, productImages));
 				}).toList();
 	}
+
+	@Transactional(readOnly = true)
+	public List<ProductFindResponse> findAll() {
+		List<Product> products = productRepository.findAll();
+
+		if(products.isEmpty()) {
+			return List.of();
+		}
+
+		List<Long> productIds = products.stream().map(Product::getId).toList();
+
+		List<Image> images = imageRepository.fetchProductImagesByProductIds(productIds);
+
+		Map<Long, List<Image>> imageMap = images.stream().collect(Collectors.groupingBy(Image::getReferenceId));
+
+		return products.stream()
+			.map(product -> {
+				List<Image> productImages = imageMap.getOrDefault(product.getId(), List.of());
+				return ProductFindResponse.from(FindProductDto.from(product, productImages));
+			}).toList();
+
+	}
 }

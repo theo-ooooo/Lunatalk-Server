@@ -15,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/products")
@@ -52,5 +54,12 @@ public class ProductController {
 	public ResponseEntity<Void> delete(@PathVariable Long id) {
 		productService.delete(id);
 		return ResponseEntity.ok().build();
+	}
+
+	@GetMapping()
+	@PreAuthorize("hasRole('ADMIN')")
+	@Operation(summary = "상품 리스트", description = "전체 상품을 조회합니다.")
+	public List<ProductFindResponse> findAll() {
+		return productService.findAll();
 	}
 }

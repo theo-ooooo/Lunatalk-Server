@@ -50,6 +50,15 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 			).fetch();
 	}
 
+	@Override
+	public List<Product> findAll() {
+		return queryFactory
+			.selectFrom(product)
+			.leftJoin(product.productColor, productColor).fetchJoin()
+			.where(isActiveAndVisible())
+			.fetch();
+	}
+
 	private BooleanExpression isActiveAndVisible() {
 		return product.status.eq(ProductStatus.ACTIVE)
 			.and(product.visibility.eq(ProductVisibility.VISIBLE));

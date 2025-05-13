@@ -1,12 +1,17 @@
 package kr.co.lunatalk.domain.product.repository;
 
+import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import kr.co.lunatalk.domain.product.domain.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import static kr.co.lunatalk.domain.image.domain.QImage.image;
 import static kr.co.lunatalk.domain.product.domain.QProduct.product;
@@ -51,13 +56,33 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 	}
 
 	@Override
-	public List<Product> findAll() {
-		return queryFactory
+	public Page<Product> findAll(String productName, Pageable pageable) {
+		List<Product> content = queryFactory
 			.selectFrom(product)
-			.leftJoin(product.productColor, productColor).fetchJoin()
-			.where(isActiveAndVisible())
+			.leftJoin(product.productColor, productColor)
+			.where(
+				productNameEq(productName)
+			)
+			.offset(pageable.getOffset())
+			.limit(pageable.getPageSize())
 			.fetch();
+
+		Long count = Optional.ofNullable(
+			queryFactory
+				.select(product.count())
+				.from(product)
+				.leftJoin(product.productColor, productColor)
+				.where(productNameEq(productName))
+				.fetchOne()
+		).orElse(0L);
+
+		return new PageImpl<>(content, pageable, count);
 	}
+
+	private static Predicate productNameEq(String productName) {
+		return productName != null ? product.name.eq(productName) : null;
+	}
+
 
 	private BooleanExpression isActiveAndVisible() {
 		return product.status.eq(ProductStatus.ACTIVE)

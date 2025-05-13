@@ -11,6 +11,10 @@ import kr.co.lunatalk.domain.product.dto.response.ProductCreateResponse;
 import kr.co.lunatalk.domain.product.dto.response.ProductFindResponse;
 import kr.co.lunatalk.domain.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -57,9 +61,11 @@ public class ProductController {
 	}
 
 	@GetMapping()
-	@PreAuthorize("hasRole('ADMIN')")
+//	@PreAuthorize("hasRole('ADMIN')")
 	@Operation(summary = "상품 리스트", description = "전체 상품을 조회합니다.")
-	public List<ProductFindResponse> findAll() {
-		return productService.findAll();
+	public Page<ProductFindResponse> findAll(
+		@RequestParam(required = false) String productName,
+		@PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+		return productService.findAll(productName, pageable);
 	}
 }

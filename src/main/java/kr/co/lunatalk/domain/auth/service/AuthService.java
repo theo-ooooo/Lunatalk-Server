@@ -41,7 +41,13 @@ public class AuthService {
 			throw new CustomException(ErrorCode.MEMBER_EXISTS);
 		}
 
-		Member member = Member.createMember(request.username(), encodePassword(request.password()), Profile.of("", ""));
+		Member member = Member.createMember(
+			request.username(),
+			encodePassword(request.password()),
+			Profile.of("", ""),
+			request.phone(),
+			request.email()
+		);
 		memberRepository.save(member);
 
 		TokenResponse token = getTokenResponse(member);
@@ -108,7 +114,7 @@ public class AuthService {
 		RefreshTokenDto refreshTokenDto = jwtTokenProvider.retrieveRefreshToken(request.refreshToken());
 
 		if(refreshTokenDto == null) {
-			throw new CustomException(ErrorCode.AUTH_TOKEN_EXPIRED);
+			throw new CustomException(ErrorCode.AUTH_REFRESH_TOKEN_EXPIRED);
 		}
 
 		Optional<Member> findMember = memberRepository.findById(refreshTokenDto.memberId());

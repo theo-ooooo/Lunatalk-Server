@@ -3,14 +3,18 @@ package kr.co.lunatalk.domain.order.service;
 import kr.co.lunatalk.domain.delivery.domain.Delivery;
 import kr.co.lunatalk.domain.delivery.repository.DeliveryRepository;
 import kr.co.lunatalk.domain.member.domain.Member;
+import kr.co.lunatalk.domain.member.domain.MemberRole;
 import kr.co.lunatalk.domain.order.domain.OptionSnapshot;
 import kr.co.lunatalk.domain.order.domain.Order;
 import kr.co.lunatalk.domain.order.domain.OrderItem;
+import kr.co.lunatalk.domain.order.domain.OrderStatus;
 import kr.co.lunatalk.domain.order.dto.request.OrderCreateDeliveryRequest;
 import kr.co.lunatalk.domain.order.dto.request.OrderCreateRequest;
 import kr.co.lunatalk.domain.order.dto.request.OrderProductRequest;
+import kr.co.lunatalk.domain.order.dto.request.OrderUpdateRequest;
 import kr.co.lunatalk.domain.order.dto.response.OrderCreateResponse;
-import kr.co.lunatalk.domain.order.dto.response.OrderFIndResponse;
+import kr.co.lunatalk.domain.order.dto.response.OrderFindResponse;
+import kr.co.lunatalk.domain.order.dto.response.OrderListResponse;
 import kr.co.lunatalk.domain.order.repository.OrderRepository;
 import kr.co.lunatalk.domain.product.domain.Product;
 import kr.co.lunatalk.domain.product.repository.ProductRepository;
@@ -19,6 +23,8 @@ import kr.co.lunatalk.global.exception.ErrorCode;
 import kr.co.lunatalk.global.util.MemberUtil;
 import kr.co.lunatalk.global.util.OrderUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -79,7 +85,7 @@ public class OrderService {
 	}
 
 	@Transactional(readOnly = true)
-	public OrderFIndResponse findOrder(String orderNumber) {
+	public OrderFindResponse findOrder(String orderNumber) {
 		Order findOrder = findOrderWithOrderItemsByOrderNumber(orderNumber);
 
 
@@ -95,7 +101,29 @@ public class OrderService {
 			throw new CustomException(ErrorCode.ORDER_NOT_FOUND);
 		}
 
-		return OrderFIndResponse.from(findOrder);
+		return OrderFindResponse.from(findOrder);
+	}
+
+	@Transactional(readOnly = true)
+	public Page<OrderFindResponse> findOrdersByMemberId(Long memberId, Pageable pageable) {
+		Page<Order> orders = orderRepository.findOrdersWithItemsByMemberId(memberId, pageable);
+
+		return orders.map(OrderFindResponse::from);
+	}
+
+	@Transactional(readOnly = true)
+	public Page<OrderListResponse> findOrders(
+		String orderNumber,
+		OrderStatus orderStatus,
+		String username,
+		String email,
+		String nickname,
+		String phone,
+		Pageable pageable
+	) {
+		Page<Order> orders = orderRepository.findOrders(orderNumber, orderStatus, username, email, nickname, phone, pageable);
+
+		return orders.map(OrderListResponse::from);
 	}
 
 
@@ -115,6 +143,11 @@ public class OrderService {
 
 		deliveryRepository.save(delivery);
 	}
+	public void updateOrder(String orderNumber, OrderUpdateRequest request) {
+		Order order = findOrderWithOrderItemsByOrderNumber(orderNumber);
+
+		order.updateStatus(request.status());
+	}
 
 	private Order findOrderWithOrderItemsByOrderNumber(String orderNumber) {
 		return orderRepository.findByOrderWithItems(orderNumber).orElseThrow(
@@ -123,9 +156,13 @@ public class OrderService {
 	}
 
 
+
+
 	private boolean isMyOrder(Order order) {
 		Member currentMember = memberUtil.getCurrentMember();
 
-		return order.getMember().getId().equals(currentMember.getId());
+		boolean isAdmin = currentMember.getRole().equals(MemberRole.ADMIN);
+
+		return isAdmin || order.getMember().getId().equals(currentMember.getId());
 	}
 }

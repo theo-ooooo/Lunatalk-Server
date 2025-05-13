@@ -10,6 +10,7 @@ import kr.co.lunatalk.domain.product.domain.QProduct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import static kr.co.lunatalk.domain.category.domain.QCategory.category;
@@ -29,6 +30,14 @@ public class CategoryRepositoryImpl implements CategoryRepositoryCustom {
 				.where(category.id.eq(categoryId).and(isActiveAndVisible()))
 				.fetchOne()
 		);
+	}
+
+	@Override
+	public List<Category> findAllWithProducts() {
+		return queryFactory
+			.selectFrom(category)
+			.leftJoin(category.products, product).fetchJoin()
+			.fetch();
 	}
 
 	public BooleanExpression isActiveAndVisible() {

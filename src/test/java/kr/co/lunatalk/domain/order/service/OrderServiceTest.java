@@ -11,6 +11,7 @@ import kr.co.lunatalk.domain.order.domain.Order;
 import kr.co.lunatalk.domain.order.dto.request.OrderCreateRequest;
 import kr.co.lunatalk.domain.order.dto.request.OrderProductRequest;
 import kr.co.lunatalk.domain.order.dto.response.OrderCreateResponse;
+import kr.co.lunatalk.domain.order.dto.response.OrderFindResponse;
 import kr.co.lunatalk.domain.order.repository.OrderRepository;
 import kr.co.lunatalk.domain.product.domain.Product;
 import kr.co.lunatalk.domain.product.domain.ProductColor;
@@ -23,6 +24,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
@@ -55,16 +59,19 @@ class OrderServiceTest {
 
 	@BeforeEach
 	void setup() {
-		member = Member.createMember("testuser", "1234", Profile.of("테스트닉", "img"));
+		member = Member.createMember(
+			"testuser",
+			"1234",
+			Profile.of("테스트닉", "img"),
+			"01012341234",
+			"kkwondev@gmail.com"
+		);
 		memberRepository.save(member);
 
 		product = Product.createProduct("테스트", 5000L, 1, ProductStatus.ACTIVE, ProductVisibility.VISIBLE);
 		ProductColor productColor = ProductColor.createProductColor(product, "blue");
 		product.addProductColor(productColor);
 		productRepository.save(product);
-
-		em.flush();
-		em.clear();
 
 		PrincipalDetails principalDetails = new PrincipalDetails(member.getId(), MemberRole.ADMIN);
 		SecurityContextHolder.getContext().setAuthentication(
@@ -74,6 +81,7 @@ class OrderServiceTest {
 
 	@Test
 	void 주문_생성_테스트() {
+		System.out.println("product = " + product.getId());
 		// given
 		OrderCreateRequest request = new OrderCreateRequest(List.of(
 			new OrderProductRequest(product.getId(), 2, new OptionSnapshot("blue"))
@@ -115,6 +123,26 @@ class OrderServiceTest {
 		assertThrows(CustomException.class, () -> orderService.createOrder(request));
 	}
 
+	@Test
+	void 회원의_주문_목록을_페이지로_조회() {
+		System.out.println("product = " + product.getId());
+		//given
+		for (int i = 0; i < 3; i++) {
+			OrderCreateRequest request = new OrderCreateRequest(List.of(
+				new OrderProductRequest(product.getId(), 1, new OptionSnapshot("blue"))
+			));
+			orderService.createOrder(request);
+		}
+
+		//when
+		PageRequest pageable = PageRequest.of(0, 2, Sort.by("createdAt").descending());
+		Page<OrderFindResponse> result = orderService.findOrdersByMemberId(member.getId(), pageable);
+
+		//then
+		assertNotNull(result);
+		assertEquals(3, result.getTotalElements());
+		assertEquals(2, result.getContent().size());
+	}
 
 
 }

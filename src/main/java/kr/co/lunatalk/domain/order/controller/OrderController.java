@@ -3,14 +3,21 @@ package kr.co.lunatalk.domain.order.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import kr.co.lunatalk.domain.order.domain.Order;
+import kr.co.lunatalk.domain.order.domain.OrderStatus;
 import kr.co.lunatalk.domain.order.dto.request.OrderCreateDeliveryRequest;
 import kr.co.lunatalk.domain.order.dto.request.OrderCreateRequest;
+import kr.co.lunatalk.domain.order.dto.request.OrderUpdateRequest;
 import kr.co.lunatalk.domain.order.dto.response.OrderCreateResponse;
-import kr.co.lunatalk.domain.order.dto.response.OrderFIndResponse;
+import kr.co.lunatalk.domain.order.dto.response.OrderFindResponse;
+import kr.co.lunatalk.domain.order.dto.response.OrderListResponse;
 import kr.co.lunatalk.domain.order.service.OrderService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -30,7 +37,7 @@ public class OrderController {
 	// 주문 조회
 	@GetMapping("/{orderNumber}")
 	@Operation(summary = "주문번호로 주문 조회", description = "주문 번호로 주문을 조회합니다.")
-	public OrderFIndResponse getOrderByOrderNumber(@PathVariable String orderNumber) {
+	public OrderFindResponse getOrderByOrderNumber(@PathVariable String orderNumber) {
 		return orderService.findOrder(orderNumber);
 	}
 
@@ -41,5 +48,27 @@ public class OrderController {
 		orderService.createDelivery(orderNumber, request);
 
 		return ResponseEntity.ok().build();
+	}
+
+	//관리자용
+	@GetMapping()
+	@Operation(summary = "전체 주문 조회", description = "전체 주문 조회합니다.")
+	@PreAuthorize("hasRole('ADMIN')")
+	public Page<OrderListResponse> getOrders(
+		@RequestParam(required = false) String orderNumber,
+		@RequestParam(required = false) OrderStatus status,
+		@RequestParam(required = false) String username,
+		@RequestParam(required = false) String email,
+		@RequestParam(required = false) String nickname,
+		@RequestParam(required = false) String phone,
+		@PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+		return orderService.findOrders(orderNumber, status, username, email, nickname, phone, pageable);
+	}
+
+	@PatchMapping("/{orderNumber}")
+	@Operation(summary = "주문 정보 수정", description = "주문 정보를 수정합니다.")
+	@PreAuthorize("hasRole('ADMIN')")
+	public void updateOrder(@PathVariable String orderNumber, @Valid @RequestBody OrderUpdateRequest request) {
+		orderService.updateOrder(orderNumber, request);
 	}
 }

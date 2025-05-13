@@ -39,7 +39,7 @@ public class Delivery extends BaseTimeEntity {
 
 
 	@Builder(access = AccessLevel.PRIVATE)
-	public Delivery(Order order, String receiverName, String receiverPhone, String addressLine1, String addressLine2, String zipcode, String message) {
+	public Delivery(Order order, String receiverName, String receiverPhone, String addressLine1, String addressLine2, String zipcode, String message, DeliveryStatus status) {
 		this.order = order;
 		this.receiverName = receiverName;
 		this.receiverPhone = receiverPhone;
@@ -47,6 +47,7 @@ public class Delivery extends BaseTimeEntity {
 		this.addressLine2 = addressLine2;
 		this.zipcode = zipcode;
 		this.message = message;
+		this.status = status;
 	}
 
 	public static Delivery createDelivery(Order order, String receiverName, String receiverPhone, String addressLine1, String addressLine2, String zipcode, String message) {
@@ -58,6 +59,7 @@ public class Delivery extends BaseTimeEntity {
 			.addressLine2(addressLine2)
 			.zipcode(zipcode)
 			.message(message)
+			.status(DeliveryStatus.READY)
 			.build();
 	}
 

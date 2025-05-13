@@ -27,7 +27,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
 		response.setContentType("application/json;charset=UTF-8");
 		response.setStatus(HttpStatus.UNAUTHORIZED.value());
 //		ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule()).disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-		GlobalResponse errorResponse = GlobalResponse.fail(ErrorCode.AUTH_UNAUTHORIZED.getHttpStatus().value(), new ErrorResponse(ErrorCode.AUTH_UNAUTHORIZED.name(), ErrorCode.AUTH_UNAUTHORIZED.getMessage()));
+		GlobalResponse errorResponse = GlobalResponse.fail(ErrorCode.AUTH_TOKEN_EXPIRED.getHttpStatus().value(), new ErrorResponse(ErrorCode.AUTH_TOKEN_EXPIRED.name(), ErrorCode.AUTH_TOKEN_EXPIRED.getMessage()));
 		response.getWriter().write(mapper.writeValueAsString(errorResponse));
 	}
 }

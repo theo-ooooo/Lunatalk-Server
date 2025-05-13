@@ -6,11 +6,11 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum OrderStatus {
-	ORDERED("ORDERED"),
-	PAYMENT_FAILED("PAYMENT_FAILED"),
-	CANCELLED("CANCELLED"),
-	SHIPPED("SHIPPED"),
-	DELIVERED("DELIVERED"),
+	ORDERED("주문완료"),
+	PAYMENT_FAILED("결제 실패"),
+	CANCELLED("결제 취소"),
+	SHIPPED("배송중"),
+	DELIVERED("배송완료"),
 	;
 	private String value;
 }

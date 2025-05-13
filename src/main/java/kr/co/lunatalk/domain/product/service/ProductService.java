@@ -12,6 +12,8 @@ import kr.co.lunatalk.domain.product.repository.ProductRepository;
 import kr.co.lunatalk.global.exception.CustomException;
 import kr.co.lunatalk.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -88,5 +90,23 @@ public class ProductService {
 					List<Image> productImages = imageMap.getOrDefault(product.getId(), List.of());
 					return ProductFindResponse.from(FindProductDto.from(product, productImages));
 				}).toList();
+	}
+
+	@Transactional(readOnly = true)
+	public Page<ProductFindResponse> findAll(String productName, Pageable pageable) {
+		Page<Product> products = productRepository.findAll(productName, pageable);
+
+
+		List<Long> productIds = products.stream().map(Product::getId).toList();
+
+		List<Image> images = imageRepository.fetchProductImagesByProductIds(productIds);
+
+		Map<Long, List<Image>> imageMap = images.stream().collect(Collectors.groupingBy(Image::getReferenceId));
+
+		return products
+			.map(product -> {
+				List<Image> productImages = imageMap.getOrDefault(product.getId(), List.of());
+				return ProductFindResponse.from(FindProductDto.from(product, productImages));
+			});
 	}
 }

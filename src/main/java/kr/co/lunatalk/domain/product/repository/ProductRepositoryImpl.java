@@ -61,8 +61,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 			.selectFrom(product)
 			.leftJoin(product.productColor, productColor)
 			.where(
-				productNameEq(productName)
-			)
+				productNameEq(productName),
+				isActive())
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
 			.fetch();
@@ -72,14 +72,16 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 				.select(product.count())
 				.from(product)
 				.leftJoin(product.productColor, productColor)
-				.where(productNameEq(productName))
+				.where(productNameEq(productName),
+					isActive()
+				)
 				.fetchOne()
 		).orElse(0L);
 
 		return new PageImpl<>(content, pageable, count);
 	}
 
-	private static Predicate productNameEq(String productName) {
+	private BooleanExpression productNameEq(String productName) {
 		return productName != null ? product.name.eq(productName) : null;
 	}
 
@@ -87,5 +89,9 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 	private BooleanExpression isActiveAndVisible() {
 		return product.status.eq(ProductStatus.ACTIVE)
 			.and(product.visibility.eq(ProductVisibility.VISIBLE));
+	}
+
+	private BooleanExpression isActive() {
+		return product.status.eq(ProductStatus.ACTIVE);
 	}
 }

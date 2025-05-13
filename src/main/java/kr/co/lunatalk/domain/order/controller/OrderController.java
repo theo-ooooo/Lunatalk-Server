@@ -67,6 +67,7 @@ public class OrderController {
 
 	@PatchMapping("/{orderNumber}")
 	@Operation(summary = "주문 정보 수정", description = "주문 정보를 수정합니다.")
+	@PreAuthorize("hasRole('ADMIN')")
 	public void updateOrder(@PathVariable String orderNumber, @Valid @RequestBody OrderUpdateRequest request) {
 		orderService.updateOrder(orderNumber, request);
 	}

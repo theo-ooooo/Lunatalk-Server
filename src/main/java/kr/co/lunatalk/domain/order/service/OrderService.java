@@ -3,6 +3,7 @@ package kr.co.lunatalk.domain.order.service;
 import kr.co.lunatalk.domain.delivery.domain.Delivery;
 import kr.co.lunatalk.domain.delivery.repository.DeliveryRepository;
 import kr.co.lunatalk.domain.member.domain.Member;
+import kr.co.lunatalk.domain.member.domain.MemberRole;
 import kr.co.lunatalk.domain.order.domain.OptionSnapshot;
 import kr.co.lunatalk.domain.order.domain.Order;
 import kr.co.lunatalk.domain.order.domain.OrderItem;
@@ -152,6 +153,8 @@ public class OrderService {
 	private boolean isMyOrder(Order order) {
 		Member currentMember = memberUtil.getCurrentMember();
 
-		return order.getMember().getId().equals(currentMember.getId());
+		boolean isAdmin = currentMember.getRole().equals(MemberRole.ADMIN);
+
+		return isAdmin || order.getMember().getId().equals(currentMember.getId());
 	}
 }

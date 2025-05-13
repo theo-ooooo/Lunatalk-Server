@@ -65,6 +65,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 				isActive())
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
+			.orderBy(product.id.desc())
 			.fetch();
 
 		Long count = Optional.ofNullable(

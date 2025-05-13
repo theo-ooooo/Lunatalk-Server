@@ -11,6 +11,7 @@ import kr.co.lunatalk.domain.order.domain.OrderStatus;
 import kr.co.lunatalk.domain.order.dto.request.OrderCreateDeliveryRequest;
 import kr.co.lunatalk.domain.order.dto.request.OrderCreateRequest;
 import kr.co.lunatalk.domain.order.dto.request.OrderProductRequest;
+import kr.co.lunatalk.domain.order.dto.request.OrderUpdateRequest;
 import kr.co.lunatalk.domain.order.dto.response.OrderCreateResponse;
 import kr.co.lunatalk.domain.order.dto.response.OrderFindResponse;
 import kr.co.lunatalk.domain.order.dto.response.OrderListResponse;
@@ -142,12 +143,19 @@ public class OrderService {
 
 		deliveryRepository.save(delivery);
 	}
+	public void updateOrder(String orderNumber, OrderUpdateRequest request) {
+		Order order = findOrderWithOrderItemsByOrderNumber(orderNumber);
+
+		order.updateStatus(request.status());
+	}
 
 	private Order findOrderWithOrderItemsByOrderNumber(String orderNumber) {
 		return orderRepository.findByOrderWithItems(orderNumber).orElseThrow(
 			() -> new CustomException(ErrorCode.ORDER_NOT_FOUND)
 		);
 	}
+
+
 
 
 	private boolean isMyOrder(Order order) {

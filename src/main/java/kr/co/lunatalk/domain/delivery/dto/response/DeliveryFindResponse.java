@@ -28,7 +28,7 @@ public record DeliveryFindResponse(
 	String trackingNumber,
 
 	@Schema(description = "배송 상태")
-	String status
+	DeliveryStatus status
 
 	) {
 
@@ -43,6 +43,6 @@ public record DeliveryFindResponse(
 			delivery.getMessage(),
 			delivery.getCourierCompany(),
 			delivery.getTrackingNumber(),
-			delivery.getStatus().getValue());
+			delivery.getStatus());
 	}
 }

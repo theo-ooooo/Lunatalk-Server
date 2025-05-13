@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import kr.co.lunatalk.domain.order.domain.OrderStatus;
 import kr.co.lunatalk.domain.order.dto.request.OrderCreateDeliveryRequest;
 import kr.co.lunatalk.domain.order.dto.request.OrderCreateRequest;
+import kr.co.lunatalk.domain.order.dto.request.OrderUpdateRequest;
 import kr.co.lunatalk.domain.order.dto.response.OrderCreateResponse;
 import kr.co.lunatalk.domain.order.dto.response.OrderFindResponse;
 import kr.co.lunatalk.domain.order.dto.response.OrderListResponse;
@@ -51,7 +52,7 @@ public class OrderController {
 
 	//관리자용
 	@GetMapping()
-	@Operation(description = "전체 주문 조회")
+	@Operation(summary = "전체 주문 조회", description = "전체 주문 조회합니다.")
 	@PreAuthorize("hasRole('ADMIN')")
 	public Page<OrderListResponse> getOrders(
 		@RequestParam(required = false) String orderNumber,
@@ -62,5 +63,11 @@ public class OrderController {
 		@RequestParam(required = false) String phone,
 		@PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 		return orderService.findOrders(orderNumber, status, username, email, nickname, phone, pageable);
+	}
+
+	@PatchMapping("/{orderNumber}")
+	@Operation(summary = "주문 정보 수정", description = "주문 정보를 수정합니다.")
+	public void updateOrder(@PathVariable String orderNumber, @Valid @RequestBody OrderUpdateRequest request) {
+		orderService.updateOrder(orderNumber, request);
 	}
 }

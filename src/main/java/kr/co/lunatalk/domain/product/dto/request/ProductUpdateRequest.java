@@ -25,9 +25,9 @@ public record ProductUpdateRequest(
 	@Schema(description = "상품 갯수")
 	Integer quantity,
 
-	@NotNull(message = "상품 상태는 필수입니다.")
-	@Schema(description = "상품 상태")
-	ProductStatus status,
+//	@NotNull(message = "상품 상태는 필수입니다.")
+//	@Schema(description = "상품 상태")
+//	ProductStatus status,
 
 	@NotNull(message = "상품 노출여부는 필수 입니다.")
 	@Schema(description = "상품 노출 여부")

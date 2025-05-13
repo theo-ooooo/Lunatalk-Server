@@ -4,6 +4,7 @@ import kr.co.lunatalk.domain.image.domain.Image;
 import kr.co.lunatalk.domain.image.repository.ImageRepository;
 import kr.co.lunatalk.domain.product.domain.Product;
 import kr.co.lunatalk.domain.product.domain.ProductColor;
+import kr.co.lunatalk.domain.product.domain.ProductStatus;
 import kr.co.lunatalk.domain.product.dto.FindProductDto;
 import kr.co.lunatalk.domain.product.dto.request.ProductCreateRequest;
 import kr.co.lunatalk.domain.product.dto.request.ProductUpdateRequest;
@@ -32,7 +33,7 @@ public class ProductService {
 
 	public Product save(ProductCreateRequest request) {
 		// 상품 저장.
-		Product product = Product.createProduct(request.name(), request.price(), request.quantity(), request.status(), request.visibility());
+		Product product = Product.createProduct(request.name(), request.price(), request.quantity(), ProductStatus.ACTIVE, request.visibility());
 		// 색상 저장.
 		request.colors().forEach(color -> {
 			ProductColor productColor = ProductColor.createProductColor(product, color);

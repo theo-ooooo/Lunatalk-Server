@@ -40,7 +40,7 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom {
 	@Override
 	public Page<Order> findOrdersWithItemsByMemberId(Long memberId, Pageable pageable) {
 		List<Order> content = queryFactory.selectFrom(order)
-			.innerJoin(order.orderItems, orderItem).fetchJoin()
+			.innerJoin(order.orderItems, orderItem)
 			.where(memberIdEq(memberId))
 			.orderBy(order.createdAt.desc())
 			.offset(pageable.getOffset())

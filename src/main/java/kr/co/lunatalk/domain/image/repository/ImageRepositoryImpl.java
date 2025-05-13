@@ -35,6 +35,16 @@ public class ImageRepositoryImpl implements ImageRepositoryCustom {
 			.fetch();
 	}
 
+	@Override
+	public List<Image> findAllByReferenceIdAndImageType(Long referenceId, ImageType imageType) {
+		return queryFactory
+			.selectFrom(image)
+			.where(image.referenceId.eq(referenceId)
+				.and(image.imageType.eq(imageType))
+				.and(isImageCompleted()))
+			.fetch();
+	}
+
 	private BooleanExpression isImageCompleted() {
 		return image.imageStatus.eq(ImageStatus.COMPLETED);
 	}

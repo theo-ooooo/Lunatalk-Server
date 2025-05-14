@@ -1,5 +1,6 @@
 package kr.co.lunatalk.domain.product.service;
 
+import kr.co.lunatalk.domain.category.repository.CategoryRepository;
 import kr.co.lunatalk.domain.image.domain.Image;
 import kr.co.lunatalk.domain.image.repository.ImageRepository;
 import kr.co.lunatalk.domain.product.domain.Product;
@@ -30,6 +31,7 @@ import java.util.stream.Collectors;
 public class ProductService {
 	private final ProductRepository productRepository;
 	private final ImageRepository imageRepository;
+	private final CategoryRepository categoryRepository;
 
 	public Product save(ProductCreateRequest request) {
 		// 상품 저장.
@@ -40,6 +42,8 @@ public class ProductService {
 			product.addProductColor(productColor);
 		});
 
+		updateCategory(request.categoryId(), product);
+
 		productRepository.save(product);
 		return product;
 	}
@@ -47,6 +51,8 @@ public class ProductService {
 	public void update(Long productId, ProductUpdateRequest request) {
 		Product findProduct = findById(productId);
 		findProduct.updateProduct(request);
+
+		updateCategory(request.categoryId(), findProduct);
 	}
 
 	public void delete(Long productId) {
@@ -91,6 +97,12 @@ public class ProductService {
 					List<Image> productImages = imageMap.getOrDefault(product.getId(), List.of());
 					return ProductFindResponse.from(FindProductDto.from(product, productImages));
 				}).toList();
+	}
+
+	private void updateCategory(Long categoryId, Product product) {
+		if(categoryId != null) {
+			categoryRepository.findById(categoryId).ifPresent(product::setCategory);
+		}
 	}
 
 	@Transactional(readOnly = true)

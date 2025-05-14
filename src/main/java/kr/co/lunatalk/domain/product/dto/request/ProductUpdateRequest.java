@@ -34,6 +34,9 @@ public record ProductUpdateRequest(
 	ProductVisibility visibility,
 
 	@Schema(description = "상품 색상들")
-	List<String> colors
+	List<String> colors,
+
+	@Schema(description = "연결할 카테고리 고유 ID")
+	Long categoryId
 ) {
 }

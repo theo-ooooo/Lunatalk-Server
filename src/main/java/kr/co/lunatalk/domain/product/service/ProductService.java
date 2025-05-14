@@ -1,5 +1,6 @@
 package kr.co.lunatalk.domain.product.service;
 
+import kr.co.lunatalk.domain.category.domain.CategoryStatus;
 import kr.co.lunatalk.domain.category.repository.CategoryRepository;
 import kr.co.lunatalk.domain.image.domain.Image;
 import kr.co.lunatalk.domain.image.repository.ImageRepository;
@@ -100,9 +101,10 @@ public class ProductService {
 	}
 
 	private void updateCategory(Long categoryId, Product product) {
-		if(categoryId != null) {
-			categoryRepository.findById(categoryId).ifPresent(product::setCategory);
-		}
+		categoryRepository.findByIdAndStatus(categoryId, CategoryStatus.ACTIVE).ifPresentOrElse(
+			product::setCategory,
+			() -> {throw new CustomException(ErrorCode.CATEGORY_NOT_FOUND);}
+		);
 	}
 
 	@Transactional(readOnly = true)

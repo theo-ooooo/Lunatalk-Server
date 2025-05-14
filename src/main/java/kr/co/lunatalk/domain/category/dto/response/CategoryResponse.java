@@ -16,10 +16,16 @@ public record CategoryResponse(
 	CategoryStatus status,
 
 	@Schema(description = "카테고리 노출여부")
-	CategoryVisibility visibility
+	CategoryVisibility visibility,
+
+	@Schema(description = "연결된 상품 갯수")
+	int productCount
 ) {
 
 	public static CategoryResponse from(Category category) {
-		return new CategoryResponse(category.getId(), category.getName(), category.getStatus(), category.getVisibility());
+		if(category == null) {
+			return null;
+		}
+		return new CategoryResponse(category.getId(), category.getName(), category.getStatus(), category.getVisibility(), category.getProducts().size());
 	}
 }

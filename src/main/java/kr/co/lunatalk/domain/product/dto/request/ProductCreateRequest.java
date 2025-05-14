@@ -34,6 +34,9 @@ public record ProductCreateRequest(
 
 	@NotNull(message = "색상을 선택해주세요.")
 	@Schema(description = "상품 컬러들")
-	List<String> colors
+	List<String> colors,
+
+	@Schema(description = "연결할 카테고리 고유 ID")
+	Long categoryId
 ) {
 }

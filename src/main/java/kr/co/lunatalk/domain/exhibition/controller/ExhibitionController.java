@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import kr.co.lunatalk.domain.exhibition.dto.request.ExhibitionCreateRequest;
 import kr.co.lunatalk.domain.exhibition.dto.request.ExhibitionUpdateRequest;
 import kr.co.lunatalk.domain.exhibition.dto.response.ExhibitionCreateResponse;
+import kr.co.lunatalk.domain.exhibition.dto.response.ExhibitionFindOneResponse;
 import kr.co.lunatalk.domain.exhibition.dto.response.ExhibitionListResponse;
 import kr.co.lunatalk.domain.exhibition.service.ExhibitionService;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,12 @@ public class ExhibitionController {
 	@PreAuthorize("hasRole('ADMIN')")
 	public ExhibitionCreateResponse createExhibition(@Valid  @RequestBody ExhibitionCreateRequest request) {
 		return exhibitionService.createExhibition(request);
+	}
+
+	@GetMapping("/{id}")
+	@PreAuthorize("hasRole('ADMIN')")
+	public ExhibitionFindOneResponse findExhibition(@PathVariable Long id) {
+		return exhibitionService.getExhibitionById(id);
 	}
 
 	@PutMapping("/{id}")

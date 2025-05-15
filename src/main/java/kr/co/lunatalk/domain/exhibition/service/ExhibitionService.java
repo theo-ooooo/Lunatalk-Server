@@ -10,6 +10,7 @@ import kr.co.lunatalk.domain.exhibition.dto.response.ExhibitionFindOneResponse;
 import kr.co.lunatalk.domain.exhibition.dto.response.ExhibitionListResponse;
 import kr.co.lunatalk.domain.exhibition.repository.ExhibitionRepository;
 import kr.co.lunatalk.domain.image.domain.Image;
+import kr.co.lunatalk.domain.image.repository.ImageRepository;
 import kr.co.lunatalk.domain.product.domain.Product;
 import kr.co.lunatalk.domain.product.dto.FindProductDto;
 import kr.co.lunatalk.domain.product.dto.ProductWithImagesResult;
@@ -33,6 +34,7 @@ import java.util.stream.IntStream;
 public class ExhibitionService {
 	private final ExhibitionRepository exhibitionRepository;
 	private final ProductUtil productUtil;
+	private final ImageRepository imageRepository;
 
 
 	public ExhibitionCreateResponse createExhibition(ExhibitionCreateRequest request) {
@@ -90,6 +92,41 @@ public class ExhibitionService {
 
 		return ExhibitionListResponse.from(exhibitions, productMap);
 	}
+
+	@Transactional(readOnly = true)
+	public ExhibitionFindOneResponse getExhibitionById(Long id) {
+		Exhibition exhibition = findById(id);
+
+		// 1. 연결된 상품 ID 목록 추출
+		List<Product> products = exhibition.getExhibitionProducts().stream()
+			.map(ExhibitionProduct::getProduct)
+			.toList();
+
+		List<Long> productIds = products.stream()
+			.map(Product::getId)
+			.toList();
+
+		// 2. 이미지들 일괄 조회
+		List<Image> images = imageRepository.fetchProductImagesByProductIds(productIds);
+
+		// 3. ExhibitionProductDto 생성
+		List<ExhibitionProductDto> exhibitionProductDtos = exhibition.getExhibitionProducts().stream()
+			.map(exhibitionProduct -> {
+				Product product = exhibitionProduct.getProduct();
+				int sortOrder = exhibitionProduct.getSortOrder();
+
+				List<Image> productImages = images.stream()
+					.filter(img -> img.getReferenceId().equals(product.getId()))
+					.toList();
+
+				return ExhibitionProductDto.from(product, productImages, sortOrder);
+			})
+			.toList();
+
+		// 4. Response 반환
+		return ExhibitionFindOneResponse.from(exhibition, exhibitionProductDtos);
+	}
+
 
 
 	public void updateExhibition(Long exhibitionId, ExhibitionUpdateRequest request) {

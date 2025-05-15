@@ -32,23 +32,21 @@ public record ProductFindResponse(
 ) {
 
 	public static ProductFindResponse from(FindProductDto findProductDto) {
-		List<String> colors = findProductDto.product().getProductColor().stream()
-			.map(ProductColor::getColor)
-			.toList();
+
 
 		List<FindImageDto> images = findProductDto.images().stream()
 			.map(FindImageDto::from)
 			.toList();
 
 		return new ProductFindResponse(
-			findProductDto.product().getId(),
-			findProductDto.product().getName(),
-			findProductDto.product().getPrice(),
-			findProductDto.product().getQuantity(),
-			findProductDto.product().getVisibility(),
-			colors,
+			findProductDto.productId(),
+			findProductDto.productName(),
+			findProductDto.price(),
+			findProductDto.quantity(),
+			findProductDto.visibility(),
+			findProductDto.colors(),
 			images,
-			CategoryResponse.from(findProductDto.product().getCategory())
+			findProductDto.category()
 		);
 	}
 }

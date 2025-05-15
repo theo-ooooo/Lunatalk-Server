@@ -132,11 +132,11 @@ public class ExhibitionService {
 	public void updateExhibition(Long exhibitionId, ExhibitionUpdateRequest request) {
 		Exhibition findExhibition = findById(exhibitionId);
 
-		findExhibition.updateExhibition(request.title(), request.description(), request.visibility(), request.startAt(), request.endAt());
-
 		exhibitionRepository.deleteProductByExhibitionId(findExhibition.getId());
 
 		Exhibition exhibition = findById(exhibitionId);
+
+		exhibition.updateExhibition(request.title(), request.description(), request.visibility(), request.startAt(), request.endAt());
 
 		if(!request.productIds().isEmpty()) {
 			makeExhibitionProducts(request.productIds(), exhibition);

@@ -8,12 +8,14 @@ import kr.co.lunatalk.domain.product.domain.Product;
 import kr.co.lunatalk.domain.product.domain.ProductColor;
 import kr.co.lunatalk.domain.product.domain.ProductStatus;
 import kr.co.lunatalk.domain.product.dto.FindProductDto;
+import kr.co.lunatalk.domain.product.dto.ProductWithImagesResult;
 import kr.co.lunatalk.domain.product.dto.request.ProductCreateRequest;
 import kr.co.lunatalk.domain.product.dto.request.ProductUpdateRequest;
 import kr.co.lunatalk.domain.product.dto.response.ProductFindResponse;
 import kr.co.lunatalk.domain.product.repository.ProductRepository;
 import kr.co.lunatalk.global.exception.CustomException;
 import kr.co.lunatalk.global.exception.ErrorCode;
+import kr.co.lunatalk.global.util.ProductUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,6 +35,7 @@ public class ProductService {
 	private final ProductRepository productRepository;
 	private final ImageRepository imageRepository;
 	private final CategoryRepository categoryRepository;
+	private final ProductUtil productUtil;
 
 	public Product save(ProductCreateRequest request) {
 		// 상품 저장.
@@ -83,21 +86,11 @@ public class ProductService {
 
 	@Transactional(readOnly = true)
 	public List<ProductFindResponse> findAllProducts(List<Long> productIds) {
-		List<Product> products = productRepository.findAllProductDtoByIdsWithJoin(productIds);
+		ProductWithImagesResult allProducts = productUtil.findAllProducts(productIds);
 
-		if(products.isEmpty()) {
-			return List.of();
-		}
-
-		List<Image> images = imageRepository.fetchProductImagesByProductIds(productIds);
-
-		Map<Long, List<Image>> imageMap = images.stream().collect(Collectors.groupingBy(Image::getReferenceId));
-
-		return products.stream()
-				.map(product -> {
-					List<Image> productImages = imageMap.getOrDefault(product.getId(), List.of());
-					return ProductFindResponse.from(FindProductDto.from(product, productImages));
-				}).toList();
+		return allProducts.products().stream().map(product -> {
+			return ProductFindResponse.from(FindProductDto.from(product, allProducts.imageMap().getOrDefault(product.getId(), List.of())));
+		}).toList();
 	}
 
 	private void updateCategory(Long categoryId, Product product) {

@@ -136,8 +136,10 @@ public class ExhibitionService {
 
 		exhibitionRepository.deleteProductByExhibitionId(findExhibition.getId());
 
+		Exhibition exhibition = findById(exhibitionId);
+
 		if(!request.productIds().isEmpty()) {
-			makeExhibitionProducts(request.productIds(), findExhibition);
+			makeExhibitionProducts(request.productIds(), exhibition);
 		}
 
 	}

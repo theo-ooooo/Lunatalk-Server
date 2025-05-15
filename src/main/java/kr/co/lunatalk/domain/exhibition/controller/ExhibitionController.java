@@ -1,5 +1,6 @@
 package kr.co.lunatalk.domain.exhibition.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import kr.co.lunatalk.domain.exhibition.dto.request.ExhibitionCreateRequest;
@@ -21,29 +22,34 @@ public class ExhibitionController {
 
 	@PostMapping()
 	@PreAuthorize("hasRole('ADMIN')")
+	@Operation(summary = "기획전 생성", description = "기획전을 생성합니다.")
 	public ExhibitionCreateResponse createExhibition(@Valid  @RequestBody ExhibitionCreateRequest request) {
 		return exhibitionService.createExhibition(request);
 	}
 
 	@GetMapping("/{id}")
 	@PreAuthorize("hasRole('ADMIN')")
+	@Operation(summary = "기획전 조회", description = "기획전을 조회합니다.")
 	public ExhibitionFindOneResponse findExhibition(@PathVariable Long id) {
 		return exhibitionService.getExhibitionById(id);
 	}
 
 	@PutMapping("/{id}")
 	@PreAuthorize("hasRole('ADMIN')")
+	@Operation(summary = "기획전 수정", description = "기획전을 수정합니다.")
 	public void updateExhibition(@PathVariable Long id, @Valid @RequestBody ExhibitionUpdateRequest request) {
 		exhibitionService.updateExhibition(id, request);
 	}
 
 	@DeleteMapping("/{id}")
 	@PreAuthorize("hasRole('ADMIN')")
+	@Operation(summary = "기획전 삭제", description = "기획전을 삭제 합니다.")
 	public void deleteExhibition(@PathVariable Long id) {
 		exhibitionService.deleteExhibition(id);
 	}
 
 	@GetMapping()
+	@Operation(summary = "전체 기획전 조회", description = "전체 기획전을 조회합니다.")
 	public ExhibitionListResponse getAllExhibitions() {
 		return exhibitionService.getAllExhibitions();
 	}

@@ -1,16 +1,33 @@
 package kr.co.lunatalk.domain.product.dto;
 
+import kr.co.lunatalk.domain.category.domain.Category;
+import kr.co.lunatalk.domain.category.dto.response.CategoryResponse;
 import kr.co.lunatalk.domain.image.domain.Image;
 import kr.co.lunatalk.domain.product.domain.Product;
 import kr.co.lunatalk.domain.product.domain.ProductColor;
+import kr.co.lunatalk.domain.product.domain.ProductVisibility;
 
 import java.util.List;
 
 public record FindProductDto(
-		Product product,
+		Long productId,
+		String productName,
+		Long price,
+		Integer quantity,
+		ProductVisibility visibility,
+		List<String> colors,
+		CategoryResponse category,
 		List<Image> images) {
 
 	public static FindProductDto from(Product product, List<Image> images) {
-		return new FindProductDto(product, images);
+
+		return new FindProductDto(product.getId(),
+			product.getName(),
+			product.getPrice(),
+			product.getQuantity(),
+			product.getVisibility(),
+			product.getProductColor().stream().map(ProductColor::getColor).toList(),
+			CategoryResponse.from(product.getCategory()),
+			images);
 	}
 }

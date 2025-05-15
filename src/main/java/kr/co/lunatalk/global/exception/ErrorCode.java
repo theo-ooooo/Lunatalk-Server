@@ -45,6 +45,9 @@ public enum ErrorCode {
 
 	// Delivery
 	DELIVERY_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 배송 정보를 찾을수 없습니다."),
+
+	// Exhibition
+	EXHIBITION_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 기획전을 찾을수 없습니다."),
 	;
 	private HttpStatus httpStatus;
 	private String message;

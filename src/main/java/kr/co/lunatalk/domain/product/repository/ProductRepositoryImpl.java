@@ -24,13 +24,15 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 	private final JPAQueryFactory queryFactory;
 
 	@Override
-	public Product findProductById(Long productId) {
-		return queryFactory
-			.selectFrom(product)
-			.leftJoin(product.productColor).fetchJoin()
-			.where(product.id.eq(productId)
-				.and(isActiveAndVisible()))
-			.fetchOne();
+	public Optional<Product> findProductById(Long productId) {
+		return Optional.ofNullable(
+			queryFactory
+				.selectFrom(product)
+				.leftJoin(product.productColor).fetchJoin()
+				.where(product.id.eq(productId)
+					.and(isActiveAndVisible()))
+				.fetchOne()
+		);
 	}
 
 	@Override

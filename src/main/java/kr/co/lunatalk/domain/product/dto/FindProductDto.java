@@ -26,7 +26,9 @@ public record FindProductDto(
 			product.getPrice(),
 			product.getQuantity(),
 			product.getVisibility(),
-			product.getProductColor().stream().map(ProductColor::getColor).toList(),
+			product.getProductColor() != null
+				? product.getProductColor().stream().map(ProductColor::getColor).toList()
+				: List.of(),
 			product.getCategory() != null ? CategoryResponse.from(product.getCategory()) : null,
 			images);
 	}

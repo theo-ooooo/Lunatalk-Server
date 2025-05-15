@@ -31,7 +31,9 @@ public class Member extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private MemberRole role;
 
+	@Column(nullable = false)
 	private String phone;
+	@Column(nullable = false)
 	private String email;
 
     private LocalDateTime lastLoginAt;

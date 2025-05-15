@@ -3,6 +3,7 @@ package kr.co.lunatalk.domain.exhibition.dto.request;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import kr.co.lunatalk.domain.exhibition.domain.ExhibitionVisibility;
 
 import java.time.LocalDateTime;
@@ -20,7 +21,7 @@ public record ExhibitionUpdateRequest(
 	ExhibitionVisibility visibility,
 
 	@Schema(description = "기획전 노출 상품 ID")
-	@Min(1)
+	@Size(min = 1)
 	List<Long> productIds,
 
 	@Schema(description = "시작일")

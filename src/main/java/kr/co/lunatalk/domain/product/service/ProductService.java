@@ -53,26 +53,23 @@ public class ProductService {
 	}
 
 	public void update(Long productId, ProductUpdateRequest request) {
-		Product findProduct = findById(productId);
+		Product findProduct = productUtil.findProductId(productId);
 		findProduct.updateProduct(request);
 
 		updateCategory(request.categoryId(), findProduct);
 	}
 
 	public void delete(Long productId) {
-		Product findProduct = findById(productId);
+		Product findProduct = productUtil.findProductId(productId);
 
 		findProduct.deleteProduct();
 	}
 
-	@Transactional(readOnly = true)
-	public Product findById(Long id) {
-		return productRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
-	}
+
 
 	@Transactional(readOnly = true)
 	public ProductFindResponse findProductOne(Long productId) {
-		Product findProduct = productRepository.findProductById(productId);
+		Product findProduct = productUtil.findProductId(productId);
 
 		if (findProduct == null) {
 			throw new CustomException(ErrorCode.PRODUCT_NOT_FOUND);

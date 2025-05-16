@@ -7,6 +7,8 @@ import kr.co.lunatalk.domain.product.dto.FindProductDto;
 import kr.co.lunatalk.domain.product.dto.ProductWithImagesResult;
 import kr.co.lunatalk.domain.product.dto.response.ProductFindResponse;
 import kr.co.lunatalk.domain.product.repository.ProductRepository;
+import kr.co.lunatalk.global.exception.CustomException;
+import kr.co.lunatalk.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +25,9 @@ public class ProductUtil {
 
 	@Transactional
 	public Product findProductId(Long productId) {
-		return productRepository.findProductById(productId);
+		return productRepository.findProductById(productId).orElseThrow(
+			() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND)
+		);
 	}
 
 	@Transactional

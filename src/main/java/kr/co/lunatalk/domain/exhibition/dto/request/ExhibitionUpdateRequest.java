@@ -1,6 +1,7 @@
 package kr.co.lunatalk.domain.exhibition.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import kr.co.lunatalk.domain.exhibition.domain.ExhibitionVisibility;
@@ -30,4 +31,11 @@ public record ExhibitionUpdateRequest(
 	@Schema(description = "종료일")
 	LocalDateTime endAt
 ) {
+	@AssertTrue(message = "종료일은 시작일 이후여야 합니다.")
+	public boolean isValidDateRange() {
+		if (startAt == null || endAt == null) {
+			return true; // Let @NotNull handle this
+		}
+		return endAt.isAfter(startAt);
+	}
 }

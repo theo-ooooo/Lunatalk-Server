@@ -6,6 +6,7 @@ import kr.co.lunatalk.domain.exhibition.domain.ExhibitionVisibility;
 import kr.co.lunatalk.domain.exhibition.dto.request.ExhibitionCreateRequest;
 import kr.co.lunatalk.domain.exhibition.dto.request.ExhibitionUpdateRequest;
 import kr.co.lunatalk.domain.exhibition.dto.response.ExhibitionCreateResponse;
+import kr.co.lunatalk.domain.exhibition.dto.response.ExhibitionFindOneResponse;
 import kr.co.lunatalk.domain.exhibition.dto.response.ExhibitionListResponse;
 import kr.co.lunatalk.domain.exhibition.repository.ExhibitionRepository;
 import kr.co.lunatalk.domain.product.domain.Product;
@@ -87,10 +88,10 @@ class ExhibitionServiceTest {
 		));
 
 		// when
-		ExhibitionListResponse result = exhibitionService.getAllExhibitions();
+		List<ExhibitionFindOneResponse> result = exhibitionService.getAllExhibitions();
 
 		// then
-		assertEquals(1, result.list().size());
+		assertEquals(1, result.size());
 		verify(productUtil).findAllProducts(List.of(1L));
 	}
 

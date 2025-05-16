@@ -7,11 +7,12 @@ import kr.co.lunatalk.domain.exhibition.dto.request.ExhibitionCreateRequest;
 import kr.co.lunatalk.domain.exhibition.dto.request.ExhibitionUpdateRequest;
 import kr.co.lunatalk.domain.exhibition.dto.response.ExhibitionCreateResponse;
 import kr.co.lunatalk.domain.exhibition.dto.response.ExhibitionFindOneResponse;
-import kr.co.lunatalk.domain.exhibition.dto.response.ExhibitionListResponse;
 import kr.co.lunatalk.domain.exhibition.service.ExhibitionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/exhibitions")
@@ -50,7 +51,7 @@ public class ExhibitionController {
 
 	@GetMapping()
 	@Operation(summary = "전체 기획전 조회", description = "전체 기획전을 조회합니다.")
-	public ExhibitionListResponse getAllExhibitions() {
+	public List<ExhibitionFindOneResponse> getAllExhibitions() {
 		return exhibitionService.getAllExhibitions();
 	}
 }

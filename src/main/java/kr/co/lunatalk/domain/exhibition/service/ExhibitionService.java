@@ -53,7 +53,7 @@ public class ExhibitionService {
 	}
 
 	@Transactional(readOnly = true)
-	public ExhibitionListResponse getAllExhibitions() {
+	public List<ExhibitionFindOneResponse> getAllExhibitions() {
 		List<Exhibition> exhibitions = exhibitionRepository.findAll();
 
 		Map<Long, List<ExhibitionProductDto>> productMap = exhibitions.stream()
@@ -90,7 +90,7 @@ public class ExhibitionService {
 				}
 			));
 
-		return ExhibitionListResponse.from(exhibitions, productMap);
+		return exhibitions.stream().map(exhibition -> ExhibitionFindOneResponse.from(exhibition, productMap.get(exhibition.getId()))).toList();
 	}
 
 	@Transactional(readOnly = true)

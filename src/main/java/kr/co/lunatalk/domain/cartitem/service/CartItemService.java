@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -65,7 +66,7 @@ public class CartItemService {
 			}
 			Product product = findProduct.get();
 			return CartFindResponse.of(cartItem, FindProductDto.from(product, imageMap.getOrDefault(product.getId(), List.of())));
-		}).toList();
+		}).filter(Objects::nonNull).toList();
 	}
 
 	public void deleteById(Long id) {

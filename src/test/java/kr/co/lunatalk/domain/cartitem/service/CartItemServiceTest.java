@@ -148,4 +148,14 @@ class CartItemServiceTest {
 		// expect
 		assertThrows(CustomException.class, () -> cartItemService.deleteById(20L));
 	}
+
+	@Test
+	void deleteById_shouldThrow_ifCartItemNotFound() {
+		// given
+		when(memberUtil.getCurrentMember()).thenReturn(member);
+		when(cartItemRepository.findById(99L)).thenReturn(Optional.empty());
+
+		// expect
+		assertThrows(CustomException.class, () -> cartItemService.deleteById(99L));
+	}
 }

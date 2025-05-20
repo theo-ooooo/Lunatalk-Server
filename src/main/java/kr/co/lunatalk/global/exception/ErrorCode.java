@@ -55,6 +55,17 @@ public enum ErrorCode {
 
 	// Payment
 	PAYMENT_ALREADY_CLOSED(HttpStatus.CONFLICT, "이미 종료된 주문건입니다."),
+	// Delivery
+	DELIVERY_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 배송 정보를 찾을수 없습니다."),
+
+	// Exhibition
+	EXHIBITION_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 기획전을 찾을수 없습니다."),
+
+	// CartItem
+	CART_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 장바구니를 찾을수 없습니다."),
+
+	// Payment
+	PAYMENT_NOT_SUPPORT_METHOD(HttpStatus.BAD_REQUEST, "지원하지 않는 결제수단 입니다."),
 	;
 	private HttpStatus httpStatus;
 	private String message;

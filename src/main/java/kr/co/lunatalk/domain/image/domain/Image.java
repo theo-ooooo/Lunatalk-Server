@@ -28,6 +28,8 @@ public class Image extends BaseTimeEntity {
 
 	private String imagePath;
 
+	private Integer imageOrder;
+
 	@Enumerated(EnumType.STRING)
 	private ImageFileExtension imageFileExtension;
 
@@ -36,22 +38,24 @@ public class Image extends BaseTimeEntity {
 
 
 	@Builder(access = AccessLevel.PRIVATE)
-	public Image(ImageType imageType, Long referenceId, String imageKey, String imagePath, ImageFileExtension imageFileExtension) {
+	public Image(ImageType imageType, Long referenceId, String imageKey, String imagePath, ImageFileExtension imageFileExtension, Integer order) {
 		this.imageType = imageType;
 		this.referenceId = referenceId;
 		this.imageKey = imageKey;
 		this.imagePath = imagePath;
 		this.imageFileExtension = imageFileExtension;
 		this.imageStatus = ImageStatus.PENDING;
+		this.imageOrder = order;
 	}
 
-	public static Image createImage(ImageType imageType, Long referenceId, String imageKey, String imagePath, ImageFileExtension imageFileExtension) {
+	public static Image createImage(ImageType imageType, Long referenceId, String imageKey, String imagePath, ImageFileExtension imageFileExtension, Integer order) {
 		return Image.builder()
 			.imageType(imageType)
 			.referenceId(referenceId)
 			.imageKey(imageKey)
 			.imagePath(imagePath)
 			.imageFileExtension(imageFileExtension)
+			.order(order)
 			.build();
 	}
 

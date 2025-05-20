@@ -41,7 +41,8 @@ class MemberTest {
 		Profile profile = fixtureMonkey.giveMeOne(Profile.class);
 
 		//when
-		Member member = Member.createMember("user", "password", profile);
+		Member member = Member.createMember("user", "password", profile,	"01012341234",
+			"kkwondev@gmail.com");
 
 		//then
 		assertNotNull(member);

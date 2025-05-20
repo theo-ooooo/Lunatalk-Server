@@ -9,6 +9,8 @@ import kr.co.lunatalk.global.exception.ErrorCode;
 import kr.co.lunatalk.global.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,5 +34,22 @@ public class MemberService {
 		return memberRepository
 			.findById(securityUtil.getCurrentMemberId())
 			.orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+	}
+
+	public Page<MemberInfoResponse> getMembers(Pageable pageable) {
+		Page<Member> members = memberRepository.findMembers(pageable);
+		return members.map(MemberInfoResponse::from);
+	}
+
+	public MemberInfoResponse getMemberInformation(Long id) {
+		Member member = findMemberById(id);
+
+		return MemberInfoResponse.from(member);
+	}
+
+	private Member findMemberById(Long id) {
+		return memberRepository.findById(id).orElseThrow(
+		   () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
+	   );
 	}
 }

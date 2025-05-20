@@ -23,6 +23,7 @@ public enum ErrorCode {
 	AUTH_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "시큐리티 인증 정보를 찾을수 없습니다."),
 	AUTH_FAILED(HttpStatus.UNAUTHORIZED, "인증에 실패하였습니다."),
 	AUTH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "Token이 만료 되었습니다."),
+	AUTH_REFRESH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "RefreshToken이 만료되었습니다."),
 
 
 	// Product
@@ -41,6 +42,16 @@ public enum ErrorCode {
 
 	// Order
 	ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 주문은 찾을 수 없습니다."),
+
+	// Delivery
+	DELIVERY_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 배송 정보를 찾을수 없습니다."),
+
+	// Exhibition
+	EXHIBITION_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 기획전을 찾을수 없습니다."),
+
+	// CartItem
+	CART_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 장바구니를 찾을수 없습니다."),
+
 
 	// Payment
 	PAYMENT_ALREADY_CLOSED(HttpStatus.CONFLICT, "이미 종료된 주문건입니다."),

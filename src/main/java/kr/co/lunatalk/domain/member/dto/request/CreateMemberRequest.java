@@ -13,6 +13,14 @@ public record CreateMemberRequest(
 	@NotBlank(message = "비밀번호는 필수로 입력해야 합니다.")
 	@Size(min = 8, message = "비밀번호는 8자 이상이여야 합니다.")
 	@Schema(description = "비밀번호")
-	String password
+	String password,
+
+	@NotBlank(message = "핸드폰 번호를 입력해주세요.")
+	@Schema(description = "비밀번호")
+	String phone,
+
+	@NotBlank(message = "이메일을 입력해주세요.")
+	@Schema(description = "비밀번호")
+	String email
 ) {
 }

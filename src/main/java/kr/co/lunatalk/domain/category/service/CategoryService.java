@@ -1,6 +1,7 @@
 package kr.co.lunatalk.domain.category.service;
 
 import kr.co.lunatalk.domain.category.domain.Category;
+import kr.co.lunatalk.domain.category.domain.CategoryStatus;
 import kr.co.lunatalk.domain.category.domain.CategoryVisibility;
 import kr.co.lunatalk.domain.category.dto.request.CategoryAddProductRequest;
 import kr.co.lunatalk.domain.category.dto.request.CategoryCreateRequest;
@@ -8,8 +9,8 @@ import kr.co.lunatalk.domain.category.dto.request.CategoryUpdateRequest;
 import kr.co.lunatalk.domain.category.dto.response.CategoryAddProductResponse;
 import kr.co.lunatalk.domain.category.dto.response.CategoryCreateResponse;
 import kr.co.lunatalk.domain.category.dto.response.CategoryProductResponse;
+import kr.co.lunatalk.domain.category.dto.response.CategoryResponse;
 import kr.co.lunatalk.domain.category.repository.CategoryRepository;
-import kr.co.lunatalk.domain.image.repository.ImageRepository;
 import kr.co.lunatalk.domain.product.domain.Product;
 import kr.co.lunatalk.domain.product.dto.response.ProductFindResponse;
 import kr.co.lunatalk.domain.product.repository.ProductRepository;
@@ -68,8 +69,36 @@ public class CategoryService {
 		List<ProductFindResponse> allProducts = productService.findAllProducts(productIds);
 
 		return CategoryProductResponse.of(withProducts.getId(), withProducts.getName(), allProducts);
+	}
+
+	@Transactional(readOnly = true)
+	public List<CategoryResponse> getCategoryList() {
+		List<Category> activeCategories = categoryRepository.findAllByStatus(CategoryStatus.ACTIVE);
+
+		return activeCategories.stream().map(CategoryResponse::from).toList();
+	}
 
 
+	@Transactional(readOnly = true)
+	public CategoryResponse getOneCategory(Long categoryId) {
+		Category category = categoryRepository.findByIdAndStatus(categoryId, CategoryStatus.ACTIVE)
+			.orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
+
+		return CategoryResponse.from(category);
+	}
+
+
+	@Transactional(readOnly = true)
+	public List<CategoryProductResponse> getCategoryProducts() {
+		List<Category> allWithProducts = categoryRepository.findAllWithProducts();
+
+		return allWithProducts.stream().map(category -> {
+			List<Long> productIds = category.getProducts().stream().map(Product::getId).toList();
+
+			List<ProductFindResponse> allProducts = productService.findAllProducts(productIds);
+
+			return CategoryProductResponse.of(category.getId(), category.getName(), allProducts);
+		}).toList();
 	}
 
 	public CategoryAddProductResponse addProduct(Long categoryId, CategoryAddProductRequest request) {

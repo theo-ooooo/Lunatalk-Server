@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/images")
 @PreAuthorize("hasRole('ADMIN')")
 @Tag(name = "이미지 업로드/삭제", description = "이미지 관련 API")
 public class ImageController {
@@ -30,7 +31,7 @@ public class ImageController {
 		imageService.productImageCompleteUpload(request);
 	}
 
-	@DeleteMapping("/images/delete/{imageKey}")
+	@DeleteMapping("/delete/{imageKey}")
 	@Operation(summary = "이미지 삭제", description = "업로드된 이미지를 삭제합니다.")
 	public void deleteImage(@PathVariable String imageKey) {
 		imageService.deleteByImageKey(imageKey);

@@ -34,6 +34,12 @@ public class AuthController {
 		return authService.loginMember(request);
 	}
 
+	@PostMapping("/admin/login")
+	@Operation(summary = "관리자 로그인", description = "관리자 로그인후 토큰을 발급합니다.")
+	public AuthTokenResponse adminLogin(@RequestBody @Valid LoginRequest request) {
+		return authService.loginAdmin(request);
+	}
+
 	// 리프레쉬 토큰으로 액세스 토큰 재발급
 	@PostMapping("/reissue")
 	@Operation(summary = "리프레쉬 토큰 발급", description = "리프레쉬 토큰을 이용해 새로운 액세스토큰과 리프레쉬 토큰을 발급합니다.")

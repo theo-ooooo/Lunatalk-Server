@@ -6,6 +6,7 @@ import kr.co.lunatalk.domain.auth.dto.request.RefreshTokenRequest;
 import kr.co.lunatalk.domain.auth.dto.response.AuthTokenResponse;
 import kr.co.lunatalk.domain.auth.dto.response.TokenResponse;
 import kr.co.lunatalk.domain.member.domain.Member;
+import kr.co.lunatalk.domain.member.domain.MemberRole;
 import kr.co.lunatalk.domain.member.domain.MemberStatus;
 import kr.co.lunatalk.domain.member.domain.Profile;
 import kr.co.lunatalk.domain.member.dto.request.CreateMemberRequest;
@@ -40,7 +41,13 @@ public class AuthService {
 			throw new CustomException(ErrorCode.MEMBER_EXISTS);
 		}
 
-		Member member = Member.createMember(request.username(), encodePassword(request.password()), Profile.of("", ""));
+		Member member = Member.createMember(
+			request.username(),
+			encodePassword(request.password()),
+			Profile.of("", ""),
+			request.phone(),
+			request.email()
+		);
 		memberRepository.save(member);
 
 		TokenResponse token = getTokenResponse(member);
@@ -49,18 +56,28 @@ public class AuthService {
 	}
 
 	public AuthTokenResponse loginMember(LoginRequest request) {
-		Optional<Member> findMember = memberRepository.findByUsername(request.username());
+		Member member = findMemberByUsername(request.username());
 
-		if (findMember.isEmpty()) {
-			throw new CustomException(ErrorCode.MEMBER_NOT_FOUND);
-		}
-
-		Member member = findMember.get();
 
 		if (member.getStatus() == MemberStatus.DELETE) {
 			throw new CustomException(ErrorCode.MEMBER_NOT_FOUND);
 		}
 
+		return passwordMatchingAndTokenPair(request, member);
+	}
+
+
+	public AuthTokenResponse loginAdmin(LoginRequest request) {
+		Member member = findMemberByUsername(request.username());
+
+		if(!member.getRole().equals(MemberRole.ADMIN)) {
+			throw new CustomException(ErrorCode.AUTH_UNAUTHORIZED);
+		}
+
+		return passwordMatchingAndTokenPair(request, member);
+	}
+
+	private AuthTokenResponse passwordMatchingAndTokenPair(LoginRequest request, Member member) {
 		Boolean isMatching = matchingPassword(request.password(), member.getPassword());
 
 		if(!isMatching) {
@@ -68,6 +85,13 @@ public class AuthService {
 		}
 
 		return AuthTokenResponse.from(getTokenResponse(member));
+	}
+
+
+	private Member findMemberByUsername(String username) {
+		return memberRepository.findByUsername(username).orElseThrow(
+			() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
+		);
 	}
 
 	public void withdraw() {
@@ -90,7 +114,7 @@ public class AuthService {
 		RefreshTokenDto refreshTokenDto = jwtTokenProvider.retrieveRefreshToken(request.refreshToken());
 
 		if(refreshTokenDto == null) {
-			throw new CustomException(ErrorCode.AUTH_TOKEN_EXPIRED);
+			throw new CustomException(ErrorCode.AUTH_REFRESH_TOKEN_EXPIRED);
 		}
 
 		Optional<Member> findMember = memberRepository.findById(refreshTokenDto.memberId());

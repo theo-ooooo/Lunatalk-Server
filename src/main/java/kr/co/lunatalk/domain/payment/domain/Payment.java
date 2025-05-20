@@ -1,66 +1,68 @@
 package kr.co.lunatalk.domain.payment.domain;
 
+
 import jakarta.persistence.*;
 import kr.co.lunatalk.domain.common.domain.BaseTimeEntity;
+import kr.co.lunatalk.domain.member.domain.Member;
 import kr.co.lunatalk.domain.order.domain.Order;
 import lombok.AccessLevel;
 import lombok.Builder;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Getter
 public class Payment extends BaseTimeEntity {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+
+	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
+	@Column(unique = true)
+	private String paymentKey;
+
+	@Column(nullable = false)
+	private Integer amount;
+
 	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "order_id")
+	@JoinColumn(name = "order_id", nullable = false)
 	private Order order;
 
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "member_id", nullable = false)
+	private Member member;
+
 	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
 	private PaymentStatus status;
 
-	private String tId; // 결제키
-	private String method; // 결제 수단
-	private Long amount; // 결제금액
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private PaymentMethod method;
 
-	@Builder(access = AccessLevel.PRIVATE)
-	public Payment(Order order, PaymentStatus status, String tId, String method, Long amount) {
-		this.order = order;
-		this.status = status;
-		this.tId = tId;
-		this.method = method;
+	@Builder
+	public Payment(Integer amount, Order order, Member member, PaymentStatus status, PaymentMethod method) {
 		this.amount = amount;
+		this.order = order;
+		this.member = member;
+		this.status = status;
+		this.method = method;
 	}
 
-
-
-	public static Payment createPayment(Order order, String method, Long amount) {
+	public static Payment createPayment(Order order, Member member, PaymentMethod method) {
 		return Payment.builder()
+			.amount(Math.toIntExact(order.getTotalPrice()))
 			.order(order)
+			.member(member)
 			.method(method)
-			.amount(amount)
-			.status(PaymentStatus.REQUESTED)
+			.status(PaymentStatus.READY)
 			.build();
 	}
 
-	public void paymentSuccess(String tId) {
-		this.status = PaymentStatus.SUCCESS;
-		this.tId = tId;
+	public void successPayment(String paymentKey) {
+		this.status = PaymentStatus.DONE;
+		this.paymentKey = paymentKey;
 	}
 
-	public void paymentFail() {
-		this.status = PaymentStatus.FAILED;
-	}
-
-	public void paymentCancel() {
-		this.status = PaymentStatus.CANCELLED;
-	}
-
-	public void paymentRefund() {
-		this.status = PaymentStatus.REFUNDED;
+	public void cancelPayment() {
+		this.status = PaymentStatus.CANCELED;
 	}
 }

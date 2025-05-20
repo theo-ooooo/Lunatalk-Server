@@ -101,7 +101,7 @@ class ImageServiceTest {
 
 	@Test
 	void 상품_이미지_업로드_완료처리() {
-		Image image = Image.createImage(ImageType.PRODUCT_THUMBNAIL, 1L, "image-key", "path", ImageFileExtension.PNG);
+		Image image = Image.createImage(ImageType.PRODUCT_THUMBNAIL, 1L, "image-key", "path", ImageFileExtension.PNG, 1);
 		given(imageRepository.findByImageKey("image-key")).willReturn(Optional.of(image));
 
 		imageService.productImageCompleteUpload(new ProductImageCompletedRequest("image-key"));
@@ -122,7 +122,7 @@ class ImageServiceTest {
 
 	@Test
 	void 이미지_삭제_성공() {
-		Image image = Image.createImage(ImageType.PRODUCT_THUMBNAIL, 1L, "image-key", "local/product/1/image-key.png", ImageFileExtension.PNG);
+		Image image = Image.createImage(ImageType.PRODUCT_THUMBNAIL, 1L, "image-key", "local/product/1/image-key.png", ImageFileExtension.PNG, 1);
 		given(imageRepository.findByImageKey("image-key")).willReturn(Optional.of(image));
 
 		imageService.deleteByImageKey("image-key");
@@ -134,7 +134,7 @@ class ImageServiceTest {
 
 	@Test
 	void 삭제된_이미지_다시_삭제시_예외() {
-		Image image = Image.createImage(ImageType.PRODUCT_THUMBNAIL, 1L, "image-key", "local/product/1/image-key.png", ImageFileExtension.PNG);
+		Image image = Image.createImage(ImageType.PRODUCT_THUMBNAIL, 1L, "image-key", "local/product/1/image-key.png", ImageFileExtension.PNG,1);
 		image.deletedImage();
 		given(imageRepository.findByImageKey("deleted-key")).willReturn(Optional.of(image));
 

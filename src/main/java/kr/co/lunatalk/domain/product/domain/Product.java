@@ -69,7 +69,7 @@ public class Product extends BaseTimeEntity {
 		if(request.name() != null) this.name = request.name();
 		if(request.price() != null) this.price = request.price();
 		if(request.quantity() != null) this.quantity = request.quantity();
-		if(request.status() != null) this.status = request.status();
+//		if(request.status() != null) this.status = request.status();
 
 		if(!request.colors().isEmpty()) {
 			clearProductColor();

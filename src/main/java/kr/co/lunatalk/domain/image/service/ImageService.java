@@ -26,6 +26,7 @@ import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignReques
 
 import java.net.URL;
 import java.time.Duration;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -46,12 +47,16 @@ public class ImageService {
 
 		Product product = findProductByProductId(request.productId());
 
+		List<Image> list = imageRepository.findAllByReferenceIdAndImageType(request.productId(), request.imageType());
+
+		Integer order = list.isEmpty() ? 1 : list.size() + 1;
+
 		String imageKey = createImageKey();
 		String imagePath = createImagePath(request.imageType(), product.getId(), imageKey, request.imageFileExtension());
 
 		String URL = generatePresignedUrl(imagePath).toString();
 
-		Image image = Image.createImage(request.imageType(), product.getId(), imageKey, imagePath, request.imageFileExtension());
+		Image image = Image.createImage(request.imageType(), product.getId(), imageKey, imagePath, request.imageFileExtension(), order);
 		imageRepository.save(image);
 
 		return PresignedUrlResponse.of(URL, image.getImageKey());

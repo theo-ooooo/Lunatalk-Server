@@ -1,7 +1,7 @@
 package kr.co.lunatalk.domain.cartitem.service;
 
 import kr.co.lunatalk.domain.cartitem.domain.CartItem;
-import kr.co.lunatalk.domain.cartitem.dto.request.CartFindResponse;
+import kr.co.lunatalk.domain.cartitem.dto.response.CartFindResponse;
 import kr.co.lunatalk.domain.cartitem.dto.request.CreateCartItemRequest;
 import kr.co.lunatalk.domain.cartitem.dto.request.UpdateCartItemRequest;
 import kr.co.lunatalk.domain.cartitem.dto.response.CreateCartItemResponse;

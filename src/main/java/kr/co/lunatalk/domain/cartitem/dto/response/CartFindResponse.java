@@ -1,4 +1,4 @@
-package kr.co.lunatalk.domain.cartitem.dto.request;
+package kr.co.lunatalk.domain.cartitem.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import kr.co.lunatalk.domain.cartitem.domain.CartItem;

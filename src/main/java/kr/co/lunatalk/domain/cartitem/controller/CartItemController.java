@@ -3,7 +3,7 @@ package kr.co.lunatalk.domain.cartitem.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import kr.co.lunatalk.domain.cartitem.dto.request.CartFindResponse;
+import kr.co.lunatalk.domain.cartitem.dto.response.CartFindResponse;
 import kr.co.lunatalk.domain.cartitem.dto.request.CreateCartItemRequest;
 import kr.co.lunatalk.domain.cartitem.dto.request.UpdateCartItemRequest;
 import kr.co.lunatalk.domain.cartitem.dto.response.CreateCartItemResponse;

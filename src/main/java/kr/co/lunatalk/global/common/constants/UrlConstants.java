@@ -16,7 +16,7 @@ public enum UrlConstants {
 	DEV_DOMAIN_URL("https://dev.lunatalk.co.kr"),
 	DEV_DOMAIN_ADMIN_URL("https://dev-admin.lunatalk.co.kr"),
 	LOCAL_ADMIN_DOMAIN_URL("http://localhost:5173"),
-	LOCAL_DOMAIN_URL("https://localhost:3000"),
+	LOCAL_DOMAIN_URL("http://localhost:3000"),
 	;
 	private String value;
 }

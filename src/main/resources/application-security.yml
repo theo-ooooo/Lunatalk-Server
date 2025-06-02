@@ -1,3 +1,8 @@
+spring:
+  config:
+    activate:
+      on-profile: "security"
+
 jwt:
   issuer: ${JWT_ISSUER:}
   access-token-secret: ${JWT_ACCESS_TOKEN_SECRET}

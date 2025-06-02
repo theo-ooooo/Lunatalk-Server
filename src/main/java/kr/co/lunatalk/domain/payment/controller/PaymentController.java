@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import kr.co.lunatalk.domain.payment.dto.request.PaymentCreateRequest;
+import kr.co.lunatalk.domain.payment.dto.request.PaymentTossConfirmRequest;
 import kr.co.lunatalk.domain.payment.dto.response.PaymentCreateResponse;
 import kr.co.lunatalk.domain.payment.service.PaymentService;
 import lombok.RequiredArgsConstructor;
@@ -25,5 +26,12 @@ public class PaymentController {
 	@Operation(summary = "결제 생성", description = "전달받은 결제 정보로 결제를 생성합니다.")
 	public PaymentCreateResponse create(@Valid @RequestBody PaymentCreateRequest request) {
 		return paymentService.create(request);
+	}
+
+	// 결제 완료
+	@PostMapping("/toos/confirm")
+	@Operation(summary = "토스 결제 완료", description = "토스 결제를 완료처리합니다.")
+	public void tossConfirm(@Valid @RequestBody PaymentTossConfirmRequest request) {
+		paymentService.tossConfirm(request);
 	}
 }

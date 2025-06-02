@@ -52,7 +52,10 @@ public enum ErrorCode {
 	// CartItem
 	CART_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 장바구니를 찾을수 없습니다."),
 
-	;
+	// Payment
+	PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 결제건이 존재 하지 않습니다."),
+	PAYMENT_EXISTS_CONFIRM(HttpStatus.CONFLICT, "이미 결제가 완료된 결제건입니다."),
+	PAYMENT_CONFIRM_FAIL(HttpStatus.CONFLICT, "토스쪽 결제가 실패하였습니다." ),;
 	private HttpStatus httpStatus;
 	private String message;
 }

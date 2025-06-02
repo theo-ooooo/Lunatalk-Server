@@ -36,27 +36,32 @@ public class Payment extends BaseTimeEntity {
     @Column(nullable = false)
     private PaymentStatus status;
 
+	@Column(nullable = false)
+	private String pg;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PaymentMethod method;
 
     @Builder
-    public Payment(Integer amount, Order order, Member member, PaymentStatus status, PaymentMethod method) {
+    public Payment(Integer amount, Order order, Member member, String pg, PaymentStatus status, PaymentMethod method) {
         this.amount = amount;
         this.order = order;
         this.member = member;
         this.status = status;
         this.method = method;
+		this.pg = pg;
     }
 
-    public static Payment createPayment(Order order, Member member, PaymentMethod method) {
-        return Payment.builder()
-                .amount(Math.toIntExact(order.getTotalPrice()))
-                .order(order)
-                .member(member)
-                .method(method)
-                .status(PaymentStatus.READY)
-                .build();
+    public static Payment createPayment(Order order, Member member, PaymentMethod method, String pg) {
+		return Payment.builder()
+			.amount(Math.toIntExact(order.getTotalPrice()))
+			.order(order)
+			.member(member)
+			.method(method)
+			.status(PaymentStatus.READY)
+			.pg(pg)
+			.build();
     }
 
     public void successPayment(String paymentKey) {

@@ -25,7 +25,7 @@ public class PaymentService {
 		Member member = memberUtil.getCurrentMember();
 		Order order = orderUtil.getOrderByOrderId(request.orderId());
 
-		Payment payment = Payment.createPayment(order, member, request.method());
+		Payment payment = Payment.createPayment(order, member, request.method(), "toss");
 		paymentRepository.save(payment);
 
 		return PaymentCreateResponse.from(payment);

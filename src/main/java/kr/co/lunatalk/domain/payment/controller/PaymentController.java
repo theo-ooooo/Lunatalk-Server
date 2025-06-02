@@ -21,7 +21,7 @@ public class PaymentController {
 
 
 	// 결제 생성
-	@PostMapping()
+	@PostMapping("/toss")
 	@Operation(summary = "결제 생성", description = "전달받은 결제 정보로 결제를 생성합니다.")
 	public PaymentCreateResponse create(@Valid @RequestBody PaymentCreateRequest request) {
 		return paymentService.create(request);

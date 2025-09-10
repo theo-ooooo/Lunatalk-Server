@@ -92,6 +92,7 @@ public class WebSecurityConfig {
 		http.authorizeHttpRequests(authorize ->
 				authorize
 						.requestMatchers("/members/**").hasAnyRole(MemberRole.ADMIN.name(), MemberRole.USER.name())
+						.requestMatchers("/").anonymous()
 						.anyRequest()
 						.permitAll());
 

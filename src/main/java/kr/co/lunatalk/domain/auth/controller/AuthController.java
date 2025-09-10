@@ -29,7 +29,7 @@ public class AuthController {
 	}
 
 	@PostMapping("/login")
-	@Operation(summary = "로그인", description = "로그인 후 토큰을 발급합니다.")
+	@Operation(summary = "일반 로그인", description = "로그인 후 토큰을 발급합니다.")
 	public AuthTokenResponse login(@RequestBody @Valid LoginRequest request) {
 		return authService.loginMember(request);
 	}

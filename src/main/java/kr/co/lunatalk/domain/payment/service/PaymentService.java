@@ -57,6 +57,7 @@ public class PaymentService {
 				.retrieve()
 				.body(TossPaymentConfirmResponse.class);
 		} catch (RestClientException e) {
+			System.out.println(e.getMessage());
 			throw new CustomException(ErrorCode.PAYMENT_CONFIRM_FAILED);
 		}
 

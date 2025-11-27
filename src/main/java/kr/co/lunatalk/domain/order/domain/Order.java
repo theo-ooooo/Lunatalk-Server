@@ -30,6 +30,7 @@ public class Order extends BaseTimeEntity {
 
 	private Long totalPrice;
 
+	@Column(length = 30)
 	@Enumerated(EnumType.STRING)
 	private OrderStatus status;
 

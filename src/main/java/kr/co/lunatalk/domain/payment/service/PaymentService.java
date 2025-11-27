@@ -57,7 +57,6 @@ public class PaymentService {
 				.retrieve()
 				.body(TossPaymentConfirmResponse.class);
 		} catch (RestClientException e) {
-			System.out.println(e.getMessage());
 			throw new CustomException(ErrorCode.PAYMENT_CONFIRM_FAILED);
 		}
 
@@ -71,7 +70,7 @@ public class PaymentService {
 			tossResponse.orderId(),
 			tossResponse.totalAmount(),
 			tossResponse.method(),
-			tossResponse.approvedAt()
+			tossResponse.getApprovedAtAsLocalDateTime()
 		);
 
 		paymentRepository.save(payment);

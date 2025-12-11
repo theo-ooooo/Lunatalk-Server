@@ -4,6 +4,9 @@ import kr.co.lunatalk.domain.member.domain.Member;
 import kr.co.lunatalk.domain.member.domain.MemberStatus;
 import kr.co.lunatalk.domain.member.dto.response.MemberInfoResponse;
 import kr.co.lunatalk.domain.member.repository.MemberRepository;
+import kr.co.lunatalk.domain.order.domain.Order;
+import kr.co.lunatalk.domain.order.dto.response.OrderFindResponse;
+import kr.co.lunatalk.domain.order.repository.OrderRepository;
 import kr.co.lunatalk.global.exception.CustomException;
 import kr.co.lunatalk.global.exception.ErrorCode;
 import kr.co.lunatalk.global.util.SecurityUtil;
@@ -22,6 +25,7 @@ import java.util.Optional;
 @Transactional
 public class MemberService {
 	private final MemberRepository memberRepository;
+	private final OrderRepository orderRepository;
 	private final SecurityUtil securityUtil;
 
 	@Transactional(readOnly = true)
@@ -47,9 +51,19 @@ public class MemberService {
 		return MemberInfoResponse.from(member);
 	}
 
+	@Transactional(readOnly = true)
+	public Page<OrderFindResponse> findOrders(Pageable pageable) {
+		Member member = getCurrentMember();
+
+		Page<Order> orders = orderRepository.findOrdersWithItemsByMemberId(member.getId(), pageable);
+
+		return orders.map(OrderFindResponse::from);
+	}
+
 	private Member findMemberById(Long id) {
 		return memberRepository.findById(id).orElseThrow(
 		   () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
 	   );
 	}
+
 }

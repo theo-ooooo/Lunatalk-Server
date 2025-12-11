@@ -1,6 +1,9 @@
 package kr.co.lunatalk.domain.payment.service;
 
+import kr.co.lunatalk.domain.cartitem.repository.CartItemRepository;
+import kr.co.lunatalk.domain.member.domain.Member;
 import kr.co.lunatalk.domain.order.domain.Order;
+import kr.co.lunatalk.domain.order.domain.OrderItem;
 import kr.co.lunatalk.domain.order.domain.OrderStatus;
 import kr.co.lunatalk.domain.order.repository.OrderRepository;
 import kr.co.lunatalk.domain.payment.domain.Payment;
@@ -14,6 +17,7 @@ import kr.co.lunatalk.domain.payment.dto.toss.TossPaymentConfirmResponse;
 import kr.co.lunatalk.domain.payment.repository.PaymentRepository;
 import kr.co.lunatalk.global.exception.CustomException;
 import kr.co.lunatalk.global.exception.ErrorCode;
+import kr.co.lunatalk.global.util.MemberUtil;
 import kr.co.lunatalk.infra.config.toss.TossPaymentsProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -31,12 +35,20 @@ public class PaymentService {
 
 	private final OrderRepository orderRepository;
 	private final PaymentRepository paymentRepository;
+	private final CartItemRepository cartItemRepository;
 	private final TossPaymentsProperties tossPaymentsProperties;
 	private final RestClient tossPaymentsRestClient;
+	private final MemberUtil memberUtil;
 
 	public PaymentConfirmResponse confirmPayment(PaymentConfirmRequest request) {
+		Member member = memberUtil.getCurrentMember();
+
 		Order order = orderRepository.findByOrderWithItems(request.orderId())
 			.orElseThrow(() -> new CustomException(ErrorCode.ORDER_NOT_FOUND));
+
+		if (!member.getId().equals(order.getMember().getId())) {
+			throw new CustomException(ErrorCode.ORDER_NOT_FOUND);
+		}
 
 		if (!Objects.equals(order.getTotalPrice(), request.amount())) {
 			throw new CustomException(ErrorCode.PAYMENT_AMOUNT_MISMATCH);
@@ -74,6 +86,11 @@ public class PaymentService {
 		);
 
 		paymentRepository.save(payment);
+
+		for (OrderItem orderItem : order.getOrderItems()) {
+			Long productId = orderItem.getProductId();
+			cartItemRepository.deleteByMemberIdAndProductId(member.getId(), productId);
+		}
 
 		order.updateStatus(OrderStatus.PAYMENT_COMPLETED);
 

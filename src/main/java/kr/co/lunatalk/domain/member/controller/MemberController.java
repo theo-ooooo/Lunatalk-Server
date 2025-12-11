@@ -32,6 +32,13 @@ public class MemberController {
 	}
 
 
+
+	@GetMapping("/me/orders")
+	@Operation(summary = "나의 주문 조회", description = "현재 로그인된 회원의 주문을 조회합니다.")
+	public Page<OrderFindResponse> myOrders(@PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+		return memberService.findOrders(pageable);
+	}
+
 	@GetMapping()
 	@PreAuthorize("hasRole('ADMIN')")
 	@Operation(summary = "전체 회원 조회", description = "전체 회원을 조회합니다.")

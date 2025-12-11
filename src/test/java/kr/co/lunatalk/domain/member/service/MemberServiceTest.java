@@ -4,6 +4,8 @@ import kr.co.lunatalk.domain.member.domain.Member;
 import kr.co.lunatalk.domain.member.dto.response.MemberInfoResponse;
 import kr.co.lunatalk.domain.member.repository.MemberRepository;
 import kr.co.lunatalk.domain.member.domain.Profile;
+import kr.co.lunatalk.domain.order.domain.Order;
+import kr.co.lunatalk.domain.order.repository.OrderRepository;
 import kr.co.lunatalk.global.exception.CustomException;
 import kr.co.lunatalk.global.exception.ErrorCode;
 import kr.co.lunatalk.global.util.SecurityUtil;
@@ -31,9 +33,14 @@ class MemberServiceTest {
 	private MemberRepository memberRepository;
 
 	@Mock
+	private OrderRepository orderRepository;
+
+	@Mock
 	private SecurityUtil securityUtil;
 
 	private Member testMember;
+
+	private Order testOrder;
 
 	@BeforeEach
 	void setUp() {
@@ -43,6 +50,12 @@ class MemberServiceTest {
 			Profile.of("테스트닉", "img"),
 			"01012341234",
 			"test@email.com"
+		);
+
+		testOrder = Order.createOrder(
+			"test-test",
+			testMember,
+			1000L
 		);
 	}
 
@@ -99,6 +112,26 @@ class MemberServiceTest {
 		// then
 		assertEquals(testMember.getEmail(), response.email());
 		assertEquals(testMember.getProfile().getNickname(), response.nickname());
+	}
+
+	@Test
+	void 현재_회원_주문_조회() {
+		// given
+		Pageable pageable = PageRequest.of(0, 10);
+		Page<Order> orderPage = new PageImpl<>(List.of(testOrder));
+
+		when(securityUtil.getCurrentMemberId()).thenReturn(testMember.getId());
+		when(memberRepository.findById(testMember.getId())).thenReturn(Optional.of(testMember));
+		when(orderRepository.findOrdersWithItemsByMemberId(testMember.getId(), pageable))
+			.thenReturn(orderPage);
+
+		// when
+		var responses = memberService.findOrders(pageable);
+
+		// then
+		assertEquals(1, responses.getContent().size());
+		assertEquals(testOrder.getOrderNumber(), responses.getContent().get(0).orderNumber());
+		assertEquals(testOrder.getTotalPrice(), responses.getContent().get(0).totalPrice());
 	}
 
 	@Test

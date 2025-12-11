@@ -51,6 +51,7 @@ public class MemberService {
 		return MemberInfoResponse.from(member);
 	}
 
+	@Transactional(readOnly = true)
 	public Page<OrderFindResponse> findOrders(Pageable pageable) {
 		Member member = getCurrentMember();
 

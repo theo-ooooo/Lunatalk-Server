@@ -12,7 +12,7 @@ import java.util.List;
 public record OrderFindResponse(
 	@Schema(description = "주문 ID", defaultValue = "1") Long orderId,
 	@Schema(description = "주문 번호", defaultValue = "L3ABCDEFG") String orderNumber,
-	@Schema(description = "주문 상태", defaultValue = "ORDERED") OrderStatus status,
+	@Schema(description = "주문 상태", defaultValue = "ORDERED") String status,
 	@Schema(description = "주문 총 금액", defaultValue = "1000") Long totalPrice,
 	@Schema(description = "구매 상품들") List<OrderItemResponse> orderItems,
 	@Schema(description = "배송 정보") List<DeliveryFindResponse> deliveries,
@@ -24,7 +24,7 @@ public record OrderFindResponse(
 		return new OrderFindResponse(
 			order.getId(),
 			order.getOrderNumber(),
-			order.getStatus(),
+			order.getStatus().getValue(),
 			order.getTotalPrice(),
 			order.getOrderItems().stream().map(OrderItemResponse::from).toList(),
 			order.getDeliverys().stream().map(DeliveryFindResponse::from).toList(),

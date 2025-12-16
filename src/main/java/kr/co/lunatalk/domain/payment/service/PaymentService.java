@@ -15,6 +15,8 @@ import kr.co.lunatalk.domain.payment.dto.response.PaymentConfirmResponse;
 import kr.co.lunatalk.domain.payment.dto.toss.TossPaymentConfirmRequest;
 import kr.co.lunatalk.domain.payment.dto.toss.TossPaymentConfirmResponse;
 import kr.co.lunatalk.domain.payment.repository.PaymentRepository;
+import kr.co.lunatalk.domain.product.domain.Product;
+import kr.co.lunatalk.domain.product.repository.ProductRepository;
 import kr.co.lunatalk.global.exception.CustomException;
 import kr.co.lunatalk.global.exception.ErrorCode;
 import kr.co.lunatalk.global.util.MemberUtil;
@@ -36,6 +38,7 @@ public class PaymentService {
 	private final OrderRepository orderRepository;
 	private final PaymentRepository paymentRepository;
 	private final CartItemRepository cartItemRepository;
+	private final ProductRepository productRepository;
 	private final TossPaymentsProperties tossPaymentsProperties;
 	private final RestClient tossPaymentsRestClient;
 	private final MemberUtil memberUtil;
@@ -89,6 +92,12 @@ public class PaymentService {
 
 		for (OrderItem orderItem : order.getOrderItems()) {
 			Long productId = orderItem.getProductId();
+			Product product = productRepository.findById(productId).orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
+
+			if (orderItem.getQuantity() > product.getQuantity()) {
+				throw new CustomException(ErrorCode.PRODUCT_SOLD_OUT);
+			}
+			product.minusProductQuantity(orderItem.getQuantity());
 			cartItemRepository.deleteByMemberIdAndProductId(member.getId(), productId);
 		}
 

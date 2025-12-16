@@ -98,6 +98,12 @@ public class Product extends BaseTimeEntity {
 		}
 	}
 
+	public void minusProductQuantity(int quantity) {
+		if (this.quantity > quantity) {
+			this.quantity -= quantity;
+		}
+	}
+
 	public void setCategory(Category category) {
 		this.category = category;
 	}

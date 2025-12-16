@@ -28,6 +28,7 @@ public enum ErrorCode {
 
 	// Product
 	PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다."),
+	PRODUCT_SOLD_OUT(HttpStatus.CONFLICT, "재고가 부족하거나, 품절인 상품입니다."),
 
 
 	// Image

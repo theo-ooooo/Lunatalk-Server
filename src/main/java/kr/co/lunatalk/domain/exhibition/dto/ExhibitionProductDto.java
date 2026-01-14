@@ -14,8 +14,8 @@ public record ExhibitionProductDto(
 	@Schema(description = "기획전 내 정렬 순서")
 	int sortOrder
 ) {
-	public static ExhibitionProductDto from(Product product, List<Image> images, int sortOrder) {
-		return new ExhibitionProductDto(FindProductDto.from(product, images), sortOrder);
+	public static ExhibitionProductDto from(Product product, List<Image> images, int sortOrder, Long likeCount, Boolean isLiked) {
+		return new ExhibitionProductDto(FindProductDto.from(product, images, likeCount, isLiked), sortOrder);
 	}
 }
 

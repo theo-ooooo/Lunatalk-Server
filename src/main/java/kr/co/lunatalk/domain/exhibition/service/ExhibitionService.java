@@ -15,9 +15,11 @@ import kr.co.lunatalk.domain.product.domain.Product;
 import kr.co.lunatalk.domain.product.dto.FindProductDto;
 import kr.co.lunatalk.domain.product.dto.ProductWithImagesResult;
 import kr.co.lunatalk.domain.product.dto.response.ProductFindResponse;
+import kr.co.lunatalk.domain.productlike.service.ProductLikeService;
 import kr.co.lunatalk.global.exception.CustomException;
 import kr.co.lunatalk.global.exception.ErrorCode;
 import kr.co.lunatalk.global.util.ProductUtil;
+import kr.co.lunatalk.global.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +37,8 @@ public class ExhibitionService {
 	private final ExhibitionRepository exhibitionRepository;
 	private final ProductUtil productUtil;
 	private final ImageRepository imageRepository;
+	private final ProductLikeService productLikeService;
+	private final SecurityUtil securityUtil;
 
 
 	public ExhibitionCreateResponse createExhibition(ExhibitionCreateRequest request) {
@@ -70,7 +74,12 @@ public class ExhibitionService {
 					List<Product> products = productWithImages.products();
 					Map<Long, List<Image>> imageMap = productWithImages.imageMap();
 
-					// 3. ExhibitionProductDto 구성
+					// 3. 좋아요 정보 조회
+					Map<Long, Long> likeCountMap = productLikeService.getLikeCounts(productIds);
+					Long currentMemberId = getCurrentMemberId();
+					Map<Long, Boolean> likedStatusMap = productLikeService.getLikedStatus(productIds, currentMemberId);
+
+					// 4. ExhibitionProductDto 구성
 					return exhibition.getExhibitionProducts().stream()
 						.sorted(Comparator.comparingInt(ExhibitionProduct::getSortOrder))
 						.map(ep -> {
@@ -82,9 +91,10 @@ public class ExhibitionService {
 								);
 
 							List<Image> images = imageMap.getOrDefault(product.getId(), List.of());
-							FindProductDto productDto = FindProductDto.from(product, images);
+							Long likeCount = likeCountMap.getOrDefault(product.getId(), 0L);
+							Boolean isLiked = likedStatusMap.getOrDefault(product.getId(), false);
 
-							return new ExhibitionProductDto(productDto, ep.getSortOrder());
+							return ExhibitionProductDto.from(product, images, ep.getSortOrder(), likeCount, isLiked);
 						})
 						.toList();
 				}
@@ -109,7 +119,12 @@ public class ExhibitionService {
 		// 2. 이미지들 일괄 조회
 		List<Image> images = imageRepository.fetchProductImagesByProductIds(productIds);
 
-		// 3. ExhibitionProductDto 생성
+		// 3. 좋아요 정보 조회
+		Map<Long, Long> likeCountMap = productLikeService.getLikeCounts(productIds);
+		Long currentMemberId = getCurrentMemberId();
+		Map<Long, Boolean> likedStatusMap = productLikeService.getLikedStatus(productIds, currentMemberId);
+
+		// 4. ExhibitionProductDto 생성
 		List<ExhibitionProductDto> exhibitionProductDtos = exhibition.getExhibitionProducts().stream()
 			.map(exhibitionProduct -> {
 				Product product = exhibitionProduct.getProduct();
@@ -119,7 +134,10 @@ public class ExhibitionService {
 					.filter(img -> img.getReferenceId().equals(product.getId()))
 					.toList();
 
-				return ExhibitionProductDto.from(product, productImages, sortOrder);
+				Long likeCount = likeCountMap.getOrDefault(product.getId(), 0L);
+				Boolean isLiked = likedStatusMap.getOrDefault(product.getId(), false);
+
+				return ExhibitionProductDto.from(product, productImages, sortOrder, likeCount, isLiked);
 			})
 			.toList();
 
@@ -170,6 +188,14 @@ public class ExhibitionService {
 			}).toList();
 
 		exhibition.addProducts(exhibitionProducts);
+	}
+
+	private Long getCurrentMemberId() {
+		try {
+			return securityUtil.getCurrentMemberId();
+		} catch (Exception e) {
+			return null; // 비회원인 경우
+		}
 	}
 
 

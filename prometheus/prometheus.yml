@@ -9,3 +9,9 @@ scrape_configs:
       - targets: ["dev-api.lunatalk.co.kr"]
         labels:
           application: "lunatalk-backend"
+
+  - job_name: "mysql"
+    static_configs:
+      - targets: ["localhost:9104"]
+        labels:
+          instance: "mysql-database"

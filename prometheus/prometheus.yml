@@ -14,4 +14,4 @@ scrape_configs:
     static_configs:
       - targets: ["localhost:9104"]
         labels:
-          instance: "mysql-database"
+          instance: "lunatalk-database"

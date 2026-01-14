@@ -89,8 +89,6 @@ services:
       - "--collect.info_schema.innodb_tablespaces"
       - "--collect.info_schema.innodb_cmp"
       - "--collect.info_schema.innodb_cmpmem"
-      - "--collect.info_schema.innodb_cmp_per_index"
-      - "--collect.info_schema.innodb_cmp_per_index_reset"
       - "--collect.perf_schema.tableiowaits"
       - "--collect.perf_schema.indexiowaits"
       - "--collect.perf_schema.tablelocks"

@@ -13,7 +13,9 @@ import kr.co.lunatalk.domain.product.domain.Product;
 import kr.co.lunatalk.domain.product.domain.ProductStatus;
 import kr.co.lunatalk.domain.product.domain.ProductVisibility;
 import kr.co.lunatalk.domain.product.dto.ProductWithImagesResult;
+import kr.co.lunatalk.domain.productlike.service.ProductLikeService;
 import kr.co.lunatalk.global.util.ProductUtil;
+import kr.co.lunatalk.global.util.SecurityUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -42,6 +44,12 @@ class ExhibitionServiceTest {
 
 	@Mock
 	private ProductUtil productUtil;
+
+	@Mock
+	private ProductLikeService productLikeService;
+
+	@Mock
+	private SecurityUtil securityUtil;
 
 	@Test
 	void createExhibition_정상생성() {
@@ -86,6 +94,9 @@ class ExhibitionServiceTest {
 			List.of(product),
 			Map.of(1L, List.of())
 		));
+		when(productLikeService.getLikeCounts(any())).thenReturn(Map.of(1L, 0L));
+		when(securityUtil.getCurrentMemberId()).thenReturn(1L);
+		when(productLikeService.getLikedStatus(any(), any())).thenReturn(Map.of(1L, false));
 
 		// when
 		List<ExhibitionFindOneResponse> result = exhibitionService.getAllExhibitions();

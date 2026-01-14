@@ -12,9 +12,11 @@ import kr.co.lunatalk.domain.product.domain.Product;
 import kr.co.lunatalk.domain.product.domain.ProductStatus;
 import kr.co.lunatalk.domain.product.domain.ProductVisibility;
 import kr.co.lunatalk.domain.product.dto.ProductWithImagesResult;
+import kr.co.lunatalk.domain.productlike.service.ProductLikeService;
 import kr.co.lunatalk.global.exception.CustomException;
 import kr.co.lunatalk.global.util.MemberUtil;
 import kr.co.lunatalk.global.util.ProductUtil;
+import kr.co.lunatalk.global.util.SecurityUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,6 +46,12 @@ class CartItemServiceTest {
 
 	@Mock
 	private ProductUtil productUtil;
+
+	@Mock
+	private ProductLikeService productLikeService;
+
+	@Mock
+	private SecurityUtil securityUtil;
 
 	private Member member;
 	private Product product;
@@ -92,6 +100,11 @@ class CartItemServiceTest {
 		when(cartItemRepository.findByMemberId(member.getId())).thenReturn(cartItems);
 		when(productUtil.findAllProducts(List.of(product.getId())))
 			.thenReturn(new ProductWithImagesResult(List.of(product), imageMap));
+		when(productLikeService.getLikeCounts(List.of(product.getId())))
+			.thenReturn(Map.of(product.getId(), 0L));
+		when(securityUtil.getCurrentMemberId()).thenReturn(member.getId());
+		when(productLikeService.getLikedStatus(List.of(product.getId()), member.getId()))
+			.thenReturn(Map.of(product.getId(), false));
 
 		// when
 		var result = cartItemService.findAll();

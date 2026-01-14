@@ -37,8 +37,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -145,7 +144,7 @@ class ProductServiceTest {
 		Map<Long, Long> likeCountMap = Map.of(product1.getId(), 1L, product2.getId(), 0L);
 		Map<Long, Boolean> likedStatusMap = Map.of(product1.getId(), true, product2.getId(), false);
 
-		when(productRepository.findAll(null, PageRequest.of(0, 10))).thenReturn(productPage);
+		when(productRepository.findAll(isNull(String.class), any(org.springframework.data.domain.Pageable.class))).thenReturn(productPage);
 		when(imageRepository.fetchProductImagesByProductIds(anyList())).thenReturn(images);
 		when(productLikeService.getLikeCounts(anyList())).thenReturn(likeCountMap);
 		when(securityUtil.getCurrentMemberId()).thenReturn(1L);
@@ -339,7 +338,7 @@ class ProductServiceTest {
 		Map<Long, Long> likeCountMap = Map.of(product3.getId(), 0L);
 		Map<Long, Boolean> likedStatusMap = Map.of(product3.getId(), false);
 
-		when(productRepository.findAll("검색테스트", PageRequest.of(0, 10))).thenReturn(productPage);
+		when(productRepository.findAll(eq("검색테스트"), any(org.springframework.data.domain.Pageable.class))).thenReturn(productPage);
 		when(imageRepository.fetchProductImagesByProductIds(anyList())).thenReturn(images);
 		when(productLikeService.getLikeCounts(anyList())).thenReturn(likeCountMap);
 		when(securityUtil.getCurrentMemberId()).thenReturn(1L);
@@ -365,7 +364,7 @@ class ProductServiceTest {
 		Map<Long, Long> likeCountMap = Map.of(product1.getId(), 0L, product2.getId(), 0L);
 		Map<Long, Boolean> likedStatusMap = Map.of(product1.getId(), false, product2.getId(), false);
 
-		when(productRepository.findAll(null, PageRequest.of(0, 10))).thenReturn(productPage);
+		when(productRepository.findAll(isNull(String.class), any(org.springframework.data.domain.Pageable.class))).thenReturn(productPage);
 		when(imageRepository.fetchProductImagesByProductIds(anyList())).thenReturn(images);
 		when(productLikeService.getLikeCounts(anyList())).thenReturn(likeCountMap);
 		when(securityUtil.getCurrentMemberId()).thenReturn(1L);

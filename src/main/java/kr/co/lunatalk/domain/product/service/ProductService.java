@@ -13,9 +13,11 @@ import kr.co.lunatalk.domain.product.dto.request.ProductCreateRequest;
 import kr.co.lunatalk.domain.product.dto.request.ProductUpdateRequest;
 import kr.co.lunatalk.domain.product.dto.response.ProductFindResponse;
 import kr.co.lunatalk.domain.product.repository.ProductRepository;
+import kr.co.lunatalk.domain.productlike.service.ProductLikeService;
 import kr.co.lunatalk.global.exception.CustomException;
 import kr.co.lunatalk.global.exception.ErrorCode;
 import kr.co.lunatalk.global.util.ProductUtil;
+import kr.co.lunatalk.global.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -36,6 +38,8 @@ public class ProductService {
 	private final ImageRepository imageRepository;
 	private final CategoryRepository categoryRepository;
 	private final ProductUtil productUtil;
+	private final ProductLikeService productLikeService;
+	private final SecurityUtil securityUtil;
 
 	public Product save(ProductCreateRequest request) {
 		// 상품 저장.
@@ -77,16 +81,26 @@ public class ProductService {
 
 		List<Image> images = imageRepository.fetchProductImagesByProductId(findProduct.getId());
 
+		Long likeCount = productLikeService.getLikeCount(productId);
+		Long currentMemberId = getCurrentMemberId();
+		Boolean isLiked = productLikeService.isLiked(productId, currentMemberId);
 
-		return ProductFindResponse.from(FindProductDto.from(findProduct, images));
+		return ProductFindResponse.from(FindProductDto.from(findProduct, images, likeCount, isLiked));
 	}
 
 	@Transactional(readOnly = true)
 	public List<ProductFindResponse> findAllProducts(List<Long> productIds) {
 		ProductWithImagesResult allProducts = productUtil.findAllProducts(productIds);
 
+		Map<Long, Long> likeCountMap = productLikeService.getLikeCounts(productIds);
+		Long currentMemberId = getCurrentMemberId();
+		Map<Long, Boolean> likedStatusMap = productLikeService.getLikedStatus(productIds, currentMemberId);
+
 		return allProducts.products().stream().map(product -> {
-			return ProductFindResponse.from(FindProductDto.from(product, allProducts.imageMap().getOrDefault(product.getId(), List.of())));
+			List<Image> productImages = allProducts.imageMap().getOrDefault(product.getId(), List.of());
+			Long likeCount = likeCountMap.getOrDefault(product.getId(), 0L);
+			Boolean isLiked = likedStatusMap.getOrDefault(product.getId(), false);
+			return ProductFindResponse.from(FindProductDto.from(product, productImages, likeCount, isLiked));
 		}).toList();
 	}
 
@@ -108,10 +122,24 @@ public class ProductService {
 
 		Map<Long, List<Image>> imageMap = images.stream().collect(Collectors.groupingBy(Image::getReferenceId));
 
+		Map<Long, Long> likeCountMap = productLikeService.getLikeCounts(productIds);
+		Long currentMemberId = getCurrentMemberId();
+		Map<Long, Boolean> likedStatusMap = productLikeService.getLikedStatus(productIds, currentMemberId);
+
 		return products
 			.map(product -> {
 				List<Image> productImages = imageMap.getOrDefault(product.getId(), List.of());
-				return ProductFindResponse.from(FindProductDto.from(product, productImages));
+				Long likeCount = likeCountMap.getOrDefault(product.getId(), 0L);
+				Boolean isLiked = likedStatusMap.getOrDefault(product.getId(), false);
+				return ProductFindResponse.from(FindProductDto.from(product, productImages, likeCount, isLiked));
 			});
+	}
+
+	private Long getCurrentMemberId() {
+		try {
+			return securityUtil.getCurrentMemberId();
+		} catch (Exception e) {
+			return null; // 비회원인 경우
+		}
 	}
 }

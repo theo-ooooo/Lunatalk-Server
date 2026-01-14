@@ -19,9 +19,11 @@ public record FindProductDto(
 		ProductVisibility visibility,
 		List<String> colors,
 		CategoryResponse category,
-		List<Image> images) {
+		List<Image> images,
+		Long likeCount,
+		Boolean isLiked) {
 
-	public static FindProductDto from(Product product, List<Image> images) {
+	public static FindProductDto from(Product product, List<Image> images, Long likeCount, Boolean isLiked) {
 
 		    if (product == null) {
 			       throw new CustomException(ErrorCode.PRODUCT_NOT_FOUND);
@@ -37,6 +39,8 @@ public record FindProductDto(
 				? product.getProductColor().stream().map(ProductColor::getColor).toList()
 				: List.of(),
 			product.getCategory() != null ? CategoryResponse.from(product.getCategory()) : null,
-			safeImages);
+			safeImages,
+			likeCount != null ? likeCount : 0L,
+			isLiked != null ? isLiked : false);
 	}
 }

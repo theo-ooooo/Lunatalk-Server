@@ -28,6 +28,11 @@ public class GlobalResponseAdvice implements ResponseBodyAdvice<Object> {
 		ServerHttpResponse response) {
 		HttpServletResponse httpResponse = ((ServletServerHttpResponse) response).getServletResponse();
 
+		// Actuator 엔드포인트는 GlobalResponse로 감싸지 않음
+		String path = request.getURI().getPath();
+		if (path != null && path.startsWith("/lunatalk-actuator")) {
+			return body;
+		}
 
 		int status = httpResponse.getStatus();
 		// 유효한 status가 맞는지.

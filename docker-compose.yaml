@@ -69,9 +69,6 @@ services:
     image: "prom/mysqld-exporter:latest"
     container_name: mysqld_exporter
     restart: always
-    environment:
-      - TZ=Asia/Seoul
-      - DATA_SOURCE_NAME=${MYSQL_USERNAME}:${MYSQL_PASSWORD}@(${MYSQL_HOST}:${MYSQL_PORT})/
     network_mode: host
     env_file:
       - .env

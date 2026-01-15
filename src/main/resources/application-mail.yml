@@ -1,0 +1,22 @@
+spring:
+  config:
+    activate:
+      on-profile: "mail"
+
+  mail:
+    host: ${MAIL_HOST:}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    default-encoding: UTF-8
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+      mail.smtp.starttls.required: true
+
+lunatalk:
+  mail:
+    # SMTP 서버에서 허용한 발신자 주소를 넣어주세요. 기본값은 MAIL_USERNAME 입니다.
+    from: ${MAIL_FROM:${MAIL_USERNAME:}}
+    # 결제 완료 알림을 받을 관리자 이메일
+    admin-to: ${MAIL_ADMIN_TO:kkwondev@gmail.com}

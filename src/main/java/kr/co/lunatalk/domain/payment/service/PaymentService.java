@@ -14,6 +14,7 @@ import kr.co.lunatalk.domain.payment.dto.response.PaymentCancelResponse;
 import kr.co.lunatalk.domain.payment.dto.response.PaymentConfirmResponse;
 import kr.co.lunatalk.domain.payment.dto.toss.TossPaymentConfirmRequest;
 import kr.co.lunatalk.domain.payment.dto.toss.TossPaymentConfirmResponse;
+import kr.co.lunatalk.domain.payment.event.PaymentCompletedEvent;
 import kr.co.lunatalk.domain.payment.repository.PaymentRepository;
 import kr.co.lunatalk.domain.product.domain.Product;
 import kr.co.lunatalk.domain.product.repository.ProductRepository;
@@ -22,11 +23,13 @@ import kr.co.lunatalk.global.exception.ErrorCode;
 import kr.co.lunatalk.global.util.MemberUtil;
 import kr.co.lunatalk.infra.config.toss.TossPaymentsProperties;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -42,6 +45,7 @@ public class PaymentService {
 	private final TossPaymentsProperties tossPaymentsProperties;
 	private final RestClient tossPaymentsRestClient;
 	private final MemberUtil memberUtil;
+	private final ApplicationEventPublisher applicationEventPublisher;
 
 	public PaymentConfirmResponse confirmPayment(PaymentConfirmRequest request) {
 		Member member = memberUtil.getCurrentMember();
@@ -103,6 +107,8 @@ public class PaymentService {
 
 		order.updateStatus(OrderStatus.PAYMENT_COMPLETED);
 
+		publishPaymentCompletedEvent(order);
+
 		return PaymentConfirmResponse.of(order, payment);
 	}
 
@@ -127,6 +133,27 @@ public class PaymentService {
 		order.updateStatus(OrderStatus.CANCELLED);
 
 		return PaymentCancelResponse.of(order, payment);
+	}
+
+	private void publishPaymentCompletedEvent(Order order) {
+		List<PaymentCompletedEvent.PaymentOrderItem> items = order.getOrderItems().stream()
+			.map(i -> new PaymentCompletedEvent.PaymentOrderItem(
+				i.getProductId(),
+				i.getProductName(),
+				i.getQuantity(),
+				i.getPrice()
+			))
+			.toList();
+
+		applicationEventPublisher.publishEvent(
+			new PaymentCompletedEvent(
+				order.getOrderNumber(),
+				order.getId(),
+				order.getTotalPrice(),
+				order.getMember().getEmail(),
+				items
+			)
+		);
 	}
 }
 

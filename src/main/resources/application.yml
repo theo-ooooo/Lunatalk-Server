@@ -12,3 +12,4 @@ spring:
       - docs
       - datasource
       - toss
+      - mail

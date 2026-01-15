@@ -1,9 +1,14 @@
 package kr.co.lunatalk.domain.order.service;
 
 import kr.co.lunatalk.domain.delivery.domain.Delivery;
+import kr.co.lunatalk.domain.delivery.dto.response.DeliveryFindResponse;
 import kr.co.lunatalk.domain.delivery.repository.DeliveryRepository;
+import kr.co.lunatalk.domain.image.domain.Image;
+import kr.co.lunatalk.domain.image.domain.ImageType;
+import kr.co.lunatalk.domain.image.repository.ImageRepository;
 import kr.co.lunatalk.domain.member.domain.Member;
 import kr.co.lunatalk.domain.member.domain.MemberRole;
+import kr.co.lunatalk.domain.member.dto.response.MemberInfoResponse;
 import kr.co.lunatalk.domain.order.domain.OptionSnapshot;
 import kr.co.lunatalk.domain.order.domain.Order;
 import kr.co.lunatalk.domain.order.domain.OrderItem;
@@ -14,6 +19,7 @@ import kr.co.lunatalk.domain.order.dto.request.OrderProductRequest;
 import kr.co.lunatalk.domain.order.dto.request.OrderUpdateRequest;
 import kr.co.lunatalk.domain.order.dto.response.OrderCreateResponse;
 import kr.co.lunatalk.domain.order.dto.response.OrderFindResponse;
+import kr.co.lunatalk.domain.order.dto.response.OrderItemResponse;
 import kr.co.lunatalk.domain.order.dto.response.OrderListResponse;
 import kr.co.lunatalk.domain.order.repository.OrderRepository;
 import kr.co.lunatalk.domain.product.domain.Product;
@@ -28,12 +34,18 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class OrderService {
 	private final OrderRepository orderRepository;
 	private final ProductRepository productRepository;
+	private final ImageRepository imageRepository;
 	private final DeliveryRepository deliveryRepository;
 	private final OrderUtil orderUtil;
 	private final MemberUtil memberUtil;
@@ -102,7 +114,7 @@ public class OrderService {
 			throw new CustomException(ErrorCode.ORDER_NOT_FOUND);
 		}
 
-		return OrderFindResponse.from(findOrder);
+		return toOrderFindResponseWithProductImages(findOrder);
 	}
 
 	@Transactional(readOnly = true)
@@ -154,6 +166,63 @@ public class OrderService {
 		return orderRepository.findByOrderWithItems(orderNumber).orElseThrow(
 			() -> new CustomException(ErrorCode.ORDER_NOT_FOUND)
 		);
+	}
+
+	private OrderFindResponse toOrderFindResponseWithProductImages(Order order) {
+		List<Long> productIds = order.getOrderItems().stream()
+			.map(OrderItem::getProductId)
+			.distinct()
+			.toList();
+
+		Map<Long, String> productIdToThumbnailPath = buildProductThumbnailMap(productIds);
+
+		List<OrderItemResponse> orderItems = order.getOrderItems().stream()
+			.map(item -> OrderItemResponse.from(item, productIdToThumbnailPath.get(item.getProductId())))
+			.toList();
+
+		return new OrderFindResponse(
+			order.getId(),
+			order.getOrderNumber(),
+			order.getStatus().getValue(),
+			order.getTotalPrice(),
+			orderItems,
+			order.getDeliverys().stream().map(DeliveryFindResponse::from).toList(),
+			MemberInfoResponse.from(order.getMember()),
+			order.getCreatedAt()
+		);
+	}
+
+	private Map<Long, String> buildProductThumbnailMap(List<Long> productIds) {
+		if (productIds == null || productIds.isEmpty()) {
+			return Map.of();
+		}
+
+		List<Image> images = imageRepository.fetchProductImagesByProductIds(productIds);
+
+		// PRODUCT_THUMBNAIL 우선, 없으면 어떤 이미지든(imageOrder가 가장 작은 것) fallback
+		Map<Long, List<Image>> imageMap = images.stream()
+			.collect(Collectors.groupingBy(Image::getReferenceId));
+
+		return imageMap.entrySet().stream()
+			.collect(Collectors.toMap(
+				Map.Entry::getKey,
+				entry -> pickThumbnailPath(entry.getValue())
+			));
+	}
+
+	private String pickThumbnailPath(List<Image> images) {
+		if (images == null || images.isEmpty()) {
+			return null;
+		}
+
+		return images.stream()
+			.sorted(Comparator
+				.comparing((Image img) -> img.getImageType() == ImageType.PRODUCT_THUMBNAIL ? 0 : 1)
+				.thenComparing(Image::getImageOrder, Comparator.nullsLast(Comparator.naturalOrder()))
+			)
+			.map(Image::getImagePath)
+			.findFirst()
+			.orElse(null);
 	}
 
 

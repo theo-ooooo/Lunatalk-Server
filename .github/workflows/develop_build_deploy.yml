@@ -133,6 +133,6 @@ jobs:
             cd ~/app
             docker compose down
             docker compose pull
-            docker compose up -d backend redis nginx prometheus grafana mysqld_exporter
+            docker compose up -d backend redis nginx
             docker exec -d nginx nginx -s reload
             docker image prune -a -f

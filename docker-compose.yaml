@@ -70,28 +70,8 @@ services:
     container_name: mysqld_exporter
     restart: always
     network_mode: host
-    env_file:
-      - .env
-    command:
-      - "--collect.info_schema.tables"
-      - "--collect.info_schema.innodb_metrics"
-      - "--collect.global_status"
-      - "--collect.global_variables"
-      - "--collect.slave_status"
-      - "--collect.info_schema.processlist"
-      - "--collect.info_schema.query_response_time"
-      - "--collect.info_schema.userstats"
-      - "--collect.info_schema.tablestats"
-      - "--collect.info_schema.schemastats"
-      - "--collect.info_schema.innodb_tablespaces"
-      - "--collect.info_schema.innodb_cmp"
-      - "--collect.info_schema.innodb_cmpmem"
-      - "--collect.perf_schema.tableiowaits"
-      - "--collect.perf_schema.indexiowaits"
-      - "--collect.perf_schema.tablelocks"
-      - "--collect.perf_schema.eventsstatements"
-      - "--collect.perf_schema.eventsstatementssum"
-      - "--collect.perf_schema.eventswaits"
+    volumes:
+      - ./my.cnf:/etc/.my.cnf:ro
 
 volumes:
   prometheus_data:

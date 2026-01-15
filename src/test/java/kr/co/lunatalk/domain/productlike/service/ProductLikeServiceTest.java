@@ -3,6 +3,7 @@ package kr.co.lunatalk.domain.productlike.service;
 import kr.co.lunatalk.domain.member.domain.Member;
 import kr.co.lunatalk.domain.member.domain.MemberRole;
 import kr.co.lunatalk.domain.member.domain.Profile;
+import kr.co.lunatalk.domain.product.dto.ProductWithImagesResult;
 import kr.co.lunatalk.domain.product.domain.Product;
 import kr.co.lunatalk.domain.product.domain.ProductColor;
 import kr.co.lunatalk.domain.product.domain.ProductStatus;
@@ -18,6 +19,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
@@ -229,5 +233,38 @@ class ProductLikeServiceTest {
 
 		// then
 		assertThat(likeCount).isEqualTo(0L);
+	}
+
+	@Test
+	@DisplayName("내가 좋아요한 상품 목록을 좋아요 생성일 최신순으로 페이징 조회할 수 있다")
+	void 내_좋아요_상품_목록_조회_테스트() {
+		// given
+		Pageable pageable = PageRequest.of(0, 10);
+		List<Long> likedProductIds = List.of(product2.getId(), product1.getId()); // 최신순 가정
+
+		when(memberUtil.getCurrentMember()).thenReturn(member1);
+		when(productLikeRepository.findLikedProductIdsByMemberId(eq(member1.getId()), any(Pageable.class)))
+			.thenReturn(new PageImpl<>(likedProductIds, pageable, likedProductIds.size()));
+
+		// ProductUtil은 정렬을 보장하지 않는다고 가정하고, 일부러 역순으로 반환
+		when(productUtil.findAllProducts(likedProductIds))
+			.thenReturn(new ProductWithImagesResult(List.of(product1, product2), Map.of()));
+
+		when(productLikeRepository.countByProductIds(likedProductIds))
+			.thenReturn(Map.of(product1.getId(), 1L, product2.getId(), 5L));
+
+		// when
+		var page = productLikeService.findMyLikedProducts(pageable);
+
+		// then
+		assertThat(page.getTotalElements()).isEqualTo(2);
+		assertThat(page.getContent()).hasSize(2);
+		assertThat(page.getContent().get(0).productId()).isEqualTo(product2.getId());
+		assertThat(page.getContent().get(0).isLiked()).isTrue();
+		assertThat(page.getContent().get(0).likeCount()).isEqualTo(5L);
+
+		assertThat(page.getContent().get(1).productId()).isEqualTo(product1.getId());
+		assertThat(page.getContent().get(1).isLiked()).isTrue();
+		assertThat(page.getContent().get(1).likeCount()).isEqualTo(1L);
 	}
 }

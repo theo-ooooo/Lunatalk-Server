@@ -3,11 +3,15 @@ package kr.co.lunatalk.domain.productlike.repository;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static kr.co.lunatalk.domain.productlike.domain.QProductLike.productLike;
 
@@ -71,6 +75,28 @@ public class ProductLikeRepositoryImpl implements ProductLikeRepositoryCustom {
 			resultMap.put(productId, likedProductIds.contains(productId));
 		}
 		return resultMap;
+	}
+
+	@Override
+	public Page<Long> findLikedProductIdsByMemberId(Long memberId, Pageable pageable) {
+		List<Long> likedProductIds = queryFactory
+			.select(productLike.product.id)
+			.from(productLike)
+			.where(productLike.member.id.eq(memberId))
+			.orderBy(productLike.createdAt.desc(), productLike.id.desc())
+			.offset(pageable.getOffset())
+			.limit(pageable.getPageSize())
+			.fetch();
+
+		Long total = Optional.ofNullable(
+			queryFactory
+				.select(productLike.count())
+				.from(productLike)
+				.where(productLike.member.id.eq(memberId))
+				.fetchOne()
+		).orElse(0L);
+
+		return new PageImpl<>(likedProductIds, pageable, total);
 	}
 
 	private BooleanExpression productIdEq(Long productId) {

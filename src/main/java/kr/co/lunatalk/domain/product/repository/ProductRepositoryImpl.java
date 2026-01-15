@@ -85,7 +85,15 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 	}
 
 	private BooleanExpression productNameEq(String productName) {
-		return productName != null ? product.name.eq(productName) : null;
+		if (productName == null) {
+			return null;
+		}
+		String keyword = productName.trim();
+		if (keyword.isEmpty()) {
+			return null;
+		}
+		// LIKE 검색(부분 일치). 대소문자 무시.
+		return product.name.containsIgnoreCase(keyword);
 	}
 
 

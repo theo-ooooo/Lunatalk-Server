@@ -50,18 +50,19 @@ public class OrderService {
 			Product product = productRepository.findById(p.productId())
 				.orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
 
-			boolean colorExists = product.getProductColor().stream()
-				.anyMatch(c -> c.getColor().equalsIgnoreCase(p.optionSnapshot().getColor()));
-
-			if (!colorExists) {
-				throw new CustomException(ErrorCode.PRODUCT_NOT_FOUND);
-			}
+//			boolean colorExists = product.getProductColor().stream()
+//				.anyMatch(c -> c.getColor().equalsIgnoreCase(p.optionSnapshot().getColor()));
+//
+//			if (!colorExists) {
+//				throw new CustomException(ErrorCode.PRODUCT_NOT_FOUND);
+//			}
 
 			long price = product.getPrice();
 			int quantity = p.quantity();
 			long itemTotal = price * quantity;
 
-			OptionSnapshot optionSnapshot = OptionSnapshot.createOptionSnapshot(p.optionSnapshot().getColor());
+			String color = p.optionSnapshot().getColor().isEmpty() ? "DEFAULT" : p.optionSnapshot().getColor();
+			OptionSnapshot optionSnapshot = OptionSnapshot.createOptionSnapshot(color);
 
 			OrderItem orderItem = OrderItem.createOrderItem(
 				order,

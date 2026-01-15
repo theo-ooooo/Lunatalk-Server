@@ -74,6 +74,8 @@ services:
       - ./my.cnf:/etc/.my.cnf:ro
     command:
       - "--config.my-cnf=/etc/.my.cnf"
+      - "--collect.perf_schema.eventsstatements"
+      - "--collect.perf_schema.eventsstatementssum"
 
 volumes:
   prometheus_data:

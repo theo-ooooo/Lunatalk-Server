@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import kr.co.lunatalk.global.common.response.ErrorResponse;
 import kr.co.lunatalk.global.common.response.GlobalResponse;
 import kr.co.lunatalk.global.exception.ErrorCode;
+import kr.co.lunatalk.global.util.CookieUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
@@ -20,10 +21,14 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
-	private  final ObjectMapper mapper;
+	private final ObjectMapper mapper;
+	private final CookieUtil cookieUtil;
 
 	@Override
 	public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
+		// 401 발생 시 accessToken 쿠키 제거
+		cookieUtil.deleteAccessTokenCookie(response);
+
 		response.setContentType("application/json;charset=UTF-8");
 		response.setStatus(HttpStatus.UNAUTHORIZED.value());
 //		ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule()).disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);

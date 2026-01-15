@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import kr.co.lunatalk.global.common.response.ErrorResponse;
 import kr.co.lunatalk.global.common.response.GlobalResponse;
 import kr.co.lunatalk.global.exception.ErrorCode;
+import kr.co.lunatalk.global.util.CookieUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
@@ -20,9 +21,13 @@ import java.io.IOException;
 public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
 	private final ObjectMapper mapper;
+	private final CookieUtil cookieUtil;
 
 	@Override
 	public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
+		// 403 발생 시 accessToken 쿠키 제거
+		cookieUtil.deleteAccessTokenCookie(response);
+
 		response.setContentType("application/json;charset=UTF-8");
 		response.setStatus(HttpStatus.FORBIDDEN.value());
 //		ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule()).disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);

@@ -11,6 +11,8 @@ import kr.co.lunatalk.domain.auth.dto.request.RefreshTokenRequest;
 import kr.co.lunatalk.domain.auth.dto.response.AuthTokenResponse;
 import kr.co.lunatalk.domain.auth.service.AuthService;
 import kr.co.lunatalk.domain.member.dto.request.CreateMemberRequest;
+import kr.co.lunatalk.global.exception.CustomException;
+import kr.co.lunatalk.global.exception.ErrorCode;
 import kr.co.lunatalk.global.util.CookieUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -52,10 +54,33 @@ public class AuthController {
 	// 리프레쉬 토큰으로 액세스 토큰 재발급
 	@PostMapping("/reissue")
 	@Operation(summary = "리프레쉬 토큰 발급", description = "리프레쉬 토큰을 이용해 새로운 액세스토큰과 리프레쉬 토큰을 발급합니다.")
-	public AuthTokenResponse reissue(@RequestBody @Valid RefreshTokenRequest request, HttpServletResponse response) {
-		AuthTokenResponse tokenResponse = authService.reissueTokenPair(request);
-		setTokenCookies(response, tokenResponse);
-		return tokenResponse;
+	public AuthTokenResponse reissue(
+		@RequestBody(required = false) @Valid RefreshTokenRequest request,
+		@CookieValue(value = "refreshToken", required = false) String refreshTokenCookie,
+		HttpServletResponse response
+	) {
+		String refreshToken = null;
+		if (request != null && request.refreshToken() != null && !request.refreshToken().isBlank()) {
+			refreshToken = request.refreshToken();
+		} else if (refreshTokenCookie != null && !refreshTokenCookie.isBlank()) {
+			refreshToken = refreshTokenCookie;
+		}
+
+		if (refreshToken == null) {
+			// 재발급에 사용할 refreshToken이 없으면, 쿠키가 있다면 정리하고 실패 처리
+			cookieUtil.deleteRefreshTokenCookie(response);
+			throw new CustomException(ErrorCode.AUTH_REFRESH_TOKEN_EXPIRED);
+		}
+
+		try {
+			AuthTokenResponse tokenResponse = authService.reissueTokenPair(new RefreshTokenRequest(refreshToken));
+			setTokenCookies(response, tokenResponse);
+			return tokenResponse;
+		} catch (RuntimeException ex) {
+			// 재발급 실패 시 refreshToken 쿠키 제거
+			cookieUtil.deleteRefreshTokenCookie(response);
+			throw ex;
+		}
 	}
 
 	@DeleteMapping("/withdraw")

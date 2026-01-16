@@ -4,7 +4,7 @@ spring:
       on-profile: "prod"
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: validate
     properties:
       hibernate:
         format_sql: true
@@ -12,3 +12,7 @@ spring:
 
 logging.level:
   org.hibernate.SQL: debug
+
+
+
+

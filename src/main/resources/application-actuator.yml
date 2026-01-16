@@ -8,7 +8,10 @@ management:
     web:
       base-path: /lunatalk-actuator
       exposure:
-        include: health, prometheus
+        include: health, info
     jmx:
       exposure:
         exclude: "*"
+  endpoint:
+    health:
+      show-details: always

@@ -85,6 +85,10 @@
         {
           "name": "S3_BUCKET",
           "value": "lunatalk-images"
+        },
+        {
+          "name": "DB_NAME",
+          "value": "lunatalk_v2"
         }
       ],
       "secrets": [

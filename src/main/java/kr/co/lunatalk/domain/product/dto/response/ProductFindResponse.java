@@ -1,0 +1,58 @@
+package kr.co.lunatalk.domain.product.dto.response;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import kr.co.lunatalk.domain.category.dto.response.CategoryResponse;
+import kr.co.lunatalk.domain.image.dto.FindImageDto;
+import kr.co.lunatalk.domain.product.domain.ProductColor;
+import kr.co.lunatalk.domain.product.domain.ProductVisibility;
+import kr.co.lunatalk.domain.product.dto.FindProductDto;
+
+import java.util.List;
+
+public record ProductFindResponse(
+	@Schema(description = "상품 ID")
+	Long productId,
+	@Schema(description = "상품 이름")
+	String name,
+	@Schema(description = "상품 가격")
+	Long price,
+	@Schema(description = "상품 남은 갯수")
+	Integer quantity,
+
+	@Schema(description = "상품 노출 여부")
+	ProductVisibility visibility,
+
+	@Schema(description = "상품 색상들")
+	List<String> colors,
+	@Schema(description = "상품 이미지")
+	List<FindImageDto> images,
+
+	@Schema(description = "카테고리 정보")
+	CategoryResponse category,
+	@Schema(description = "좋아요 개수")
+	Long likeCount,
+	@Schema(description = "현재 사용자가 좋아요를 눌렀는지 여부")
+	Boolean isLiked
+) {
+
+	public static ProductFindResponse from(FindProductDto findProductDto) {
+
+
+		List<FindImageDto> images = findProductDto.images().stream()
+			.map(FindImageDto::from)
+			.toList();
+
+		return new ProductFindResponse(
+			findProductDto.productId(),
+			findProductDto.productName(),
+			findProductDto.price(),
+			findProductDto.quantity(),
+			findProductDto.visibility(),
+			findProductDto.colors(),
+			images,
+			findProductDto.category(),
+			findProductDto.likeCount(),
+			findProductDto.isLiked()
+		);
+	}
+}

@@ -1,0 +1,17 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: "lunatalk-backend"
+    metrics_path: "/lunatalk-actuator/prometheus"
+    static_configs:
+      - targets: ["dev-api.lunatalk.co.kr"]
+        labels:
+          application: "lunatalk-backend"
+
+  - job_name: "mysql"
+    static_configs:
+      - targets: ["localhost:9104"]
+        labels:
+          instance: "lunatalk-database"

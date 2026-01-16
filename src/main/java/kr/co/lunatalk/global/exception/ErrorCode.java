@@ -1,0 +1,71 @@
+package kr.co.lunatalk.global.exception;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import org.springframework.http.HttpStatus;
+
+@Getter
+@AllArgsConstructor
+public enum ErrorCode {
+	// Common
+	METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "지원하지 않는 HTTP method 입니다."),
+	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류, 관리자에게 문의하세요"),
+	BAD_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
+	FORBIDDEN(HttpStatus.FORBIDDEN, "잘못된 접근 입니다."),
+	UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 실패했습니다."),
+	// Member
+	MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 회원입니다."),
+	MEMBER_EXISTS(HttpStatus.CONFLICT, "존재하는 회원입니다."),
+	MEMBER_ALREADY_DELETED(HttpStatus.CONFLICT, "이미 탈퇴한 회원 입니다."),
+
+	// Auth
+	AUTH_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "아이디 또는 비밀번호를 확인해주세요"),
+	AUTH_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "시큐리티 인증 정보를 찾을수 없습니다."),
+	AUTH_FAILED(HttpStatus.UNAUTHORIZED, "인증에 실패하였습니다."),
+	AUTH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "Token이 만료 되었습니다."),
+	AUTH_REFRESH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "RefreshToken이 만료되었습니다."),
+
+
+	// Product
+	PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다."),
+	PRODUCT_SOLD_OUT(HttpStatus.CONFLICT, "재고가 부족하거나, 품절인 상품입니다."),
+
+
+	// Image
+	IMAGE_FILE_EXTENSION_NOT_FOUND(HttpStatus.NOT_FOUND, "지원하지 않는 파일 포맷 입니다."),
+	IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "이미지가 존재하지 않습니다."),
+	IMAGE_EXISTS_DELETED(HttpStatus.CONFLICT, "이미 삭제된 이미지입니다."),
+
+	// Category
+	CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "카테고리를 찾을수 없습니다."),
+	CATEGORY_EXISTS(HttpStatus.CONFLICT, "이미 존재하는 카테고리 명 입니다."),
+
+
+	// Order
+	ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 주문은 찾을 수 없습니다."),
+
+	// Payment
+	PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 결제를 찾을 수 없습니다."),
+	PAYMENT_AMOUNT_MISMATCH(HttpStatus.BAD_REQUEST, "결제 금액이 주문 금액과 일치하지 않습니다."),
+	PAYMENT_CONFIRM_FAILED(HttpStatus.BAD_REQUEST, "결제 승인에 실패했습니다."),
+	PAYMENT_CANCEL_FAILED(HttpStatus.BAD_REQUEST, "결제 취소에 실패했습니다."),
+
+	// Delivery
+	DELIVERY_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 배송 정보를 찾을수 없습니다."),
+
+	// Exhibition
+	EXHIBITION_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 기획전을 찾을수 없습니다."),
+
+	// CartItem
+	CART_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 장바구니를 찾을수 없습니다."),
+
+	// Inquiry
+	INQUIRY_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 문의를 찾을 수 없습니다."),
+	INQUIRY_REPLY_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 답변을 찾을 수 없습니다."),
+	INQUIRY_ALREADY_ANSWERED(HttpStatus.CONFLICT, "이미 답변이 완료된 문의입니다."),
+	INQUIRY_UNAUTHORIZED(HttpStatus.FORBIDDEN, "본인의 문의만 조회/수정할 수 있습니다."),
+
+	;
+	private HttpStatus httpStatus;
+	private String message;
+}

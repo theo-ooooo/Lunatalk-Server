@@ -1,0 +1,15 @@
+spring:
+  profiles:
+    group:
+      local: "local"
+      dev: "dev"
+      prod: "prod"
+    include:
+      - security
+      - actuator
+      - redis
+      - aws
+      - docs
+      - datasource
+      - toss
+      - mail

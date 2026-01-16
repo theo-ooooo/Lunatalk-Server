@@ -122,7 +122,7 @@
         },
         {
           "name": "MAIL_PASSWORD",
-          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:167385253527:secret:lunatalk_secert_key-6zy0Gf:MAIL_PASSWORD::"
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:167385253527:secret:prod/mail_password-HoR8B8:MAIL_PASSWORD::"
         }
       ]
     }

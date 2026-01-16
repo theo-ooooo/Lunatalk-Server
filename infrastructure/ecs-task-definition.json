@@ -1,6 +1,6 @@
 {
   "family": "lunatalk-server-task",
-  "executionRoleArn": "arn:aws:iam::167385253527:role/luntalkEcsTaskExecutionRole",
+  "executionRoleArn": "arn:aws:iam::167385253527:role/ecsTaskExecutionRole",
   "networkMode": "awsvpc",
   "requiresCompatibilities": ["FARGATE"],
   "cpu": "512",
@@ -101,8 +101,12 @@
           "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:167385253527:secret:lunatalk_secert_key-6zy0Gf:key::MYSQL_PASSWORD"
         },
         {
+          "name": "REDIS_HOST",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:167385253527:secret:prod/redis-PkrV9x:key::REDIS_HOST"
+        },
+        {
           "name": "REDIS_PASSWORD",
-          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:167385253527:secret:lunatalk_secert_key-6zy0Gf:key::REDIS_PASSWORD"
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:167385253527:secret:prod/redis-PkrV9x:key::REDIS_PASSWORD"
         },
         {
           "name": "JWT_ACCESS_TOKEN_SECRET",

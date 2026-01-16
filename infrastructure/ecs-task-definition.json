@@ -68,11 +68,7 @@
         },
         {
           "name": "MAIL_USERNAME",
-          "value": "kkwondev@gmail.com"
-        },
-        {
-          "name": "MAIL_FROM",
-          "value": "kkwondev@gmail.com"
+          "value": "kkwoncokr@gmail.com"
         },
         {
           "name": "MAIL_ADMIN_TO",

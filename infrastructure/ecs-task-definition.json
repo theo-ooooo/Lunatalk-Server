@@ -1,6 +1,6 @@
 {
   "family": "lunatalk-server-task",
-  "executionRoleArn": "arn:aws:iam::167385253527:role/ecsTaskExecutionRole",
+  "executionRoleArn": "arn:aws:iam::167385253527:role/luntalkEcsTaskExecutionRole",
   "networkMode": "awsvpc",
   "requiresCompatibilities": ["FARGATE"],
   "cpu": "512",

@@ -7,7 +7,7 @@ on:
 env:
   AWS_REGION: ap-northeast-2
   ECR_REPOSITORY: lunatalk-api
-  ECS_SERVICE: lunatalk-service
+  ECS_SERVICE: lunatalk-service_ec2
   ECS_CLUSTER: lunatalk-cluster
   ECS_TASK_DEFINITION: lunatalk-server-task
   CONTAINER_NAME: lunatalk-server

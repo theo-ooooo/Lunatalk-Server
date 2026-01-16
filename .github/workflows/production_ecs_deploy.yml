@@ -129,10 +129,12 @@ jobs:
             --force-new-deployment
 
       # -----------------------------
-      # 13. Wait for service to stabilize
+      # 13. Wait for service to stabilize (with timeout)
       # -----------------------------
       - name: Wait for service to stabilize
+        timeout-minutes: 5
         run: |
           aws ecs wait services-stable \
             --cluster ${{ env.ECS_CLUSTER }} \
-            --services ${{ env.ECS_SERVICE }}
+            --services ${{ env.ECS_SERVICE }} \
+            --max-attempts 60

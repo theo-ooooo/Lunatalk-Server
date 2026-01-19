@@ -7,10 +7,8 @@ on:
 env:
   AWS_REGION: ap-northeast-2
   ECR_REPOSITORY: lunatalk-api
-  ECS_SERVICE: lunatalk-service_v2
-  ECS_CLUSTER: lunatalk-cluster_v2
-  ECS_TASK_DEFINITION: lunatalk-task-ec2
-  CONTAINER_NAME: lunatalk-server
+  ECS_SERVICE: lunatalk-task-ec2-service-y5lpznpn
+  ECS_CLUSTER: lunatalk-cluster_v2_1
 
 jobs:
   build-and-deploy:
@@ -95,7 +93,7 @@ jobs:
       - name: Update task definition with new image
         id: task-def
         run: |
-          # Read task definition from file
+          # Read ecs-task-definition.json (전체 Task Definition 구조)
           TASK_DEF=$(cat infrastructure/ecs-task-definition.json)
 
           # Update image only

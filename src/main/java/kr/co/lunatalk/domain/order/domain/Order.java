@@ -53,7 +53,7 @@ public class Order extends BaseTimeEntity {
 			.orderNumber(orderNumber)
 			.member(member)
 			.totalPrice(totalPrice)
-			.status(OrderStatus.ORDERED)
+			.status(OrderStatus.ORDER_PENDING)
 			.build();
 	}
 

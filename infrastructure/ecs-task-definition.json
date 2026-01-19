@@ -1,21 +1,18 @@
 {
-  "ipcMode": null,
+  "family": "lunatalk-task-ec2",
+  "networkMode": "bridge",
+  "requiresCompatibilities": ["EC2"],
   "executionRoleArn": "arn:aws:iam::167385253527:role/ecsTaskExecutionRole",
+
+  "cpu": "512",
+  "memory": "512",
+
   "containerDefinitions": [
     {
-      "dnsSearchDomains": null,
-      "environmentFiles": null,
-      "logConfiguration": {
-        "logDriver": "awslogs",
-        "secretOptions": null,
-        "options": {
-          "awslogs-group": "/ecs/lunatalk-task-ec2",
-          "awslogs-region": "ap-northeast-2",
-          "awslogs-stream-prefix": "ecs",
-          "awslogs-create-group": "true"
-        }
-      },
-      "entryPoint": null,
+      "name": "lunatalk-container",
+      "image": "167385253527.dkr.ecr.ap-northeast-2.amazonaws.com/lunatalk-api:latest",
+      "essential": true,
+
       "portMappings": [
         {
           "name": "lunatalk-container-8080-tcp",
@@ -25,30 +22,34 @@
           "appProtocol": "http"
         }
       ],
-      "command": null,
-      "linuxParameters": null,
-      "cpu": 0,
+
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/lunatalk-task-ec2",
+          "awslogs-region": "ap-northeast-2",
+          "awslogs-stream-prefix": "ecs",
+          "awslogs-create-group": "true"
+        }
+      },
+
       "environment": [
         { "name": "S3_BUCKET", "value": "lunatalk-images" },
         { "name": "AWS_REGION", "value": "ap-northeast-2" },
         { "name": "MAIL_USERNAME", "value": "kkwoncokr@gmail.com" },
         { "name": "MAIL_ADMIN_TO", "value": "kkwondev@gmail.com" },
         { "name": "MAIL_HOST", "value": "smtp.gmail.com" },
+        { "name": "MAIL_PORT", "value": "587" },
         { "name": "TZ", "value": "Asia/Seoul" },
         { "name": "SPRING_PROFILES_ACTIVE", "value": "prod" },
         { "name": "JWT_REFRESH_TOKEN_EXPIRATION_TIME", "value": "604800" },
+        { "name": "JWT_ACCESS_TOKEN_EXPIRATION_TIME", "value": "7200" },
         { "name": "JWT_ISSUER", "value": "lunatalk" },
         { "name": "DB_NAME", "value": "lunatalk_v2" },
-        { "name": "JWT_ACCESS_TOKEN_EXPIRATION_TIME", "value": "7200" },
-        { "name": "MAIL_PORT", "value": "587" },
         { "name": "MYSQL_PORT", "value": "3306" },
         { "name": "REDIS_PORT", "value": "6379" }
       ],
-      "resourceRequirements": null,
-      "ulimits": null,
-      "dnsServers": null,
-      "mountPoints": [],
-      "workingDirectory": null,
+
       "secrets": [
         {
           "name": "MYSQL_HOST",
@@ -86,83 +87,7 @@
           "name": "MAIL_PASSWORD",
           "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:167385253527:secret:prod/mail_password-HoR8B8:MAIL_PASSWORD::"
         }
-      ],
-      "dockerSecurityOptions": null,
-      "memory": 480,
-      "memoryReservation": null,
-      "volumesFrom": [],
-      "stopTimeout": null,
-      "image": "167385253527.dkr.ecr.ap-northeast-2.amazonaws.com/lunatalk-api",
-      "startTimeout": null,
-      "firelensConfiguration": null,
-      "dependsOn": null,
-      "disableNetworking": null,
-      "interactive": null,
-      "healthCheck": null,
-      "essential": true,
-      "links": null,
-      "hostname": null,
-      "extraHosts": null,
-      "pseudoTerminal": null,
-      "user": null,
-      "readonlyRootFilesystem": null,
-      "dockerLabels": null,
-      "systemControls": null,
-      "privileged": null,
-      "name": "lunatalk-container"
+      ]
     }
-  ],
-  "placementConstraints": [],
-  "memory": null,
-  "taskRoleArn": null,
-  "compatibilities": ["EXTERNAL", "EC2"],
-  "family": "lunatalk-task-ec2",
-  "requiresAttributes": [
-    {
-      "targetId": null,
-      "targetType": null,
-      "value": null,
-      "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
-    },
-    {
-      "targetId": null,
-      "targetType": null,
-      "value": null,
-      "name": "ecs.capability.execution-role-awslogs"
-    },
-    {
-      "targetId": null,
-      "targetType": null,
-      "value": null,
-      "name": "com.amazonaws.ecs.capability.ecr-auth"
-    },
-    {
-      "targetId": null,
-      "targetType": null,
-      "value": null,
-      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
-    },
-    {
-      "targetId": null,
-      "targetType": null,
-      "value": null,
-      "name": "ecs.capability.execution-role-ecr-pull"
-    },
-    {
-      "targetId": null,
-      "targetType": null,
-      "value": null,
-      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.29"
-    }
-  ],
-  "pidMode": null,
-  "requiresCompatibilities": ["EC2"],
-  "networkMode": "bridge",
-  "runtimePlatform": null,
-  "cpu": null,
-  "revision": 1,
-  "status": "ACTIVE",
-  "inferenceAccelerators": null,
-  "proxyConfiguration": null,
-  "volumes": []
+  ]
 }

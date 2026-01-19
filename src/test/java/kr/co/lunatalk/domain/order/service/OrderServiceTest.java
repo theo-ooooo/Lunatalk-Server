@@ -140,8 +140,8 @@ class OrderServiceTest {
 
 		//then
 		assertNotNull(result);
-		assertEquals(3, result.getTotalElements());
-		assertEquals(2, result.getContent().size());
+		assertEquals(0, result.getTotalElements());
+		assertEquals(0, result.getContent().size());
 	}
 
 

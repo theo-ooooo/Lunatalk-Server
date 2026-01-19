@@ -16,11 +16,14 @@
 
       "portMappings": [
         {
+          "name": "lunatalk-container-8080-tcp",
           "containerPort": 8080,
           "hostPort": 0,
-          "protocol": "tcp"
+          "protocol": "tcp",
+          "appProtocol": "http"
         }
       ],
+
 
       "essential": true,
 

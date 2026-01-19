@@ -41,7 +41,7 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom {
 	public Page<Order> findOrdersWithItemsByMemberId(Long memberId, Pageable pageable) {
 		List<Order> content = queryFactory.selectFrom(order)
 			.innerJoin(order.orderItems, orderItem)
-			.where(memberIdEq(memberId))
+			.where(memberIdEq(memberId), orderStatusNotPending())
 			.orderBy(order.createdAt.desc())
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
@@ -51,7 +51,7 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom {
 			queryFactory
 				.select(order.count())
 				.from(order)
-				.where(memberIdEq(memberId))
+				.where(memberIdEq(memberId), orderStatusNotPending())
 				.fetchOne()
 		).orElse(0L);
 
@@ -125,5 +125,9 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom {
 	private static BooleanExpression orderNumberEq(String orderNumber) {
 
 		return orderNumber != null ? order.orderNumber.eq(orderNumber) : null;
+	}
+
+	private static BooleanExpression orderStatusNotPending() {
+		return order.status.notIn(OrderStatus.ORDER_PENDING);
 	}
 }

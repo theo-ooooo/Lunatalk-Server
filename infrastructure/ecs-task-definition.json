@@ -1,0 +1,97 @@
+{
+  "family": "lunatalk-task-ec2",
+  "networkMode": "bridge",
+  "requiresCompatibilities": ["EC2"],
+  "cpu": "512",
+  "memory": "471",
+  "executionRoleArn": "arn:aws:iam::167385253527:role/ecsTaskExecutionRole",
+
+  "containerDefinitions": [
+    {
+      "name": "lunatalk-container",
+      "image": "167385253527.dkr.ecr.ap-northeast-2.amazonaws.com/lunatalk-api:1b1cdc331de4581f292c5ee3be4bdb155d3a2187",
+      "cpu": 512,
+      "memory": 471,
+      "memoryReservation": 471,
+
+      "portMappings": [
+        {
+          "containerPort": 8080,
+          "hostPort": 0,
+          "protocol": "tcp"
+        }
+      ],
+
+      "essential": true,
+
+      "environment": [
+        { "name": "S3_BUCKET", "value": "lunatalk-images" },
+        { "name": "AWS_REGION", "value": "ap-northeast-2" },
+        { "name": "MAIL_USERNAME", "value": "kkwoncokr@gmail.com" },
+        { "name": "MAIL_ADMIN_TO", "value": "kkwondev@gmail.com" },
+        { "name": "MAIL_HOST", "value": "smtp.gmail.com" },
+        { "name": "MAIL_PORT", "value": "587" },
+        { "name": "TZ", "value": "Asia/Seoul" },
+        { "name": "SPRING_PROFILES_ACTIVE", "value": "prod" },
+        { "name": "JWT_REFRESH_TOKEN_EXPIRATION_TIME", "value": "604800" },
+        { "name": "JWT_ACCESS_TOKEN_EXPIRATION_TIME", "value": "7200" },
+        { "name": "JWT_ISSUER", "value": "lunatalk" },
+        { "name": "DB_NAME", "value": "lunatalk_v2" },
+        { "name": "MYSQL_PORT", "value": "3306" },
+        { "name": "REDIS_PORT", "value": "6379" },
+        { "name": "TOSS_CLIENT_KEY", "value": "live_ck_Kma60RZblrqBkg9bjYR8wzYWBn14" }
+      ],
+
+      "secrets": [
+        {
+          "name": "MYSQL_HOST",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:167385253527:secret:lunatalk_secert_key-6zy0Gf:MYSQL_HOST::"
+        },
+        {
+          "name": "MYSQL_USERNAME",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:167385253527:secret:lunatalk_secert_key-6zy0Gf:MYSQL_USERNAME::"
+        },
+        {
+          "name": "MYSQL_PASSWORD",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:167385253527:secret:lunatalk_secert_key-6zy0Gf:MYSQL_PASSWORD::"
+        },
+        {
+          "name": "REDIS_HOST",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:167385253527:secret:prod/redis-PkrV9x:REDIS_HOST::"
+        },
+        {
+          "name": "REDIS_PASSWORD",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:167385253527:secret:prod/redis-PkrV9x:REDIS_PASSWORD::"
+        },
+        {
+          "name": "JWT_ACCESS_TOKEN_SECRET",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:167385253527:secret:lunatalk_secert_key-6zy0Gf:JWT_ACCESS_TOKEN_SECRET::"
+        },
+        {
+          "name": "JWT_REFRESH_TOKEN_SECRET",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:167385253527:secret:lunatalk_secert_key-6zy0Gf:JWT_REFRESH_TOKEN_SECRET::"
+        },
+        {
+          "name": "TOSS_SECRET_KEY",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:167385253527:secret:lunatalk_secert_key-6zy0Gf:TOSS_SECRET_KEY::"
+        },
+        {
+          "name": "MAIL_PASSWORD",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:167385253527:secret:prod/mail_password-HoR8B8:MAIL_PASSWORD::"
+        }
+      ],
+
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/lunatalk-task-ec2",
+          "awslogs-region": "ap-northeast-2",
+          "awslogs-stream-prefix": "ecs",
+          "awslogs-create-group": "true"
+        }
+      }
+    }
+  ],
+
+  "volumes": []
+}

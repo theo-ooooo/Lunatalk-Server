@@ -86,6 +86,14 @@
         {
           "name": "MAIL_PASSWORD",
           "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:167385253527:secret:prod/mail_password-HoR8B8:MAIL_PASSWORD::"
+        },
+        {
+          "name": "KAKAO_CLIENT_ID",
+          "valueForm": "arn:aws:secretsmanager:ap-northeast-2:167385253527:secret:prod/oauth/kakao-KEpd8L:KAKAO_CLIENT_ID::"
+        },
+        {
+          "name": "KAKAO_CLIENT_SECRET",
+          "valueForm": "arn:aws:secretsmanager:ap-northeast-2:167385253527:secret:prod/oauth/kakao-KEpd8L:KAKAO_CLIENT_SECRET::"
         }
       ]
     }

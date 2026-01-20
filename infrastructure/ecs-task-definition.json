@@ -90,11 +90,11 @@
         },
         {
           "name": "KAKAO_CLIENT_ID",
-          "valueForm": "arn:aws:secretsmanager:ap-northeast-2:167385253527:secret:prod/oauth/kakao-KEpd8L:KAKAO_CLIENT_ID::"
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:167385253527:secret:prod/oauth/kakao-KEpd8L:KAKAO_CLIENT_ID::"
         },
         {
           "name": "KAKAO_CLIENT_SECRET",
-          "valueForm": "arn:aws:secretsmanager:ap-northeast-2:167385253527:secret:prod/oauth/kakao-KEpd8L:KAKAO_CLIENT_SECRET::"
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:167385253527:secret:prod/oauth/kakao-KEpd8L:KAKAO_CLIENT_SECRET::"
         }
       ]
     }

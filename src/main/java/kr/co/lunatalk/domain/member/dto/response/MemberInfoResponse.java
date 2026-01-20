@@ -18,7 +18,8 @@ public record MemberInfoResponse(
 	String email,
 	@Schema(description = "회원 프로필 이미지 URL")
 	String profileImgUrl,
-
+	@Schema(description = "소셜 로그인 제공자")
+	String provider,
 	@Schema(description = "가입일")
 	LocalDateTime createdAt
 ) {
@@ -30,6 +31,7 @@ public record MemberInfoResponse(
 			member.getPhone(),
 			member.getEmail(),
 			member.getProfile().getProfileImageUrl(),
+			member.getProvider(),
 			member.getCreatedAt()
 			);
 	}

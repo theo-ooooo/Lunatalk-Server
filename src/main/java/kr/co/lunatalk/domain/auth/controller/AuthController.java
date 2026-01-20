@@ -10,6 +10,7 @@ import kr.co.lunatalk.domain.auth.dto.request.LoginRequest;
 import kr.co.lunatalk.domain.auth.dto.request.RefreshTokenRequest;
 import kr.co.lunatalk.domain.auth.dto.response.AuthTokenResponse;
 import kr.co.lunatalk.domain.auth.service.AuthService;
+import kr.co.lunatalk.domain.auth.service.KakaoOAuthService;
 import kr.co.lunatalk.domain.member.dto.request.CreateMemberRequest;
 import kr.co.lunatalk.global.exception.CustomException;
 import kr.co.lunatalk.global.exception.ErrorCode;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
 	private final AuthService authService;
+	private final KakaoOAuthService kakaoOAuthService;
 	private final CookieUtil cookieUtil;
 
 	@PostMapping("/register")
@@ -89,6 +91,17 @@ public class AuthController {
 		authService.withdraw();
 		deleteTokenCookies(response);
 		return ResponseEntity.ok().build();
+	}
+
+	@PostMapping("/kakao/callback")
+	@Operation(summary = "카카오 소셜 로그인", description = "카카오 인증 코드를 받아 로그인 후 토큰을 발급합니다.")
+	public AuthTokenResponse kakaoLogin(
+		@RequestParam("code") String authorizationCode,
+		HttpServletResponse response
+	) {
+		AuthTokenResponse tokenResponse = kakaoOAuthService.login(authorizationCode);
+		setTokenCookies(response, tokenResponse);
+		return tokenResponse;
 	}
 
 	private void setTokenCookies(HttpServletResponse response, AuthTokenResponse tokenResponse) {

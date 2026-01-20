@@ -5,6 +5,7 @@ import kr.co.lunatalk.global.common.response.GlobalResponse;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
@@ -69,6 +70,28 @@ public class GlobalExceptionHandler {
 		GlobalResponse response = GlobalResponse.fail(errorCode.getHttpStatus().value(), errorResponse);
 		return ResponseEntity.status(errorCode.getHttpStatus()).body(response);
 	}
+	// DataIntegrityViolationException
+	@ExceptionHandler(DataIntegrityViolationException.class)
+	public ResponseEntity<GlobalResponse> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
+		log.error("DataIntegrityViolationException : {}", ex.getMessage());
+
+		ErrorCode errorCode = ErrorCode.OAUTH_ACCOUNT_ALREADY_EXISTS;
+		String message = ex.getMessage();
+		
+		// provider, provider_id 제약 조건 위반인 경우
+		if (message != null && (message.contains("uk_provider_provider_id") || 
+			message.contains("provider") && message.contains("provider_id"))) {
+			errorCode = ErrorCode.OAUTH_ACCOUNT_ALREADY_EXISTS;
+		} else {
+			errorCode = ErrorCode.MEMBER_EXISTS;
+		}
+
+		ErrorResponse errorResponse = ErrorResponse.of(ex.getClass().getSimpleName(), errorCode.getMessage());
+		GlobalResponse response = GlobalResponse.fail(errorCode.getHttpStatus().value(), errorResponse);
+
+		return ResponseEntity.status(errorCode.getHttpStatus()).body(response);
+	}
+
 	// CustomException
 	@ExceptionHandler(CustomException.class)
 	public ResponseEntity<GlobalResponse> handleCustomException(CustomException ex) {

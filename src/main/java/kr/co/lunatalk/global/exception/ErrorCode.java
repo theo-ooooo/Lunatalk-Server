@@ -26,6 +26,7 @@ public enum ErrorCode {
 	AUTH_REFRESH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "RefreshToken이 만료되었습니다."),
 	OAUTH_TOKEN_REQUEST_FAILED(HttpStatus.BAD_REQUEST, "OAuth 토큰 발급에 실패했습니다."),
 	OAUTH_USER_INFO_REQUEST_FAILED(HttpStatus.BAD_REQUEST, "OAuth 사용자 정보 조회에 실패했습니다."),
+	OAUTH_ACCOUNT_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 등록된 소셜 계정입니다."),
 
 
 	// Product

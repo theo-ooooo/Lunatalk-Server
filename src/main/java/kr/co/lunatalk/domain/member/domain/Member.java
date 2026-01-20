@@ -7,6 +7,9 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(uniqueConstraints = {
+	@UniqueConstraint(name = "uk_provider_provider_id", columnNames = {"provider", "provider_id"})
+})
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member extends BaseTimeEntity {
@@ -51,7 +54,7 @@ public class Member extends BaseTimeEntity {
         this.status = status;
         this.role = role;
         this.lastLoginAt = lastLoginAt;
-		this.phone = phone;
+		this.phone = phone != null && phone.isBlank() ? null : phone;
 		this.email = email;
 		this.provider = provider;
 		this.providerId = providerId;
@@ -80,7 +83,7 @@ public class Member extends BaseTimeEntity {
 			.role(MemberRole.USER)
 			.status(MemberStatus.NORMAL)
 			.email(email)
-			.phone("")
+			.phone(null)
 			.lastLoginAt(LocalDateTime.now())
 			.provider(provider)
 			.providerId(providerId)

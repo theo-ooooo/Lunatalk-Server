@@ -1,4 +1,4 @@
-package kr.co.lunatalk.infra.mail;
+package kr.co.lunatalk.infra.config.mail;
 
 import jakarta.mail.internet.MimeMessage;
 import kr.co.lunatalk.domain.payment.event.PaymentCompletedEvent;

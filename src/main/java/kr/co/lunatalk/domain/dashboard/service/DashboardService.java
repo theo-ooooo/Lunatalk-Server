@@ -37,20 +37,20 @@ public class DashboardService {
 	public DashboardResponse getDashboardStatistics() {
 		Long productCount = productRepository.count();
 		Long memberCount = memberRepository.count();
-		
+
 		// 통계 테이블에서 오늘 통계 조회
 		PaymentStatistics todayStatistics = paymentStatisticsService.getTodayStatistics();
 		Long todayOrderCount = todayStatistics.getOrderCount();
 		Long todaySales = todayStatistics.getTotalSales();
-		
+
 		Long activeExhibitionCount = exhibitionRepository.countByStartAtLessThanEqualAndEndAtGreaterThanEqual(
 			LocalDateTime.now(), LocalDateTime.now());
-		
+
 		Long categoryCount = categoryRepository.count();
-		
+
 		// 최근 7일 일별 주문 수 조회
 		List<DailyOrderCountResponse> dailyOrderCounts = getDailyOrderCountsForLast7Days();
-		
+
 		return new DashboardResponse(
 			productCount,
 			memberCount,
@@ -79,7 +79,7 @@ public class DashboardService {
 
 		// 최근 7일 날짜 리스트 생성 (오늘부터 6일 전까지)
 		return IntStream.range(0, 7)
-			.mapToObj(i -> today.minusDays(i))
+			.mapToObj(today::minusDays)
 			.map(date -> new DailyOrderCountResponse(
 				date,
 				statisticsMap.getOrDefault(date, 0L)

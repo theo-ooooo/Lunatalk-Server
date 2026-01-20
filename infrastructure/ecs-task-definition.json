@@ -47,7 +47,8 @@
         { "name": "JWT_ISSUER", "value": "lunatalk" },
         { "name": "DB_NAME", "value": "lunatalk_v2" },
         { "name": "MYSQL_PORT", "value": "3306" },
-        { "name": "REDIS_PORT", "value": "6379" }
+        { "name": "REDIS_PORT", "value": "6379" },
+        { "name": "KAKAO_REDIRECT_URI", "value":  "https://lunatalk.co.kr/auth/kakao/callback"}
       ],
 
       "secrets": [

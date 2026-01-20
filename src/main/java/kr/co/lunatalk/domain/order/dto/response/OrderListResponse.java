@@ -11,7 +11,7 @@ public record OrderListResponse(
 	String status,
 	Long totalPrice,
 	LocalDateTime createdAt,
-	String nickname,
+	String username,
 	List<OrderItemResponse> orderItems // 여기서 그냥 getter 사용하면 됨
 ) {
 	public static OrderListResponse from(Order order) {
@@ -21,7 +21,7 @@ public record OrderListResponse(
 			order.getStatus().getValue(),
 			order.getTotalPrice(),
 			order.getCreatedAt(),
-			order.getMember().getProfile().getNickname(),
+			order.getMember().getUsername(),
 			order.getOrderItems().stream().map(OrderItemResponse::from).toList()
 		);
 	}

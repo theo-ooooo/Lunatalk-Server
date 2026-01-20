@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ExhibitionRepository extends JpaRepository<Exhibition, Long>, ExhibitionRepositoryCustom {
@@ -14,5 +15,7 @@ public interface ExhibitionRepository extends JpaRepository<Exhibition, Long>, E
 	@Modifying(clearAutomatically = true)
 	@Query("DELETE FROM ExhibitionProduct ep WHERE ep.exhibition.id = :exhibitionId")
 	void deleteProductByExhibitionId(@Param("exhibitionId") Long exhibitionId);
+
+	long countByStartAtLessThanEqualAndEndAtGreaterThanEqual(LocalDateTime startAt, LocalDateTime endAt);
 
 }

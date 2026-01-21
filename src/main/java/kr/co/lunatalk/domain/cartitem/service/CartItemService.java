@@ -19,6 +19,7 @@ import kr.co.lunatalk.global.util.ProductUtil;
 import kr.co.lunatalk.global.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -111,5 +112,11 @@ public class CartItemService {
 		} catch (Exception e) {
 			return null; // 비회원인 경우
 		}
+	}
+
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public void deleteCartItemByMemberIdAndProductId(Long memberId, Long productId) {
+		cartItemRepository.deleteByMemberIdAndProductId(memberId, productId);
+
 	}
 }

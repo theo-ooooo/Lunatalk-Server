@@ -1,7 +1,6 @@
 package kr.co.lunatalk.domain.product.repository;
 
 import kr.co.lunatalk.domain.product.domain.Product;
-import kr.co.lunatalk.domain.product.dto.FindProductDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

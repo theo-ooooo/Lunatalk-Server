@@ -1,5 +1,6 @@
 package kr.co.lunatalk.domain.order.service;
 
+import kr.co.lunatalk.domain.cartitem.service.CartItemService;
 import kr.co.lunatalk.domain.delivery.domain.Delivery;
 import kr.co.lunatalk.domain.delivery.dto.response.DeliveryFindResponse;
 import kr.co.lunatalk.domain.delivery.repository.DeliveryRepository;
@@ -47,6 +48,7 @@ public class OrderService {
 	private final ProductRepository productRepository;
 	private final ImageRepository imageRepository;
 	private final DeliveryRepository deliveryRepository;
+	private final CartItemService cartItemService;
 	private final OrderUtil orderUtil;
 	private final MemberUtil memberUtil;
 
@@ -61,6 +63,11 @@ public class OrderService {
 		for (OrderProductRequest p : request.products()) {
 			Product product = productRepository.findById(p.productId())
 				.orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
+
+			if (product.getQuantity() <= 0) {
+				cartItemService.deleteCartItemByMemberIdAndProductId(member.getId(), p.productId());
+				throw new CustomException(ErrorCode.PRODUCT_SOLD_OUT);
+			}
 
 //			boolean colorExists = product.getProductColor().stream()
 //				.anyMatch(c -> c.getColor().equalsIgnoreCase(p.optionSnapshot().getColor()));

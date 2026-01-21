@@ -54,4 +54,10 @@ public class ExhibitionController {
 	public List<ExhibitionFindOneResponse> getAllExhibitions() {
 		return exhibitionService.getAllExhibitions();
 	}
+
+	@GetMapping("/active")
+	@Operation(summary = "활성화 된 기획전 조회", description = "활성화 된 전체 기획전을 조회합니다. 현재 시간이 시작일과 종료일 사이에 있고 노출 상태가 VISIBLE인 기획전을 반환합니다.")
+	public List<ExhibitionFindOneResponse> getActiveExhibitions() {
+		return exhibitionService.getActiveExhibitions();
+	}
 }

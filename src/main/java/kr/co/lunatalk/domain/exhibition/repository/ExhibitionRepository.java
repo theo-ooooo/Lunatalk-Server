@@ -18,4 +18,6 @@ public interface ExhibitionRepository extends JpaRepository<Exhibition, Long>, E
 
 	long countByStartAtLessThanEqualAndEndAtGreaterThanEqual(LocalDateTime startAt, LocalDateTime endAt);
 
+	List<Exhibition> findActiveExhibitions(ExhibitionVisibility visibility, LocalDateTime now);
+
 }

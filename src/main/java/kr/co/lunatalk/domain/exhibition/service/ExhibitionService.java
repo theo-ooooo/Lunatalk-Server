@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -83,19 +84,25 @@ public class ExhibitionService {
 					return exhibition.getExhibitionProducts().stream()
 						.sorted(Comparator.comparingInt(ExhibitionProduct::getSortOrder))
 						.map(ep -> {
+							products.stream().forEach(product -> {
+								System.out.println(product.toString());
+							});
+
 							Product product = products.stream()
 								.filter(p -> p.getId().equals(ep.getProduct().getId()))
 								.findFirst()
-								.orElseThrow(
-									() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND)
-								);
+								.orElse(null);
+
+							if (product == null) {
+								return null;
+							}
 
 							List<Image> images = imageMap.getOrDefault(product.getId(), List.of());
 							Long likeCount = likeCountMap.getOrDefault(product.getId(), 0L);
 							Boolean isLiked = likedStatusMap.getOrDefault(product.getId(), false);
 
 							return ExhibitionProductDto.from(product, images, ep.getSortOrder(), likeCount, isLiked);
-						})
+						}).filter(Objects::nonNull)
 						.toList();
 				}
 			));

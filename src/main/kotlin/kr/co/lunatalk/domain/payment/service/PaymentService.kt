@@ -136,7 +136,7 @@ class PaymentService(
                 orderNumber = order.orderNumber!!,
                 orderId = order.id!!,
                 totalAmount = order.totalPrice!!,
-                memberEmail = order.member!!.email,
+                memberEmail = order.member!!.email ?: "",
                 items = items
             )
         )

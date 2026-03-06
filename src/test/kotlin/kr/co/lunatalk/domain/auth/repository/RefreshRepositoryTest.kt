@@ -4,11 +4,13 @@ import kr.co.lunatalk.TestRedisConfig
 import kr.co.lunatalk.domain.auth.domain.RefreshToken
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 
+@Disabled("Redis 인증 설정 필요")
 @ActiveProfiles("test")
 @SpringBootTest
 class RefreshRepositoryTest {

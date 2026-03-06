@@ -17,12 +17,9 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.ArgumentMatchers.any
-import org.mockito.ArgumentMatchers.eq
-import org.mockito.InjectMocks
 import org.mockito.Mock
-import org.mockito.Mockito.*
 import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.*
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
@@ -32,7 +29,6 @@ import java.util.*
 @ExtendWith(MockitoExtension::class)
 class ProductLikeServiceTest {
 
-    @InjectMocks
     private lateinit var productLikeService: ProductLikeService
 
     @Mock
@@ -51,6 +47,8 @@ class ProductLikeServiceTest {
 
     @BeforeEach
     fun setUp() {
+        productLikeService = ProductLikeService(productLikeRepository, memberUtil, productUtil)
+
         member1 = Member.createMember(
             "testuser1",
             "1234",
@@ -86,11 +84,11 @@ class ProductLikeServiceTest {
         // given
         val productId = product1.id!!
 
-        `when`(memberUtil.currentMember).thenReturn(member1)
-        `when`(productUtil.findProductId(productId)).thenReturn(product1)
-        `when`(productLikeRepository.findByMemberIdAndProductId(member1.id!!, productId))
+        whenever(memberUtil.currentMember).thenReturn(member1)
+        whenever(productUtil.findProductId(productId)).thenReturn(product1)
+        whenever(productLikeRepository.findByMemberIdAndProductId(member1.id!!, productId))
             .thenReturn(Optional.empty())
-        `when`(productLikeRepository.save(any(ProductLike::class.java)))
+        whenever(productLikeRepository.save(any<ProductLike>()))
             .thenAnswer { invocation ->
                 val saved = invocation.getArgument<ProductLike>(0)
                 ReflectionTestUtils.setField(saved, "id", 1L)
@@ -101,8 +99,8 @@ class ProductLikeServiceTest {
         productLikeService.toggleLike(productId)
 
         // then
-        verify(productLikeRepository).save(any(ProductLike::class.java))
-        verify(productLikeRepository, never()).delete(any(ProductLike::class.java))
+        verify(productLikeRepository).save(any<ProductLike>())
+        verify(productLikeRepository, never()).delete(any<ProductLike>())
     }
 
     @Test
@@ -113,9 +111,9 @@ class ProductLikeServiceTest {
         val existingLike = ProductLike.create(member1, product1)
         ReflectionTestUtils.setField(existingLike, "id", 1L)
 
-        `when`(memberUtil.currentMember).thenReturn(member1)
-        `when`(productUtil.findProductId(productId)).thenReturn(product1)
-        `when`(productLikeRepository.findByMemberIdAndProductId(member1.id!!, productId))
+        whenever(memberUtil.currentMember).thenReturn(member1)
+        whenever(productUtil.findProductId(productId)).thenReturn(product1)
+        whenever(productLikeRepository.findByMemberIdAndProductId(member1.id!!, productId))
             .thenReturn(Optional.of(existingLike))
 
         // when
@@ -123,7 +121,7 @@ class ProductLikeServiceTest {
 
         // then
         verify(productLikeRepository).delete(existingLike)
-        verify(productLikeRepository, never()).save(any(ProductLike::class.java))
+        verify(productLikeRepository, never()).save(any<ProductLike>())
     }
 
     @Test
@@ -131,7 +129,7 @@ class ProductLikeServiceTest {
     fun `좋아요 개수 조회 테스트`() {
         // given
         val productId = product1.id!!
-        `when`(productLikeRepository.countByProductId(productId)).thenReturn(2L)
+        whenever(productLikeRepository.countByProductId(productId)).thenReturn(2L)
 
         // when
         val likeCount = productLikeService.getLikeCount(productId)
@@ -149,7 +147,7 @@ class ProductLikeServiceTest {
             product1.id!! to 2L,
             product2.id!! to 1L
         )
-        `when`(productLikeRepository.countByProductIds(productIds)).thenReturn(expectedCounts)
+        whenever(productLikeRepository.countByProductIds(productIds)).thenReturn(expectedCounts)
 
         // when
         val likeCounts = productLikeService.getLikeCounts(productIds)
@@ -168,9 +166,9 @@ class ProductLikeServiceTest {
         val existingLike = ProductLike.create(member1, product1)
         ReflectionTestUtils.setField(existingLike, "id", 1L)
 
-        `when`(productLikeRepository.findByMemberIdAndProductId(member1.id!!, productId))
+        whenever(productLikeRepository.findByMemberIdAndProductId(member1.id!!, productId))
             .thenReturn(Optional.of(existingLike))
-        `when`(productLikeRepository.findByMemberIdAndProductId(member2.id!!, productId))
+        whenever(productLikeRepository.findByMemberIdAndProductId(member2.id!!, productId))
             .thenReturn(Optional.empty())
 
         // when
@@ -191,7 +189,7 @@ class ProductLikeServiceTest {
             product1.id!! to true,
             product2.id!! to false
         )
-        `when`(productLikeRepository.existsByMemberIdAndProductIds(member1.id!!, productIds))
+        whenever(productLikeRepository.existsByMemberIdAndProductIds(member1.id!!, productIds))
             .thenReturn(expectedStatus)
 
         // when
@@ -222,7 +220,7 @@ class ProductLikeServiceTest {
     fun `좋아요 없는 상품 개수 테스트`() {
         // given
         val productId = product1.id
-        `when`(productLikeRepository.countByProductId(productId!!)).thenReturn(null)
+        whenever(productLikeRepository.countByProductId(productId!!)).thenReturn(null)
 
         // when
         val likeCount = productLikeService.getLikeCount(productId)
@@ -238,15 +236,15 @@ class ProductLikeServiceTest {
         val pageable = PageRequest.of(0, 10)
         val likedProductIds = listOf(product2.id!!, product1.id!!) // 최신순 가정
 
-        `when`(memberUtil.currentMember).thenReturn(member1)
-        `when`(productLikeRepository.findLikedProductIdsByMemberId(eq(member1.id!!), any(Pageable::class.java)))
+        whenever(memberUtil.currentMember).thenReturn(member1)
+        whenever(productLikeRepository.findLikedProductIdsByMemberId(eq(member1.id!!), any<Pageable>()))
             .thenReturn(PageImpl(likedProductIds, pageable, likedProductIds.size.toLong()))
 
         // ProductUtil은 정렬을 보장하지 않는다고 가정하고, 일부러 역순으로 반환
-        `when`(productUtil.findAllProducts(likedProductIds))
+        whenever(productUtil.findAllProducts(likedProductIds))
             .thenReturn(ProductWithImagesResult(listOf(product1, product2), mapOf()))
 
-        `when`(productLikeRepository.countByProductIds(likedProductIds))
+        whenever(productLikeRepository.countByProductIds(likedProductIds))
             .thenReturn(mapOf(product1.id!! to 1L, product2.id!! to 5L))
 
         // when

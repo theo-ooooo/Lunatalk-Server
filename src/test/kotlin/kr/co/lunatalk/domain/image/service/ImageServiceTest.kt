@@ -20,11 +20,10 @@ import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.BDDMockito.*
-import org.mockito.InjectMocks
 import org.mockito.Mock
-import org.mockito.Mockito.verify
 import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.*
+import org.springframework.test.util.ReflectionTestUtils
 import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest
 import software.amazon.awssdk.services.s3.presigner.S3Presigner
@@ -36,7 +35,6 @@ import java.util.*
 @ExtendWith(MockitoExtension::class)
 class ImageServiceTest {
 
-    @InjectMocks
     private lateinit var imageService: ImageService
 
     @Mock
@@ -61,31 +59,36 @@ class ImageServiceTest {
 
     @BeforeEach
     fun setUp() {
+        imageService = ImageService(imageRepository, productRepository, s3Client, s3Presigner, s3Properties, springEnvironmentUtil)
         testProduct = Product.createProduct("테스트", 10000L, 100, ProductStatus.ACTIVE, ProductVisibility.VISIBLE)
+        ReflectionTestUtils.setField(testProduct, "id", 1L)
     }
 
     @Test
     fun `상품 이미지 PresignedUrl 생성`() {
         val request = ProductImageUploadRequest(1L, ImageType.PRODUCT_THUMBNAIL, ImageFileExtension.PNG)
-        given(productRepository.findById(anyLong())).willReturn(Optional.of(testProduct))
+        whenever(productRepository.findById(any<Long>())).thenReturn(Optional.of(testProduct))
+        whenever(imageRepository.findAllByReferenceIdAndImageType(any(), any())).thenReturn(listOf())
+        whenever(springEnvironmentUtil.getCurrentProfile()).thenReturn("local")
+        whenever(s3Properties.bucket).thenReturn("test-bucket")
 
-        val fakeUrl = mock(URL::class.java)
-        given(fakeUrl.toString()).willReturn("http://fake-presigned-url")
-        val presignedRequest = mock(PresignedPutObjectRequest::class.java)
-        given(presignedRequest.url()).willReturn(fakeUrl)
-        given(s3Presigner.presignPutObject(any(PutObjectPresignRequest::class.java))).willReturn(presignedRequest)
+        val fakeUrl = mock<URL>()
+        whenever(fakeUrl.toString()).thenReturn("http://fake-presigned-url")
+        val presignedRequest = mock<PresignedPutObjectRequest>()
+        whenever(presignedRequest.url()).thenReturn(fakeUrl)
+        whenever(s3Presigner.presignPutObject(any<PutObjectPresignRequest>())).thenReturn(presignedRequest)
 
         val result = imageService.productImageUpload(request)
 
         assertThat(result.presignedUrl).isEqualTo("http://fake-presigned-url")
         verify(productRepository).findById(1L)
-        verify(imageRepository).save(any(Image::class.java))
+        verify(imageRepository).save(any<Image>())
     }
 
     @Test
     fun `없는 상품으로 PresignedUrl 생성 예외`() {
         val request = ProductImageUploadRequest(999L, ImageType.PRODUCT_THUMBNAIL, ImageFileExtension.PNG)
-        given(productRepository.findById(anyLong())).willReturn(Optional.empty())
+        whenever(productRepository.findById(any<Long>())).thenReturn(Optional.empty())
 
         assertThatThrownBy { imageService.productImageUpload(request) }
             .isInstanceOf(CustomException::class.java)
@@ -96,7 +99,7 @@ class ImageServiceTest {
     @Test
     fun `상품 이미지 업로드 완료처리`() {
         val image = Image.createImage(ImageType.PRODUCT_THUMBNAIL, 1L, "image-key", "path", ImageFileExtension.PNG, 1)
-        given(imageRepository.findByImageKey("image-key")).willReturn(Optional.of(image))
+        whenever(imageRepository.findByImageKey("image-key")).thenReturn(Optional.of(image))
 
         imageService.productImageCompleteUpload(ProductImageCompletedRequest("image-key"))
 
@@ -106,7 +109,7 @@ class ImageServiceTest {
 
     @Test
     fun `없는 이미지 업로드 완료처리 예외`() {
-        given(imageRepository.findByImageKey("invalid-key")).willReturn(Optional.empty())
+        whenever(imageRepository.findByImageKey("invalid-key")).thenReturn(Optional.empty())
 
         assertThatThrownBy { imageService.productImageCompleteUpload(ProductImageCompletedRequest("invalid-key")) }
             .isInstanceOf(CustomException::class.java)
@@ -120,13 +123,15 @@ class ImageServiceTest {
             ImageType.PRODUCT_THUMBNAIL, 1L, "image-key",
             "local/product/1/image-key.png", ImageFileExtension.PNG, 1
         )
-        given(imageRepository.findByImageKey("image-key")).willReturn(Optional.of(image))
+        whenever(imageRepository.findByImageKey("image-key")).thenReturn(Optional.of(image))
+        whenever(springEnvironmentUtil.isProdProfile()).thenReturn(false)
+        whenever(s3Properties.bucket).thenReturn("test-bucket")
 
         imageService.deleteByImageKey("image-key")
 
         assertThat(image.imageStatus).isEqualTo(ImageStatus.DELETED)
         verify(imageRepository).findByImageKey("image-key")
-        verify(s3Client).deleteObject(any(DeleteObjectRequest::class.java))
+        verify(s3Client).deleteObject(any<DeleteObjectRequest>())
     }
 
     @Test
@@ -136,7 +141,7 @@ class ImageServiceTest {
             "local/product/1/image-key.png", ImageFileExtension.PNG, 1
         )
         image.deletedImage()
-        given(imageRepository.findByImageKey("deleted-key")).willReturn(Optional.of(image))
+        whenever(imageRepository.findByImageKey("deleted-key")).thenReturn(Optional.of(image))
 
         assertThatThrownBy { imageService.deleteByImageKey("deleted-key") }
             .isInstanceOf(CustomException::class.java)

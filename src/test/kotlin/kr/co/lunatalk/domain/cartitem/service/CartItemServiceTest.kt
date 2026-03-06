@@ -21,17 +21,15 @@ import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.InjectMocks
 import org.mockito.Mock
-import org.mockito.Mockito.*
 import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.*
 import org.springframework.test.util.ReflectionTestUtils
 import java.util.*
 
 @ExtendWith(MockitoExtension::class)
 class CartItemServiceTest {
 
-    @InjectMocks
     private lateinit var cartItemService: CartItemService
 
     @Mock
@@ -54,6 +52,8 @@ class CartItemServiceTest {
 
     @BeforeEach
     fun setUp() {
+        cartItemService = CartItemService(cartItemRepository, memberUtil, productUtil, productLikeService, securityUtil)
+
         member = Member.createMember("TEST", "1234", Profile.of("TEST", ""), "01012341234", "kkwondev@gmail.com")
         ReflectionTestUtils.setField(member, "id", 1L)
 
@@ -66,9 +66,9 @@ class CartItemServiceTest {
         // given
         val request = CreateCartItemRequest(product.id!!, 2)
 
-        `when`(memberUtil.currentMember).thenReturn(member)
-        `when`(productUtil.findProductId(product.id!!)).thenReturn(product)
-        `when`(cartItemRepository.save(any(CartItem::class.java)))
+        whenever(memberUtil.currentMember).thenReturn(member)
+        whenever(productUtil.findProductId(product.id!!)).thenReturn(product)
+        whenever(cartItemRepository.save(any<CartItem>()))
             .thenAnswer { invocation ->
                 val saved = invocation.getArgument<CartItem>(0)
                 ReflectionTestUtils.setField(saved, "id", 1L)
@@ -91,14 +91,14 @@ class CartItemServiceTest {
         val cartItems = listOf(cartItem)
         val imageMap = mapOf<Long, List<Image>>(product.id!! to listOf())
 
-        `when`(memberUtil.currentMember).thenReturn(member)
-        `when`(cartItemRepository.findByMemberId(member.id!!)).thenReturn(cartItems)
-        `when`(productUtil.findAllProducts(listOf(product.id!!)))
+        whenever(memberUtil.currentMember).thenReturn(member)
+        whenever(cartItemRepository.findByMemberId(member.id!!)).thenReturn(cartItems)
+        whenever(productUtil.findAllProducts(listOf(product.id!!)))
             .thenReturn(ProductWithImagesResult(listOf(product), imageMap))
-        `when`(productLikeService.getLikeCounts(listOf(product.id!!)))
+        whenever(productLikeService.getLikeCounts(listOf(product.id!!)))
             .thenReturn(mapOf(product.id!! to 0L))
-        `when`(securityUtil.getCurrentMemberId()).thenReturn(member.id!!)
-        `when`(productLikeService.getLikedStatus(listOf(product.id!!), member.id!!))
+        whenever(securityUtil.getCurrentMemberId()).thenReturn(member.id!!)
+        whenever(productLikeService.getLikedStatus(listOf(product.id!!), member.id!!))
             .thenReturn(mapOf(product.id!! to false))
 
         // when
@@ -115,8 +115,8 @@ class CartItemServiceTest {
         val cartItem = CartItem.createCartItem(member, product, 1)
         ReflectionTestUtils.setField(cartItem, "id", 10L)
 
-        `when`(memberUtil.currentMember).thenReturn(member)
-        `when`(cartItemRepository.findById(10L)).thenReturn(Optional.of(cartItem))
+        whenever(memberUtil.currentMember).thenReturn(member)
+        whenever(cartItemRepository.findById(10L)).thenReturn(Optional.of(cartItem))
 
         // when
         cartItemService.deleteById(10L)
@@ -131,8 +131,8 @@ class CartItemServiceTest {
         val cartItem = spy(CartItem.createCartItem(member, product, 1))
         ReflectionTestUtils.setField(cartItem, "id", 5L)
 
-        `when`(memberUtil.currentMember).thenReturn(member)
-        `when`(cartItemRepository.findById(5L)).thenReturn(Optional.of(cartItem))
+        whenever(memberUtil.currentMember).thenReturn(member)
+        whenever(cartItemRepository.findById(5L)).thenReturn(Optional.of(cartItem))
 
         // when
         cartItemService.updateById(5L, UpdateCartItemRequest(10))
@@ -150,8 +150,8 @@ class CartItemServiceTest {
         val cartItem = CartItem.createCartItem(another, product, 1)
         ReflectionTestUtils.setField(cartItem, "id", 20L)
 
-        `when`(memberUtil.currentMember).thenReturn(member)
-        `when`(cartItemRepository.findById(20L)).thenReturn(Optional.of(cartItem))
+        whenever(memberUtil.currentMember).thenReturn(member)
+        whenever(cartItemRepository.findById(20L)).thenReturn(Optional.of(cartItem))
 
         // expect
         assertThrows(CustomException::class.java) { cartItemService.deleteById(20L) }
@@ -160,8 +160,8 @@ class CartItemServiceTest {
     @Test
     fun `deleteById shouldThrow ifCartItemNotFound`() {
         // given
-        `when`(memberUtil.currentMember).thenReturn(member)
-        `when`(cartItemRepository.findById(99L)).thenReturn(Optional.empty())
+        whenever(memberUtil.currentMember).thenReturn(member)
+        whenever(cartItemRepository.findById(99L)).thenReturn(Optional.empty())
 
         // expect
         assertThrows(CustomException::class.java) { cartItemService.deleteById(99L) }

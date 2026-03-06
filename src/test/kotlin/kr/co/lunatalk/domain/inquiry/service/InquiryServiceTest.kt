@@ -28,12 +28,9 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.ArgumentMatchers.any
-import org.mockito.BDDMockito.given
-import org.mockito.InjectMocks
 import org.mockito.Mock
-import org.mockito.Mockito.verify
 import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.*
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.test.util.ReflectionTestUtils
@@ -58,7 +55,6 @@ class InquiryServiceTest {
     @Mock
     private lateinit var memberUtil: MemberUtil
 
-    @InjectMocks
     private lateinit var inquiryService: InquiryService
 
     private lateinit var member: Member
@@ -68,6 +64,8 @@ class InquiryServiceTest {
 
     @BeforeEach
     fun setUp() {
+        inquiryService = InquiryService(inquiryRepository, inquiryReplyRepository, productRepository, orderRepository, memberUtil)
+
         member = Member.createMember("testuser", "1234", Profile.of("테스트", ""), "01012341234", "test@test.com")
         ReflectionTestUtils.setField(member, "id", 1L)
         ReflectionTestUtils.setField(member, "role", MemberRole.USER)
@@ -91,9 +89,9 @@ class InquiryServiceTest {
             InquiryType.PRODUCT, "상품 문의", "상품에 대해 문의합니다.", 100L, null
         )
 
-        given(memberUtil.currentMember).willReturn(member)
-        given(productRepository.findById(100L)).willReturn(Optional.of(product))
-        given(inquiryRepository.save(any(Inquiry::class.java))).willAnswer { invocation ->
+        whenever(memberUtil.currentMember).thenReturn(member)
+        whenever(productRepository.findById(100L)).thenReturn(Optional.of(product))
+        whenever(inquiryRepository.save(any<Inquiry>())).thenAnswer { invocation ->
             val saved = invocation.getArgument<Inquiry>(0)
             ReflectionTestUtils.setField(saved, "id", 1L)
             saved
@@ -107,7 +105,7 @@ class InquiryServiceTest {
         assertThat(response.title).isEqualTo("상품 문의")
         assertThat(response.referenceId).isEqualTo(100L)
         assertThat(response.referenceName).isEqualTo("테스트 상품")
-        verify(inquiryRepository).save(any(Inquiry::class.java))
+        verify(inquiryRepository).save(any<Inquiry>())
     }
 
     @Test
@@ -118,9 +116,9 @@ class InquiryServiceTest {
             InquiryType.ORDER, "주문 문의", "주문에 대해 문의합니다.", null, "L1234567890"
         )
 
-        given(memberUtil.currentMember).willReturn(member)
-        given(orderRepository.findByOrderWithItems("L1234567890")).willReturn(Optional.of(order))
-        given(inquiryRepository.save(any(Inquiry::class.java))).willAnswer { invocation ->
+        whenever(memberUtil.currentMember).thenReturn(member)
+        whenever(orderRepository.findByOrderWithItems("L1234567890")).thenReturn(Optional.of(order))
+        whenever(inquiryRepository.save(any<Inquiry>())).thenAnswer { invocation ->
             val saved = invocation.getArgument<Inquiry>(0)
             ReflectionTestUtils.setField(saved, "id", 1L)
             saved
@@ -133,7 +131,7 @@ class InquiryServiceTest {
         assertThat(response.type).isEqualTo(InquiryType.ORDER)
         assertThat(response.referenceId).isEqualTo(200L)
         assertThat(response.referenceName).isEqualTo("L1234567890")
-        verify(inquiryRepository).save(any(Inquiry::class.java))
+        verify(inquiryRepository).save(any<Inquiry>())
     }
 
     @Test
@@ -144,9 +142,9 @@ class InquiryServiceTest {
             InquiryType.ORDER, "주문 문의", "주문에 대해 문의합니다.", 200L, null
         )
 
-        given(memberUtil.currentMember).willReturn(member)
-        given(orderRepository.findById(200L)).willReturn(Optional.of(order))
-        given(inquiryRepository.save(any(Inquiry::class.java))).willAnswer { invocation ->
+        whenever(memberUtil.currentMember).thenReturn(member)
+        whenever(orderRepository.findById(200L)).thenReturn(Optional.of(order))
+        whenever(inquiryRepository.save(any<Inquiry>())).thenAnswer { invocation ->
             val saved = invocation.getArgument<Inquiry>(0)
             ReflectionTestUtils.setField(saved, "id", 1L)
             saved
@@ -158,7 +156,7 @@ class InquiryServiceTest {
         // then
         assertThat(response.type).isEqualTo(InquiryType.ORDER)
         assertThat(response.referenceId).isEqualTo(200L)
-        verify(inquiryRepository).save(any(Inquiry::class.java))
+        verify(inquiryRepository).save(any<Inquiry>())
     }
 
     @Test
@@ -169,8 +167,8 @@ class InquiryServiceTest {
             InquiryType.GENERAL, "일반 문의", "일반 문의입니다.", null, null
         )
 
-        given(memberUtil.currentMember).willReturn(member)
-        given(inquiryRepository.save(any(Inquiry::class.java))).willAnswer { invocation ->
+        whenever(memberUtil.currentMember).thenReturn(member)
+        whenever(inquiryRepository.save(any<Inquiry>())).thenAnswer { invocation ->
             val saved = invocation.getArgument<Inquiry>(0)
             ReflectionTestUtils.setField(saved, "id", 1L)
             saved
@@ -183,7 +181,7 @@ class InquiryServiceTest {
         assertThat(response.type).isEqualTo(InquiryType.GENERAL)
         assertThat(response.referenceId).isNull()
         assertThat(response.referenceName).isNull()
-        verify(inquiryRepository).save(any(Inquiry::class.java))
+        verify(inquiryRepository).save(any<Inquiry>())
     }
 
     @Test
@@ -194,8 +192,8 @@ class InquiryServiceTest {
             InquiryType.PRODUCT, "상품 문의", "상품에 대해 문의합니다.", 999L, null
         )
 
-        given(memberUtil.currentMember).willReturn(member)
-        given(productRepository.findById(999L)).willReturn(Optional.empty())
+        whenever(memberUtil.currentMember).thenReturn(member)
+        whenever(productRepository.findById(999L)).thenReturn(Optional.empty())
 
         // when & then
         assertThatThrownBy { inquiryService.createInquiry(request) }
@@ -212,7 +210,7 @@ class InquiryServiceTest {
             InquiryType.PRODUCT, "상품 문의", "상품에 대해 문의합니다.", null, null
         )
 
-        given(memberUtil.currentMember).willReturn(member)
+        whenever(memberUtil.currentMember).thenReturn(member)
 
         // when & then
         assertThatThrownBy { inquiryService.createInquiry(request) }
@@ -229,8 +227,8 @@ class InquiryServiceTest {
             InquiryType.ORDER, "주문 문의", "주문에 대해 문의합니다.", null, "INVALID"
         )
 
-        given(memberUtil.currentMember).willReturn(member)
-        given(orderRepository.findByOrderWithItems("INVALID")).willReturn(Optional.empty())
+        whenever(memberUtil.currentMember).thenReturn(member)
+        whenever(orderRepository.findByOrderWithItems("INVALID")).thenReturn(Optional.empty())
 
         // when & then
         assertThatThrownBy { inquiryService.createInquiry(request) }
@@ -252,8 +250,8 @@ class InquiryServiceTest {
             InquiryType.ORDER, "주문 문의", "주문에 대해 문의합니다.", null, "L9999999999"
         )
 
-        given(memberUtil.currentMember).willReturn(member)
-        given(orderRepository.findByOrderWithItems("L9999999999")).willReturn(Optional.of(otherOrder))
+        whenever(memberUtil.currentMember).thenReturn(member)
+        whenever(orderRepository.findByOrderWithItems("L9999999999")).thenReturn(Optional.of(otherOrder))
 
         // when & then
         assertThatThrownBy { inquiryService.createInquiry(request) }
@@ -269,9 +267,9 @@ class InquiryServiceTest {
         val inquiry = Inquiry.createProductInquiry(member, "제목", "내용", 100L)
         ReflectionTestUtils.setField(inquiry, "id", 1L)
 
-        given(memberUtil.currentMember).willReturn(member)
-        given(inquiryRepository.findInquiryByIdWithMember(1L)).willReturn(Optional.of(inquiry))
-        given(productRepository.findById(100L)).willReturn(Optional.of(product))
+        whenever(memberUtil.currentMember).thenReturn(member)
+        whenever(inquiryRepository.findInquiryByIdWithMember(1L)).thenReturn(Optional.of(inquiry))
+        whenever(productRepository.findById(100L)).thenReturn(Optional.of(product))
 
         // when
         val response = inquiryService.findInquiry(1L)
@@ -290,8 +288,8 @@ class InquiryServiceTest {
         val inquiry = Inquiry.createProductInquiry(otherMember, "제목", "내용", 100L)
         ReflectionTestUtils.setField(inquiry, "id", 1L)
 
-        given(memberUtil.currentMember).willReturn(member)
-        given(inquiryRepository.findInquiryByIdWithMember(1L)).willReturn(Optional.of(inquiry))
+        whenever(memberUtil.currentMember).thenReturn(member)
+        whenever(inquiryRepository.findInquiryByIdWithMember(1L)).thenReturn(Optional.of(inquiry))
 
         // when & then
         assertThatThrownBy { inquiryService.findInquiry(1L) }
@@ -307,9 +305,9 @@ class InquiryServiceTest {
         val inquiry = Inquiry.createProductInquiry(member, "제목", "내용", 100L)
         ReflectionTestUtils.setField(inquiry, "id", 1L)
 
-        given(memberUtil.currentMember).willReturn(admin)
-        given(inquiryRepository.findInquiryByIdWithMember(1L)).willReturn(Optional.of(inquiry))
-        given(productRepository.findById(100L)).willReturn(Optional.of(product))
+        whenever(memberUtil.currentMember).thenReturn(admin)
+        whenever(inquiryRepository.findInquiryByIdWithMember(1L)).thenReturn(Optional.of(inquiry))
+        whenever(productRepository.findById(100L)).thenReturn(Optional.of(product))
 
         // when
         val response = inquiryService.findInquiry(1L)
@@ -330,9 +328,9 @@ class InquiryServiceTest {
         val pageable = PageRequest.of(0, 10)
         val inquiryPage = PageImpl(listOf(inquiry1, inquiry2), pageable, 2)
 
-        given(memberUtil.currentMember).willReturn(member)
-        given(inquiryRepository.findAllInquiries(member.id!!, null, null, pageable)).willReturn(inquiryPage)
-        given(productRepository.findById(100L)).willReturn(Optional.of(product))
+        whenever(memberUtil.currentMember).thenReturn(member)
+        whenever(inquiryRepository.findAllInquiries(member.id!!, null, null, pageable)).thenReturn(inquiryPage)
+        whenever(productRepository.findById(100L)).thenReturn(Optional.of(product))
 
         // when
         val response = inquiryService.findMyInquiries(null, null, pageable)
@@ -352,9 +350,9 @@ class InquiryServiceTest {
         val pageable = PageRequest.of(0, 10)
         val inquiryPage = PageImpl(listOf(inquiry), pageable, 1)
 
-        given(memberUtil.currentMember).willReturn(admin)
-        given(inquiryRepository.findAllInquiriesForAdmin(null, null, null, pageable)).willReturn(inquiryPage)
-        given(productRepository.findById(100L)).willReturn(Optional.of(product))
+        whenever(memberUtil.currentMember).thenReturn(admin)
+        whenever(inquiryRepository.findAllInquiriesForAdmin(null, null, null, pageable)).thenReturn(inquiryPage)
+        whenever(productRepository.findById(100L)).thenReturn(Optional.of(product))
 
         // when
         val response = inquiryService.findAllInquiriesForAdmin(null, null, null, pageable)
@@ -369,7 +367,7 @@ class InquiryServiceTest {
         // given
         val pageable = PageRequest.of(0, 10)
 
-        given(memberUtil.currentMember).willReturn(member)
+        whenever(memberUtil.currentMember).thenReturn(member)
 
         // when & then
         assertThatThrownBy { inquiryService.findAllInquiriesForAdmin(null, null, null, pageable) }
@@ -386,9 +384,9 @@ class InquiryServiceTest {
         ReflectionTestUtils.setField(inquiry, "id", 1L)
         val request = InquiryUpdateRequest("수정 제목", "수정 내용")
 
-        given(memberUtil.currentMember).willReturn(member)
-        given(inquiryRepository.findInquiryByIdWithMember(1L)).willReturn(Optional.of(inquiry))
-        given(productRepository.findById(100L)).willReturn(Optional.of(product))
+        whenever(memberUtil.currentMember).thenReturn(member)
+        whenever(inquiryRepository.findInquiryByIdWithMember(1L)).thenReturn(Optional.of(inquiry))
+        whenever(productRepository.findById(100L)).thenReturn(Optional.of(product))
 
         // when
         val response = inquiryService.updateInquiry(1L, request)
@@ -408,8 +406,8 @@ class InquiryServiceTest {
         inquiry.addReply(reply)
         val request = InquiryUpdateRequest("수정 제목", "수정 내용")
 
-        given(memberUtil.currentMember).willReturn(member)
-        given(inquiryRepository.findInquiryByIdWithMember(1L)).willReturn(Optional.of(inquiry))
+        whenever(memberUtil.currentMember).thenReturn(member)
+        whenever(inquiryRepository.findInquiryByIdWithMember(1L)).thenReturn(Optional.of(inquiry))
 
         // when & then
         assertThatThrownBy { inquiryService.updateInquiry(1L, request) }
@@ -425,8 +423,8 @@ class InquiryServiceTest {
         val inquiry = Inquiry.createProductInquiry(member, "제목", "내용", 100L)
         ReflectionTestUtils.setField(inquiry, "id", 1L)
 
-        given(memberUtil.currentMember).willReturn(member)
-        given(inquiryRepository.findInquiryByIdWithMember(1L)).willReturn(Optional.of(inquiry))
+        whenever(memberUtil.currentMember).thenReturn(member)
+        whenever(inquiryRepository.findInquiryByIdWithMember(1L)).thenReturn(Optional.of(inquiry))
 
         // when
         inquiryService.deleteInquiry(1L)
@@ -443,14 +441,14 @@ class InquiryServiceTest {
         ReflectionTestUtils.setField(inquiry, "id", 1L)
         val request = InquiryReplyCreateRequest("답변 내용")
 
-        given(memberUtil.currentMember).willReturn(admin)
-        given(inquiryRepository.findInquiryByIdWithMember(1L)).willReturn(Optional.of(inquiry))
-        given(inquiryReplyRepository.save(any(InquiryReply::class.java))).willAnswer { invocation ->
+        whenever(memberUtil.currentMember).thenReturn(admin)
+        whenever(inquiryRepository.findInquiryByIdWithMember(1L)).thenReturn(Optional.of(inquiry))
+        whenever(inquiryReplyRepository.save(any<InquiryReply>())).thenAnswer { invocation ->
             val saved = invocation.getArgument<InquiryReply>(0)
             ReflectionTestUtils.setField(saved, "id", 1L)
             saved
         }
-        given(productRepository.findById(100L)).willReturn(Optional.of(product))
+        whenever(productRepository.findById(100L)).thenReturn(Optional.of(product))
 
         // when
         val response = inquiryService.createReply(1L, request)
@@ -458,7 +456,7 @@ class InquiryServiceTest {
         // then
         assertThat(response.reply).isNotNull()
         assertThat(response.status).isEqualTo(InquiryStatus.ANSWERED)
-        verify(inquiryReplyRepository).save(any(InquiryReply::class.java))
+        verify(inquiryReplyRepository).save(any<InquiryReply>())
     }
 
     @Test
@@ -467,7 +465,7 @@ class InquiryServiceTest {
         // given
         val request = InquiryReplyCreateRequest("답변 내용")
 
-        given(memberUtil.currentMember).willReturn(member)
+        whenever(memberUtil.currentMember).thenReturn(member)
 
         // when & then
         assertThatThrownBy { inquiryService.createReply(1L, request) }
@@ -486,8 +484,8 @@ class InquiryServiceTest {
         inquiry.addReply(existingReply)
         val request = InquiryReplyCreateRequest("새 답변")
 
-        given(memberUtil.currentMember).willReturn(admin)
-        given(inquiryRepository.findInquiryByIdWithMember(1L)).willReturn(Optional.of(inquiry))
+        whenever(memberUtil.currentMember).thenReturn(admin)
+        whenever(inquiryRepository.findInquiryByIdWithMember(1L)).thenReturn(Optional.of(inquiry))
 
         // when & then
         assertThatThrownBy { inquiryService.createReply(1L, request) }
@@ -507,9 +505,9 @@ class InquiryServiceTest {
         inquiry.addReply(reply)
         val request = InquiryReplyUpdateRequest("수정된 답변")
 
-        given(memberUtil.currentMember).willReturn(admin)
-        given(inquiryRepository.findInquiryByIdWithMember(1L)).willReturn(Optional.of(inquiry))
-        given(productRepository.findById(100L)).willReturn(Optional.of(product))
+        whenever(memberUtil.currentMember).thenReturn(admin)
+        whenever(inquiryRepository.findInquiryByIdWithMember(1L)).thenReturn(Optional.of(inquiry))
+        whenever(productRepository.findById(100L)).thenReturn(Optional.of(product))
 
         // when
         val response = inquiryService.updateReply(1L, request)
@@ -526,8 +524,8 @@ class InquiryServiceTest {
         ReflectionTestUtils.setField(inquiry, "id", 1L)
         val request = InquiryReplyUpdateRequest("수정된 답변")
 
-        given(memberUtil.currentMember).willReturn(admin)
-        given(inquiryRepository.findInquiryByIdWithMember(1L)).willReturn(Optional.of(inquiry))
+        whenever(memberUtil.currentMember).thenReturn(admin)
+        whenever(inquiryRepository.findInquiryByIdWithMember(1L)).thenReturn(Optional.of(inquiry))
 
         // when & then
         assertThatThrownBy { inquiryService.updateReply(1L, request) }
@@ -546,8 +544,8 @@ class InquiryServiceTest {
         ReflectionTestUtils.setField(reply, "id", 1L)
         inquiry.addReply(reply)
 
-        given(memberUtil.currentMember).willReturn(admin)
-        given(inquiryRepository.findInquiryByIdWithMember(1L)).willReturn(Optional.of(inquiry))
+        whenever(memberUtil.currentMember).thenReturn(admin)
+        whenever(inquiryRepository.findInquiryByIdWithMember(1L)).thenReturn(Optional.of(inquiry))
 
         // when
         inquiryService.deleteReply(1L)

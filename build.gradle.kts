@@ -88,6 +88,7 @@ dependencies {
     testImplementation("org.springframework.security:spring-security-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("com.navercorp.fixturemonkey:fixture-monkey-starter:1.1.11")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
 }
 
 tasks.named<Test>("test") {

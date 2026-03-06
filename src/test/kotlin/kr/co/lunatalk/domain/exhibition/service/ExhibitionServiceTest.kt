@@ -14,14 +14,12 @@ import kr.co.lunatalk.domain.productlike.service.ProductLikeService
 import kr.co.lunatalk.global.util.ProductUtil
 import kr.co.lunatalk.global.util.SecurityUtil
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.ArgumentMatchers.any
-import org.mockito.InjectMocks
 import org.mockito.Mock
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.`when`
 import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.*
 import org.springframework.test.util.ReflectionTestUtils
 import java.time.LocalDateTime
 import java.util.*
@@ -29,7 +27,6 @@ import java.util.*
 @ExtendWith(MockitoExtension::class)
 class ExhibitionServiceTest {
 
-    @InjectMocks
     private lateinit var exhibitionService: ExhibitionService
 
     @Mock
@@ -43,6 +40,11 @@ class ExhibitionServiceTest {
 
     @Mock
     private lateinit var securityUtil: SecurityUtil
+
+    @BeforeEach
+    fun setUp() {
+        exhibitionService = ExhibitionService(exhibitionRepository, productUtil, productLikeService, securityUtil)
+    }
 
     @Test
     fun `createExhibition 정상생성`() {
@@ -58,14 +60,14 @@ class ExhibitionServiceTest {
             Product.createProduct("상품$id", 10000L, 10, ProductStatus.ACTIVE, ProductVisibility.VISIBLE)
         }
 
-        `when`(productUtil.findAllProductByProductIdIn(productIds)).thenReturn(mockProducts)
+        whenever(productUtil.findAllProductByProductIdIn(productIds)).thenReturn(mockProducts)
 
         // when
         val response = exhibitionService.createExhibition(request)
 
         // then
         assertNotNull(response)
-        verify(exhibitionRepository).save(any(Exhibition::class.java))
+        verify(exhibitionRepository).save(any<Exhibition>())
     }
 
     @Test
@@ -82,16 +84,16 @@ class ExhibitionServiceTest {
         val ep = ExhibitionProduct.createExhibitionProduct(exhibition, product, 1)
         exhibition.addProducts(listOf(ep))
 
-        `when`(exhibitionRepository.findAll()).thenReturn(listOf(exhibition))
-        `when`(productUtil.findAllProducts(any())).thenReturn(
+        whenever(exhibitionRepository.findAll()).thenReturn(listOf(exhibition))
+        whenever(productUtil.findAllProducts(any())).thenReturn(
             ProductWithImagesResult(
                 listOf(product),
                 mapOf(1L to listOf())
             )
         )
-        `when`(productLikeService.getLikeCounts(any())).thenReturn(mapOf(1L to 0L))
-        `when`(securityUtil.getCurrentMemberId()).thenReturn(1L)
-        `when`(productLikeService.getLikedStatus(any(), any())).thenReturn(mapOf(1L to false))
+        whenever(productLikeService.getLikeCounts(any())).thenReturn(mapOf(1L to 0L))
+        whenever(securityUtil.getCurrentMemberId()).thenReturn(1L)
+        whenever(productLikeService.getLikedStatus(any(), any())).thenReturn(mapOf(1L to false))
 
         // when
         val result = exhibitionService.getAllExhibitions()
@@ -116,8 +118,8 @@ class ExhibitionServiceTest {
             LocalDateTime.now(), LocalDateTime.now().plusDays(10)
         )
 
-        `when`(exhibitionRepository.findById(1L)).thenReturn(Optional.of(exhibition))
-        `when`(productUtil.findAllProductByProductIdIn(any())).thenReturn(
+        whenever(exhibitionRepository.findById(1L)).thenReturn(Optional.of(exhibition))
+        whenever(productUtil.findAllProductByProductIdIn(any())).thenReturn(
             listOf(
                 Product.createProduct("상품1", 10000L, 10, ProductStatus.ACTIVE, ProductVisibility.VISIBLE),
                 Product.createProduct("상품1", 10000L, 10, ProductStatus.ACTIVE, ProductVisibility.VISIBLE)
@@ -141,7 +143,7 @@ class ExhibitionServiceTest {
         )
         ReflectionTestUtils.setField(exhibition, "id", 1L)
 
-        `when`(exhibitionRepository.findById(1L)).thenReturn(Optional.of(exhibition))
+        whenever(exhibitionRepository.findById(1L)).thenReturn(Optional.of(exhibition))
 
         // when
         exhibitionService.deleteExhibition(1L)

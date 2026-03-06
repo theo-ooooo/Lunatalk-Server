@@ -13,18 +13,17 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.InjectMocks
 import org.mockito.Mock
-import org.mockito.Mockito.*
 import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.*
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
+import org.springframework.test.util.ReflectionTestUtils
 import java.util.*
 
 @ExtendWith(MockitoExtension::class)
 class MemberServiceTest {
 
-    @InjectMocks
     private lateinit var memberService: MemberService
 
     @Mock
@@ -41,6 +40,8 @@ class MemberServiceTest {
 
     @BeforeEach
     fun setUp() {
+        memberService = MemberService(memberRepository, orderRepository, securityUtil)
+
         testMember = Member.createMember(
             "testuser",
             "1234",
@@ -48,6 +49,7 @@ class MemberServiceTest {
             "01012341234",
             "test@email.com"
         )
+        ReflectionTestUtils.setField(testMember, "id", 1L)
 
         testOrder = Order.createOrder(
             "test-test",
@@ -62,7 +64,7 @@ class MemberServiceTest {
         val memberPage = PageImpl(listOf(testMember))
         val pageable = PageRequest.of(0, 10)
 
-        `when`(memberRepository.findMembers(pageable)).thenReturn(memberPage)
+        whenever(memberRepository.findMembers(pageable)).thenReturn(memberPage)
 
         // when
         val result = memberService.getMembers(pageable)
@@ -75,7 +77,7 @@ class MemberServiceTest {
     @Test
     fun `특정 회원 정보 조회`() {
         // given
-        `when`(memberRepository.findById(testMember.id!!)).thenReturn(Optional.of(testMember))
+        whenever(memberRepository.findById(testMember.id!!)).thenReturn(Optional.of(testMember))
 
         // when
         val response = memberService.getMemberInformation(testMember.id!!)
@@ -89,7 +91,7 @@ class MemberServiceTest {
     fun `특정 회원 정보 조회 실패 예외`() {
         // given
         val invalidId = 999L
-        `when`(memberRepository.findById(invalidId)).thenReturn(Optional.empty())
+        whenever(memberRepository.findById(invalidId)).thenReturn(Optional.empty())
 
         // when & then
         val exception = assertThrows(CustomException::class.java) {
@@ -101,8 +103,8 @@ class MemberServiceTest {
     @Test
     fun `현재 회원 정보 조회`() {
         // given
-        `when`(securityUtil.getCurrentMemberId()).thenReturn(testMember.id!!)
-        `when`(memberRepository.findById(testMember.id!!)).thenReturn(Optional.of(testMember))
+        whenever(securityUtil.getCurrentMemberId()).thenReturn(testMember.id!!)
+        whenever(memberRepository.findById(testMember.id!!)).thenReturn(Optional.of(testMember))
 
         // when
         val response = memberService.myInformation()
@@ -118,9 +120,9 @@ class MemberServiceTest {
         val pageable = PageRequest.of(0, 10)
         val orderPage = PageImpl(listOf(testOrder))
 
-        `when`(securityUtil.getCurrentMemberId()).thenReturn(testMember.id!!)
-        `when`(memberRepository.findById(testMember.id!!)).thenReturn(Optional.of(testMember))
-        `when`(orderRepository.findOrdersWithItemsByMemberId(testMember.id!!, pageable))
+        whenever(securityUtil.getCurrentMemberId()).thenReturn(testMember.id!!)
+        whenever(memberRepository.findById(testMember.id!!)).thenReturn(Optional.of(testMember))
+        whenever(orderRepository.findOrdersWithItemsByMemberId(testMember.id!!, pageable))
             .thenReturn(orderPage)
 
         // when

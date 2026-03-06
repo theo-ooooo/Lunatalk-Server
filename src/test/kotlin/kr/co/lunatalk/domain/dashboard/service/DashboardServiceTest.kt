@@ -10,14 +10,13 @@ import kr.co.lunatalk.domain.paymentstatistics.repository.PaymentStatisticsRepos
 import kr.co.lunatalk.domain.paymentstatistics.service.PaymentStatisticsService
 import kr.co.lunatalk.domain.product.repository.ProductRepository
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.InjectMocks
 import org.mockito.Mock
-import org.mockito.ArgumentMatchers.any
-import org.mockito.BDDMockito.given
 import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.*
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -46,24 +45,32 @@ class DashboardServiceTest {
     @Mock
     lateinit var paymentStatisticsRepository: PaymentStatisticsRepository
 
-    @InjectMocks
     lateinit var dashboardService: DashboardService
+
+    @BeforeEach
+    fun setUp() {
+        dashboardService = DashboardService(
+            productRepository, memberRepository, orderRepository,
+            exhibitionRepository, categoryRepository,
+            paymentStatisticsService, paymentStatisticsRepository
+        )
+    }
 
     @Test
     @DisplayName("대시보드 통계 조회 성공")
     fun `대시보드 통계 조회 성공`() {
         // given
-        given(productRepository.count()).willReturn(10L)
-        given(memberRepository.count()).willReturn(50L)
-        given(
+        whenever(productRepository.count()).thenReturn(10L)
+        whenever(memberRepository.count()).thenReturn(50L)
+        whenever(
             exhibitionRepository.countByStartAtLessThanEqualAndEndAtGreaterThanEqual(
-                any(LocalDateTime::class.java), any(LocalDateTime::class.java)
+                any<LocalDateTime>(), any<LocalDateTime>()
             )
-        ).willReturn(3L)
-        given(categoryRepository.count()).willReturn(5L)
+        ).thenReturn(3L)
+        whenever(categoryRepository.count()).thenReturn(5L)
 
         val todayStatistics = PaymentStatistics.create(LocalDate.now(), 100000L, 15L)
-        given(paymentStatisticsService.getTodayStatistics()).willReturn(todayStatistics)
+        whenever(paymentStatisticsService.getTodayStatistics()).thenReturn(todayStatistics)
 
         val today = LocalDate.now()
         val last7DaysStatistics = listOf(
@@ -71,11 +78,11 @@ class DashboardServiceTest {
             PaymentStatistics.create(today.minusDays(1), 80000L, 12L),
             PaymentStatistics.create(today.minusDays(2), 90000L, 14L)
         )
-        given(
+        whenever(
             paymentStatisticsRepository.findByStatisticsDateBetweenOrderByStatisticsDateDesc(
-                any(LocalDate::class.java), any(LocalDate::class.java)
+                any<LocalDate>(), any<LocalDate>()
             )
-        ).willReturn(last7DaysStatistics)
+        ).thenReturn(last7DaysStatistics)
 
         // when
         val response: DashboardResponse = dashboardService.getDashboardStatistics()
@@ -95,23 +102,23 @@ class DashboardServiceTest {
     @DisplayName("빈 데이터 대시보드 통계 조회")
     fun `빈 데이터 대시보드 통계 조회`() {
         // given
-        given(productRepository.count()).willReturn(0L)
-        given(memberRepository.count()).willReturn(0L)
-        given(
+        whenever(productRepository.count()).thenReturn(0L)
+        whenever(memberRepository.count()).thenReturn(0L)
+        whenever(
             exhibitionRepository.countByStartAtLessThanEqualAndEndAtGreaterThanEqual(
-                any(LocalDateTime::class.java), any(LocalDateTime::class.java)
+                any<LocalDateTime>(), any<LocalDateTime>()
             )
-        ).willReturn(0L)
-        given(categoryRepository.count()).willReturn(0L)
+        ).thenReturn(0L)
+        whenever(categoryRepository.count()).thenReturn(0L)
 
         val todayStatistics = PaymentStatistics.create(LocalDate.now(), 0L, 0L)
-        given(paymentStatisticsService.getTodayStatistics()).willReturn(todayStatistics)
+        whenever(paymentStatisticsService.getTodayStatistics()).thenReturn(todayStatistics)
 
-        given(
+        whenever(
             paymentStatisticsRepository.findByStatisticsDateBetweenOrderByStatisticsDateDesc(
-                any(LocalDate::class.java), any(LocalDate::class.java)
+                any<LocalDate>(), any<LocalDate>()
             )
-        ).willReturn(listOf())
+        ).thenReturn(listOf())
 
         // when
         val response: DashboardResponse = dashboardService.getDashboardStatistics()
@@ -131,23 +138,23 @@ class DashboardServiceTest {
     @DisplayName("오늘 매출이 없는 경우")
     fun `오늘 매출이 없는 경우`() {
         // given
-        given(productRepository.count()).willReturn(5L)
-        given(memberRepository.count()).willReturn(20L)
-        given(
+        whenever(productRepository.count()).thenReturn(5L)
+        whenever(memberRepository.count()).thenReturn(20L)
+        whenever(
             exhibitionRepository.countByStartAtLessThanEqualAndEndAtGreaterThanEqual(
-                any(LocalDateTime::class.java), any(LocalDateTime::class.java)
+                any<LocalDateTime>(), any<LocalDateTime>()
             )
-        ).willReturn(1L)
-        given(categoryRepository.count()).willReturn(3L)
+        ).thenReturn(1L)
+        whenever(categoryRepository.count()).thenReturn(3L)
 
         val todayStatistics = PaymentStatistics.create(LocalDate.now(), 0L, 0L)
-        given(paymentStatisticsService.getTodayStatistics()).willReturn(todayStatistics)
+        whenever(paymentStatisticsService.getTodayStatistics()).thenReturn(todayStatistics)
 
-        given(
+        whenever(
             paymentStatisticsRepository.findByStatisticsDateBetweenOrderByStatisticsDateDesc(
-                any(LocalDate::class.java), any(LocalDate::class.java)
+                any<LocalDate>(), any<LocalDate>()
             )
-        ).willReturn(listOf())
+        ).thenReturn(listOf())
 
         // when
         val response: DashboardResponse = dashboardService.getDashboardStatistics()
@@ -162,28 +169,28 @@ class DashboardServiceTest {
     @DisplayName("진행중인 기획전이 없는 경우")
     fun `진행중인 기획전이 없는 경우`() {
         // given
-        given(productRepository.count()).willReturn(8L)
-        given(memberRepository.count()).willReturn(30L)
-        given(
+        whenever(productRepository.count()).thenReturn(8L)
+        whenever(memberRepository.count()).thenReturn(30L)
+        whenever(
             exhibitionRepository.countByStartAtLessThanEqualAndEndAtGreaterThanEqual(
-                any(LocalDateTime::class.java), any(LocalDateTime::class.java)
+                any<LocalDateTime>(), any<LocalDateTime>()
             )
-        ).willReturn(0L)
-        given(categoryRepository.count()).willReturn(4L)
+        ).thenReturn(0L)
+        whenever(categoryRepository.count()).thenReturn(4L)
 
         val todayStatistics = PaymentStatistics.create(LocalDate.now(), 50000L, 10L)
-        given(paymentStatisticsService.getTodayStatistics()).willReturn(todayStatistics)
+        whenever(paymentStatisticsService.getTodayStatistics()).thenReturn(todayStatistics)
 
         val today = LocalDate.now()
         val last7DaysStatistics = listOf(
             PaymentStatistics.create(today, 50000L, 10L),
             PaymentStatistics.create(today.minusDays(1), 40000L, 8L)
         )
-        given(
+        whenever(
             paymentStatisticsRepository.findByStatisticsDateBetweenOrderByStatisticsDateDesc(
-                any(LocalDate::class.java), any(LocalDate::class.java)
+                any<LocalDate>(), any<LocalDate>()
             )
-        ).willReturn(last7DaysStatistics)
+        ).thenReturn(last7DaysStatistics)
 
         // when
         val response: DashboardResponse = dashboardService.getDashboardStatistics()

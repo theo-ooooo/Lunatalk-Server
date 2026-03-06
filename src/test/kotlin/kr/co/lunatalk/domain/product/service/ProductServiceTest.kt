@@ -25,12 +25,9 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.ArgumentMatchers.*
-import org.mockito.InjectMocks
 import org.mockito.Mock
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.`when`
 import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.*
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
@@ -40,7 +37,6 @@ import java.util.*
 @ExtendWith(MockitoExtension::class)
 class ProductServiceTest {
 
-    @InjectMocks
     private lateinit var productService: ProductService
 
     @Mock
@@ -67,6 +63,8 @@ class ProductServiceTest {
 
     @BeforeEach
     fun setUp() {
+        productService = ProductService(productRepository, imageRepository, categoryRepository, productUtil, productLikeService, securityUtil)
+
         product1 = Product.createProduct("상품1", 10000L, 10, ProductStatus.ACTIVE, ProductVisibility.VISIBLE)
         val color1 = ProductColor.createProductColor(product1, "red")
         product1.addProductColor(color1)
@@ -90,11 +88,11 @@ class ProductServiceTest {
         val likeCount = 1L
         val isLiked = true
 
-        `when`(productUtil.findProductId(productId!!)).thenReturn(product1)
-        `when`(imageRepository.fetchProductImagesByProductId(productId)).thenReturn(images)
-        `when`(productLikeService.getLikeCount(productId)).thenReturn(likeCount)
-        `when`(securityUtil.getCurrentMemberId()).thenReturn(1L)
-        `when`(productLikeService.isLiked(productId, 1L)).thenReturn(isLiked)
+        whenever(productUtil.findProductId(productId!!)).thenReturn(product1)
+        whenever(imageRepository.fetchProductImagesByProductId(productId)).thenReturn(images)
+        whenever(productLikeService.getLikeCount(productId)).thenReturn(likeCount)
+        whenever(securityUtil.getCurrentMemberId()).thenReturn(1L)
+        whenever(productLikeService.isLiked(productId, 1L)).thenReturn(isLiked)
 
         // when
         val response = productService.findProductOne(productId)
@@ -115,11 +113,11 @@ class ProductServiceTest {
         val likeCount = 0L
         val isLiked = false
 
-        `when`(productUtil.findProductId(productId!!)).thenReturn(product1)
-        `when`(imageRepository.fetchProductImagesByProductId(productId)).thenReturn(images)
-        `when`(productLikeService.getLikeCount(productId)).thenReturn(likeCount)
-        `when`(securityUtil.getCurrentMemberId()).thenReturn(1L)
-        `when`(productLikeService.isLiked(productId, 1L)).thenReturn(isLiked)
+        whenever(productUtil.findProductId(productId!!)).thenReturn(product1)
+        whenever(imageRepository.fetchProductImagesByProductId(productId)).thenReturn(images)
+        whenever(productLikeService.getLikeCount(productId)).thenReturn(likeCount)
+        whenever(securityUtil.getCurrentMemberId()).thenReturn(1L)
+        whenever(productLikeService.isLiked(productId, 1L)).thenReturn(isLiked)
 
         // when
         val response = productService.findProductOne(productId)
@@ -140,11 +138,11 @@ class ProductServiceTest {
         val likeCountMap = mapOf(product1.id!! to 1L, product2.id!! to 0L)
         val likedStatusMap = mapOf(product1.id!! to true, product2.id!! to false)
 
-        `when`(productRepository.findAll(isNull(String::class.java), any(Pageable::class.java))).thenReturn(productPage)
-        `when`(imageRepository.fetchProductImagesByProductIds(anyList())).thenReturn(images)
-        `when`(productLikeService.getLikeCounts(anyList())).thenReturn(likeCountMap)
-        `when`(securityUtil.getCurrentMemberId()).thenReturn(1L)
-        `when`(productLikeService.getLikedStatus(anyList(), eq(1L))).thenReturn(likedStatusMap)
+        whenever(productRepository.findAll(isNull(), any<Pageable>())).thenReturn(productPage)
+        whenever(imageRepository.fetchProductImagesByProductIds(any())).thenReturn(images)
+        whenever(productLikeService.getLikeCounts(any())).thenReturn(likeCountMap)
+        whenever(securityUtil.getCurrentMemberId()).thenReturn(1L)
+        whenever(productLikeService.getLikedStatus(any(), eq(1L))).thenReturn(likedStatusMap)
 
         // when
         val result = productService.findAll(null, PageRequest.of(0, 10))
@@ -178,9 +176,9 @@ class ProductServiceTest {
             category.id!!
         )
 
-        `when`(categoryRepository.findByIdAndStatus(category.id!!, CategoryStatus.ACTIVE))
+        whenever(categoryRepository.findByIdAndStatus(category.id!!, CategoryStatus.ACTIVE))
             .thenReturn(Optional.of(category))
-        `when`(productRepository.save(any(Product::class.java)))
+        whenever(productRepository.save(any<Product>()))
             .thenAnswer { invocation ->
                 val saved = invocation.getArgument<Product>(0)
                 ReflectionTestUtils.setField(saved, "id", 3L)
@@ -213,7 +211,7 @@ class ProductServiceTest {
             -1L
         )
 
-        `when`(categoryRepository.findByIdAndStatus(-1L, CategoryStatus.ACTIVE))
+        whenever(categoryRepository.findByIdAndStatus(-1L, CategoryStatus.ACTIVE))
             .thenReturn(Optional.empty())
 
         // when & then
@@ -233,8 +231,8 @@ class ProductServiceTest {
             category.id
         )
 
-        `when`(productUtil.findProductId(product1.id!!)).thenReturn(product1)
-        `when`(categoryRepository.findByIdAndStatus(category.id!!, CategoryStatus.ACTIVE))
+        whenever(productUtil.findProductId(product1.id!!)).thenReturn(product1)
+        whenever(categoryRepository.findByIdAndStatus(category.id!!, CategoryStatus.ACTIVE))
             .thenReturn(Optional.of(category))
 
         // when
@@ -253,7 +251,7 @@ class ProductServiceTest {
         // given
         val productId = product1.id!!
 
-        `when`(productUtil.findProductId(productId)).thenReturn(product1)
+        whenever(productUtil.findProductId(productId)).thenReturn(product1)
 
         // when
         productService.delete(productId)
@@ -269,7 +267,7 @@ class ProductServiceTest {
         // given
         val nonExistentProductId = -1L
 
-        `when`(productUtil.findProductId(nonExistentProductId))
+        whenever(productUtil.findProductId(nonExistentProductId))
             .thenThrow(CustomException(ErrorCode.PRODUCT_NOT_FOUND))
 
         // when & then
@@ -286,11 +284,11 @@ class ProductServiceTest {
         val likeCountMap = mapOf(product1.id!! to 1L, product2.id!! to 0L)
         val likedStatusMap = mapOf(product1.id!! to true, product2.id!! to false)
 
-        `when`(productUtil.findAllProducts(productIds))
+        whenever(productUtil.findAllProducts(productIds))
             .thenReturn(ProductWithImagesResult(products, imageMap))
-        `when`(productLikeService.getLikeCounts(productIds)).thenReturn(likeCountMap)
-        `when`(securityUtil.getCurrentMemberId()).thenReturn(1L)
-        `when`(productLikeService.getLikedStatus(productIds, 1L)).thenReturn(likedStatusMap)
+        whenever(productLikeService.getLikeCounts(productIds)).thenReturn(likeCountMap)
+        whenever(securityUtil.getCurrentMemberId()).thenReturn(1L)
+        whenever(productLikeService.getLikedStatus(productIds, 1L)).thenReturn(likedStatusMap)
 
         // when
         val responses = productService.findAllProducts(productIds)
@@ -321,11 +319,11 @@ class ProductServiceTest {
         val likeCountMap = mapOf(product3.id!! to 0L)
         val likedStatusMap = mapOf(product3.id!! to false)
 
-        `when`(productRepository.findAll(eq("검색테스트"), any(Pageable::class.java))).thenReturn(productPage)
-        `when`(imageRepository.fetchProductImagesByProductIds(anyList())).thenReturn(images)
-        `when`(productLikeService.getLikeCounts(anyList())).thenReturn(likeCountMap)
-        `when`(securityUtil.getCurrentMemberId()).thenReturn(1L)
-        `when`(productLikeService.getLikedStatus(anyList(), eq(1L))).thenReturn(likedStatusMap)
+        whenever(productRepository.findAll(eq("검색테스트"), any<Pageable>())).thenReturn(productPage)
+        whenever(imageRepository.fetchProductImagesByProductIds(any())).thenReturn(images)
+        whenever(productLikeService.getLikeCounts(any())).thenReturn(likeCountMap)
+        whenever(securityUtil.getCurrentMemberId()).thenReturn(1L)
+        whenever(productLikeService.getLikedStatus(any(), eq(1L))).thenReturn(likedStatusMap)
 
         // when
         val result = productService.findAll("검색테스트", PageRequest.of(0, 10))
@@ -346,11 +344,11 @@ class ProductServiceTest {
         val likeCountMap = mapOf(product1.id!! to 0L, product2.id!! to 0L)
         val likedStatusMap = mapOf(product1.id!! to false, product2.id!! to false)
 
-        `when`(productRepository.findAll(isNull(String::class.java), any(Pageable::class.java))).thenReturn(productPage)
-        `when`(imageRepository.fetchProductImagesByProductIds(anyList())).thenReturn(images)
-        `when`(productLikeService.getLikeCounts(anyList())).thenReturn(likeCountMap)
-        `when`(securityUtil.getCurrentMemberId()).thenReturn(1L)
-        `when`(productLikeService.getLikedStatus(anyList(), eq(1L))).thenReturn(likedStatusMap)
+        whenever(productRepository.findAll(isNull(), any<Pageable>())).thenReturn(productPage)
+        whenever(imageRepository.fetchProductImagesByProductIds(any())).thenReturn(images)
+        whenever(productLikeService.getLikeCounts(any())).thenReturn(likeCountMap)
+        whenever(securityUtil.getCurrentMemberId()).thenReturn(1L)
+        whenever(productLikeService.getLikedStatus(any(), eq(1L))).thenReturn(likedStatusMap)
 
         // when
         val result = productService.findAll(null, PageRequest.of(0, 10))

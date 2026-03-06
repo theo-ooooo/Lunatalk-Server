@@ -38,12 +38,13 @@ subprojects {
     kotlin {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_25)
-            freeCompilerArgs.addAll("-Xjsr305=strict")
+            freeCompilerArgs.addAll("-Xjsr305=strict", "-Xannotation-default-target=param-property")
         }
     }
 
     tasks.withType<Test> {
         useJUnitPlatform()
+        jvmArgs("--enable-native-access=ALL-UNNAMED")
     }
 
     dependencies {

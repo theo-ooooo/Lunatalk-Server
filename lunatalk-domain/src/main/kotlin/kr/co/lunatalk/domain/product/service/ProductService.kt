@@ -70,7 +70,6 @@ class ProductService(
     @Transactional(readOnly = true)
     fun findProductOne(productId: Long): ProductFindResponse {
         val findProduct = productUtil.findProductId(productId)
-            ?: throw CustomException(ErrorCode.PRODUCT_NOT_FOUND)
 
         val images = imageRepository.fetchProductImagesByProductId(findProduct.id!!)
 

@@ -57,7 +57,7 @@ class OrderService(
                 .orElseThrow { CustomException(ErrorCode.PRODUCT_NOT_FOUND) }
 
             if (product.quantity != null && product.quantity!! <= 0) {
-                cartItemService.deleteCartItemByMemberIdAndProductId(member.id!!, p.productId!!)
+                cartItemService.deleteCartItemByMemberIdAndProductId(member.id!!, p.productId)
                 throw CustomException(ErrorCode.PRODUCT_SOLD_OUT)
             }
 
@@ -65,7 +65,7 @@ class OrderService(
             val quantity = p.quantity
             val itemTotal = price * quantity
 
-            val color = if (p.optionSnapshot?.color.isNullOrEmpty()) "DEFAULT" else p.optionSnapshot!!.color!!
+            val color = if (p.optionSnapshot?.color.isNullOrEmpty()) "DEFAULT" else p.optionSnapshot.color!!
             val optionSnapshot = OptionSnapshot.createOptionSnapshot(color)
 
             val orderItem = OrderItem.createOrderItem(

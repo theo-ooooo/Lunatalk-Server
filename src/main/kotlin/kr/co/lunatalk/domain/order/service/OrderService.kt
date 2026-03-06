@@ -1,5 +1,6 @@
 package kr.co.lunatalk.domain.order.service
 
+import kr.co.lunatalk.domain.cartitem.service.CartItemService
 import kr.co.lunatalk.domain.delivery.domain.Delivery
 import kr.co.lunatalk.domain.delivery.dto.response.DeliveryFindResponse
 import kr.co.lunatalk.domain.delivery.repository.DeliveryRepository
@@ -38,6 +39,7 @@ class OrderService(
     private val productRepository: ProductRepository,
     private val imageRepository: ImageRepository,
     private val deliveryRepository: DeliveryRepository,
+    private val cartItemService: CartItemService,
     private val orderUtil: OrderUtil,
     private val memberUtil: MemberUtil
 ) {
@@ -53,6 +55,11 @@ class OrderService(
         for (p in request.products!!) {
             val product = productRepository.findById(p.productId!!)
                 .orElseThrow { CustomException(ErrorCode.PRODUCT_NOT_FOUND) }
+
+            if (product.quantity != null && product.quantity!! <= 0) {
+                cartItemService.deleteCartItemByMemberIdAndProductId(member.id!!, p.productId!!)
+                throw CustomException(ErrorCode.PRODUCT_SOLD_OUT)
+            }
 
             val price = product.price!!
             val quantity = p.quantity

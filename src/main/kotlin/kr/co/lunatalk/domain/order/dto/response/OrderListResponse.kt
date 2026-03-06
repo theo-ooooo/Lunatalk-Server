@@ -9,7 +9,7 @@ data class OrderListResponse(
     val status: String?,
     val totalPrice: Long?,
     val createdAt: LocalDateTime?,
-    val nickname: String?,
+    val username: String?,
     val orderItems: List<OrderItemResponse>
 ) {
     companion object {
@@ -20,7 +20,7 @@ data class OrderListResponse(
                 status = order.status?.value,
                 totalPrice = order.totalPrice,
                 createdAt = order.createdAt,
-                nickname = order.member?.profile?.nickname,
+                username = order.member?.username,
                 orderItems = order.orderItems.map { OrderItemResponse.from(it) }
             )
         }

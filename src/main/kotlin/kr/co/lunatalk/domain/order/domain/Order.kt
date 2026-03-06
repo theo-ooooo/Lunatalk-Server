@@ -69,7 +69,7 @@ open class Order protected constructor() : BaseTimeEntity() {
                 orderNumber = orderNumber,
                 member = member,
                 totalPrice = totalPrice,
-                status = OrderStatus.ORDERED
+                status = OrderStatus.ORDER_PENDING
             )
         }
     }

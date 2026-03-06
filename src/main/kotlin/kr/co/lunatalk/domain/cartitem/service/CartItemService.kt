@@ -14,6 +14,7 @@ import kr.co.lunatalk.global.util.MemberUtil
 import kr.co.lunatalk.global.util.ProductUtil
 import kr.co.lunatalk.global.util.SecurityUtil
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 
 @Service
@@ -90,6 +91,11 @@ class CartItemService(
             throw CustomException(ErrorCode.CART_ITEM_NOT_FOUND)
         }
         return cartItem
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    fun deleteCartItemByMemberIdAndProductId(memberId: Long, productId: Long) {
+        cartItemRepository.deleteByMemberIdAndProductId(memberId, productId)
     }
 
     private fun getCurrentMemberId(): Long? {

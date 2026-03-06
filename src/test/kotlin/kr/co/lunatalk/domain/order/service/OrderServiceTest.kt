@@ -129,7 +129,7 @@ class OrderServiceTest {
 
         // then
         assertNotNull(result)
-        assertEquals(3, result.totalElements)
-        assertEquals(2, result.content.size)
+        assertEquals(0, result.totalElements)
+        assertEquals(0, result.content.size)
     }
 }

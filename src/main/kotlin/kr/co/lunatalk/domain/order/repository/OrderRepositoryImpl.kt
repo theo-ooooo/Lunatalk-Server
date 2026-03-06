@@ -33,7 +33,7 @@ class OrderRepositoryImpl(
     override fun findOrdersWithItemsByMemberId(memberId: Long, pageable: Pageable): Page<Order> {
         val content = queryFactory.selectFrom(order)
             .innerJoin(order.orderItems, orderItem)
-            .where(memberIdEq(memberId))
+            .where(memberIdEq(memberId), orderStatusNotPending())
             .orderBy(order.createdAt.desc())
             .offset(pageable.offset)
             .limit(pageable.pageSize.toLong())
@@ -42,7 +42,7 @@ class OrderRepositoryImpl(
         val total = queryFactory
             .select(order.count())
             .from(order)
-            .where(memberIdEq(memberId))
+            .where(memberIdEq(memberId), orderStatusNotPending())
             .fetchOne() ?: 0L
 
         return PageImpl(content, pageable, total)
@@ -121,6 +121,10 @@ class OrderRepositoryImpl(
 
         private fun orderNumberEq(orderNumber: String?): BooleanExpression? {
             return orderNumber?.let { order.orderNumber.eq(it) }
+        }
+
+        private fun orderStatusNotPending(): BooleanExpression {
+            return order.status.notIn(OrderStatus.ORDER_PENDING)
         }
     }
 }

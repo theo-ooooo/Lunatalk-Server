@@ -60,15 +60,15 @@ class AuthServiceTest {
 
         `when`(memberRepository.findByUsername("username")).thenReturn(Optional.empty())
         `when`(memberRepository.save(any(Member::class.java))).thenReturn(newMember)
-        `when`(jwtTokenProvider.generateTokenPair(newMember.id, newMember.role)).thenReturn(tempTokenPair)
+        `when`(jwtTokenProvider.generateTokenPair(newMember.id!!, newMember.role)).thenReturn(tempTokenPair)
 
         val response = authService.registerMember(
             CreateMemberRequest("username", "password", "01012341234", "kkwondev@gmail.com")
         )
 
         assertNotNull(response)
-        assertEquals("accessToken", response.accessToken())
-        assertEquals("refreshToken", response.refreshToken())
+        assertEquals("accessToken", response.accessToken)
+        assertEquals("refreshToken", response.refreshToken)
     }
 
     @Test
@@ -79,14 +79,14 @@ class AuthServiceTest {
         )
         `when`(memberRepository.findByUsername("login")).thenReturn(Optional.of(member))
         doReturn(true).`when`(passwordEncoder).matches(anyString(), anyString())
-        `when`(jwtTokenProvider.generateTokenPair(member.id, member.role))
+        `when`(jwtTokenProvider.generateTokenPair(member.id!!, member.role))
             .thenReturn(TokenResponse("accessToken", "refreshToken"))
 
         val response = authService.loginMember(LoginRequest("login", "password"))
 
         assertNotNull(response)
-        assertEquals("accessToken", response.accessToken())
-        assertEquals("refreshToken", response.refreshToken())
+        assertEquals("accessToken", response.accessToken)
+        assertEquals("refreshToken", response.refreshToken)
     }
 
     @Test
@@ -101,7 +101,7 @@ class AuthServiceTest {
         doAnswer {
             member.withdrawal()
             null
-        }.`when`(memberRepository).deleteById(member.id)
+        }.`when`(memberRepository).deleteById(member.id!!)
 
         authService.withdraw()
 
@@ -113,7 +113,7 @@ class AuthServiceTest {
     fun `로그인 비밀번호불일치`() {
         // given
         val rawPassword = "wrong-password"
-        val encodedPassword = passwordEncoder.encode("real-password")
+        val encodedPassword = passwordEncoder.encode("real-password")!!
 
         val member = Member.createMember(
             "loginUser", encodedPassword, Profile.of("", ""),

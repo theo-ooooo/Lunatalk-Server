@@ -77,7 +77,7 @@ class ImageServiceTest {
 
         val result = imageService.productImageUpload(request)
 
-        assertThat(result.presignedUrl()).isEqualTo("http://fake-presigned-url")
+        assertThat(result.presignedUrl).isEqualTo("http://fake-presigned-url")
         verify(productRepository).findById(1L)
         verify(imageRepository).save(any(Image::class.java))
     }

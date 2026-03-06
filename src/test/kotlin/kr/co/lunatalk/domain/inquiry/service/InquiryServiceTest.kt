@@ -103,10 +103,10 @@ class InquiryServiceTest {
         val response = inquiryService.createInquiry(request)
 
         // then
-        assertThat(response.type()).isEqualTo(InquiryType.PRODUCT)
-        assertThat(response.title()).isEqualTo("상품 문의")
-        assertThat(response.referenceId()).isEqualTo(100L)
-        assertThat(response.referenceName()).isEqualTo("테스트 상품")
+        assertThat(response.type).isEqualTo(InquiryType.PRODUCT)
+        assertThat(response.title).isEqualTo("상품 문의")
+        assertThat(response.referenceId).isEqualTo(100L)
+        assertThat(response.referenceName).isEqualTo("테스트 상품")
         verify(inquiryRepository).save(any(Inquiry::class.java))
     }
 
@@ -130,9 +130,9 @@ class InquiryServiceTest {
         val response = inquiryService.createInquiry(request)
 
         // then
-        assertThat(response.type()).isEqualTo(InquiryType.ORDER)
-        assertThat(response.referenceId()).isEqualTo(200L)
-        assertThat(response.referenceName()).isEqualTo("L1234567890")
+        assertThat(response.type).isEqualTo(InquiryType.ORDER)
+        assertThat(response.referenceId).isEqualTo(200L)
+        assertThat(response.referenceName).isEqualTo("L1234567890")
         verify(inquiryRepository).save(any(Inquiry::class.java))
     }
 
@@ -156,8 +156,8 @@ class InquiryServiceTest {
         val response = inquiryService.createInquiry(request)
 
         // then
-        assertThat(response.type()).isEqualTo(InquiryType.ORDER)
-        assertThat(response.referenceId()).isEqualTo(200L)
+        assertThat(response.type).isEqualTo(InquiryType.ORDER)
+        assertThat(response.referenceId).isEqualTo(200L)
         verify(inquiryRepository).save(any(Inquiry::class.java))
     }
 
@@ -180,9 +180,9 @@ class InquiryServiceTest {
         val response = inquiryService.createInquiry(request)
 
         // then
-        assertThat(response.type()).isEqualTo(InquiryType.GENERAL)
-        assertThat(response.referenceId()).isNull()
-        assertThat(response.referenceName()).isNull()
+        assertThat(response.type).isEqualTo(InquiryType.GENERAL)
+        assertThat(response.referenceId).isNull()
+        assertThat(response.referenceName).isNull()
         verify(inquiryRepository).save(any(Inquiry::class.java))
     }
 
@@ -277,8 +277,8 @@ class InquiryServiceTest {
         val response = inquiryService.findInquiry(1L)
 
         // then
-        assertThat(response.inquiryId()).isEqualTo(1L)
-        assertThat(response.title()).isEqualTo("제목")
+        assertThat(response.inquiryId).isEqualTo(1L)
+        assertThat(response.title).isEqualTo("제목")
     }
 
     @Test
@@ -315,7 +315,7 @@ class InquiryServiceTest {
         val response = inquiryService.findInquiry(1L)
 
         // then
-        assertThat(response.inquiryId()).isEqualTo(1L)
+        assertThat(response.inquiryId).isEqualTo(1L)
     }
 
     @Test
@@ -331,7 +331,7 @@ class InquiryServiceTest {
         val inquiryPage = PageImpl(listOf(inquiry1, inquiry2), pageable, 2)
 
         given(memberUtil.currentMember).willReturn(member)
-        given(inquiryRepository.findAllInquiries(member.id, null, null, pageable)).willReturn(inquiryPage)
+        given(inquiryRepository.findAllInquiries(member.id!!, null, null, pageable)).willReturn(inquiryPage)
         given(productRepository.findById(100L)).willReturn(Optional.of(product))
 
         // when
@@ -394,8 +394,8 @@ class InquiryServiceTest {
         val response = inquiryService.updateInquiry(1L, request)
 
         // then
-        assertThat(response.title()).isEqualTo("수정 제목")
-        assertThat(response.content()).isEqualTo("수정 내용")
+        assertThat(response.title).isEqualTo("수정 제목")
+        assertThat(response.content).isEqualTo("수정 내용")
     }
 
     @Test
@@ -456,8 +456,8 @@ class InquiryServiceTest {
         val response = inquiryService.createReply(1L, request)
 
         // then
-        assertThat(response.reply()).isNotNull()
-        assertThat(response.status()).isEqualTo(InquiryStatus.ANSWERED)
+        assertThat(response.reply).isNotNull()
+        assertThat(response.status).isEqualTo(InquiryStatus.ANSWERED)
         verify(inquiryReplyRepository).save(any(InquiryReply::class.java))
     }
 
@@ -515,7 +515,7 @@ class InquiryServiceTest {
         val response = inquiryService.updateReply(1L, request)
 
         // then
-        assertThat(response.reply().content()).isEqualTo("수정된 답변")
+        assertThat(response.reply!!.content).isEqualTo("수정된 답변")
     }
 
     @Test

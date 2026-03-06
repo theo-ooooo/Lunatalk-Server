@@ -90,7 +90,7 @@ class CategoryServiceTest {
 
         // then
         assertThat(testCategory.products).containsExactly(product1, product2, product3)
-        assertThat(response.productIds().size).isEqualTo(3)
+        assertThat(response.productIds.size).isEqualTo(3)
         verify(productRepository).findAllProductsByProductIds(productIds)
     }
 

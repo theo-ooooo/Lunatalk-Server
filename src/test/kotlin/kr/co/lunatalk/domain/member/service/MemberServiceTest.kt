@@ -69,20 +69,20 @@ class MemberServiceTest {
 
         // then
         assertEquals(1, result.content.size)
-        assertEquals(testMember.email, result.content[0].email())
+        assertEquals(testMember.email, result.content[0].email)
     }
 
     @Test
     fun `특정 회원 정보 조회`() {
         // given
-        `when`(memberRepository.findById(testMember.id)).thenReturn(Optional.of(testMember))
+        `when`(memberRepository.findById(testMember.id!!)).thenReturn(Optional.of(testMember))
 
         // when
-        val response = memberService.getMemberInformation(testMember.id)
+        val response = memberService.getMemberInformation(testMember.id!!)
 
         // then
-        assertEquals(testMember.profile.nickname, response.nickname())
-        assertEquals(testMember.email, response.email())
+        assertEquals(testMember.profile.nickname, response.nickname)
+        assertEquals(testMember.email, response.email)
     }
 
     @Test
@@ -101,15 +101,15 @@ class MemberServiceTest {
     @Test
     fun `현재 회원 정보 조회`() {
         // given
-        `when`(securityUtil.currentMemberId).thenReturn(testMember.id)
-        `when`(memberRepository.findById(testMember.id)).thenReturn(Optional.of(testMember))
+        `when`(securityUtil.getCurrentMemberId()).thenReturn(testMember.id!!)
+        `when`(memberRepository.findById(testMember.id!!)).thenReturn(Optional.of(testMember))
 
         // when
         val response = memberService.myInformation()
 
         // then
-        assertEquals(testMember.email, response.email())
-        assertEquals(testMember.profile.nickname, response.nickname())
+        assertEquals(testMember.email, response.email)
+        assertEquals(testMember.profile.nickname, response.nickname)
     }
 
     @Test
@@ -118,9 +118,9 @@ class MemberServiceTest {
         val pageable = PageRequest.of(0, 10)
         val orderPage = PageImpl(listOf(testOrder))
 
-        `when`(securityUtil.currentMemberId).thenReturn(testMember.id)
-        `when`(memberRepository.findById(testMember.id)).thenReturn(Optional.of(testMember))
-        `when`(orderRepository.findOrdersWithItemsByMemberId(testMember.id, pageable))
+        `when`(securityUtil.getCurrentMemberId()).thenReturn(testMember.id!!)
+        `when`(memberRepository.findById(testMember.id!!)).thenReturn(Optional.of(testMember))
+        `when`(orderRepository.findOrdersWithItemsByMemberId(testMember.id!!, pageable))
             .thenReturn(orderPage)
 
         // when
@@ -128,8 +128,8 @@ class MemberServiceTest {
 
         // then
         assertEquals(1, responses.content.size)
-        assertEquals(testOrder.orderNumber, responses.content[0].orderNumber())
-        assertEquals(testOrder.totalPrice, responses.content[0].totalPrice())
+        assertEquals(testOrder.orderNumber, responses.content[0].orderNumber)
+        assertEquals(testOrder.totalPrice, responses.content[0].totalPrice)
     }
 
     @Test
@@ -138,8 +138,8 @@ class MemberServiceTest {
         val response = MemberInfoResponse.from(testMember)
 
         // then
-        assertEquals(testMember.id, response.memberId())
-        assertEquals(testMember.email, response.email())
-        assertEquals(testMember.profile.nickname, response.nickname())
+        assertEquals(testMember.id, response.memberId)
+        assertEquals(testMember.email, response.email)
+        assertEquals(testMember.profile.nickname, response.nickname)
     }
 }

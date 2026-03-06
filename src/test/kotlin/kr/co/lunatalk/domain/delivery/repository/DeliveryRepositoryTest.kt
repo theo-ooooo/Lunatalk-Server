@@ -58,7 +58,7 @@ class DeliveryRepositoryTest {
         em.flush()
         em.clear()
 
-        val order = orderRepository.findById(testOrder.id).get()
+        val order = orderRepository.findById(testOrder.id!!).get()
 
         assertThat(delivery.id).isNotNull()
         assertThat(order.deliverys)
@@ -76,7 +76,7 @@ class DeliveryRepositoryTest {
         delivery.updateStatus(DeliveryStatus.SHIPPED)
         deliveryRepository.flush()
 
-        val found = deliveryRepository.findById(delivery.id).orElseThrow()
+        val found = deliveryRepository.findById(delivery.id!!).orElseThrow()
         assertThat(found.status).isEqualTo(DeliveryStatus.SHIPPED)
     }
 
@@ -91,7 +91,7 @@ class DeliveryRepositoryTest {
         delivery.updateCourierCompany(CourierCompany.CJ_LOGISTICS)
         deliveryRepository.flush()
 
-        val found = deliveryRepository.findById(delivery.id).orElseThrow()
+        val found = deliveryRepository.findById(delivery.id!!).orElseThrow()
         assertThat(found.trackingNumber).isEqualTo("TRACK123456")
         assertThat(found.courierCompany).isEqualTo(CourierCompany.CJ_LOGISTICS)
     }

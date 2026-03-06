@@ -90,11 +90,11 @@ class ExhibitionServiceTest {
             )
         )
         `when`(productLikeService.getLikeCounts(any())).thenReturn(mapOf(1L to 0L))
-        `when`(securityUtil.currentMemberId).thenReturn(1L)
+        `when`(securityUtil.getCurrentMemberId()).thenReturn(1L)
         `when`(productLikeService.getLikedStatus(any(), any())).thenReturn(mapOf(1L to false))
 
         // when
-        val result = exhibitionService.allExhibitions
+        val result = exhibitionService.getAllExhibitions()
 
         // then
         assertEquals(1, result.size)

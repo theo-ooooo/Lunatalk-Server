@@ -64,10 +64,10 @@ class CartItemServiceTest {
     @Test
     fun `create shouldCreateCartItemSuccessfully`() {
         // given
-        val request = CreateCartItemRequest(product.id, 2)
+        val request = CreateCartItemRequest(product.id!!, 2)
 
         `when`(memberUtil.currentMember).thenReturn(member)
-        `when`(productUtil.findProductId(product.id)).thenReturn(product)
+        `when`(productUtil.findProductId(product.id!!)).thenReturn(product)
         `when`(cartItemRepository.save(any(CartItem::class.java)))
             .thenAnswer { invocation ->
                 val saved = invocation.getArgument<CartItem>(0)
@@ -79,7 +79,7 @@ class CartItemServiceTest {
         val response = cartItemService.create(request)
 
         // then
-        assertThat(response.cartItemId()).isEqualTo(1L)
+        assertThat(response.cartItemId).isEqualTo(1L)
     }
 
     @Test
@@ -89,24 +89,24 @@ class CartItemServiceTest {
         ReflectionTestUtils.setField(cartItem, "id", 1L)
 
         val cartItems = listOf(cartItem)
-        val imageMap = mapOf<Long, List<Image>>(product.id to listOf())
+        val imageMap = mapOf<Long, List<Image>>(product.id!! to listOf())
 
         `when`(memberUtil.currentMember).thenReturn(member)
-        `when`(cartItemRepository.findByMemberId(member.id)).thenReturn(cartItems)
-        `when`(productUtil.findAllProducts(listOf(product.id)))
+        `when`(cartItemRepository.findByMemberId(member.id!!)).thenReturn(cartItems)
+        `when`(productUtil.findAllProducts(listOf(product.id!!)))
             .thenReturn(ProductWithImagesResult(listOf(product), imageMap))
-        `when`(productLikeService.getLikeCounts(listOf(product.id)))
-            .thenReturn(mapOf(product.id to 0L))
-        `when`(securityUtil.currentMemberId).thenReturn(member.id)
-        `when`(productLikeService.getLikedStatus(listOf(product.id), member.id))
-            .thenReturn(mapOf(product.id to false))
+        `when`(productLikeService.getLikeCounts(listOf(product.id!!)))
+            .thenReturn(mapOf(product.id!! to 0L))
+        `when`(securityUtil.getCurrentMemberId()).thenReturn(member.id!!)
+        `when`(productLikeService.getLikedStatus(listOf(product.id!!), member.id!!))
+            .thenReturn(mapOf(product.id!! to false))
 
         // when
         val result = cartItemService.findAll()
 
         // then
         assertThat(result).hasSize(1)
-        assertThat(result[0].quantity()).isEqualTo(3)
+        assertThat(result[0].quantity).isEqualTo(3)
     }
 
     @Test

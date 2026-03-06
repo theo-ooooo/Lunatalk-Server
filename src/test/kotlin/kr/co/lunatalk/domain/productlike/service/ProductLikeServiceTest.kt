@@ -84,11 +84,11 @@ class ProductLikeServiceTest {
     @DisplayName("좋아요를 누르면 ProductLike가 생성된다")
     fun `좋아요 추가 테스트`() {
         // given
-        val productId = product1.id
+        val productId = product1.id!!
 
         `when`(memberUtil.currentMember).thenReturn(member1)
         `when`(productUtil.findProductId(productId)).thenReturn(product1)
-        `when`(productLikeRepository.findByMemberIdAndProductId(member1.id, productId))
+        `when`(productLikeRepository.findByMemberIdAndProductId(member1.id!!, productId))
             .thenReturn(Optional.empty())
         `when`(productLikeRepository.save(any(ProductLike::class.java)))
             .thenAnswer { invocation ->
@@ -109,13 +109,13 @@ class ProductLikeServiceTest {
     @DisplayName("이미 좋아요를 누른 상태에서 다시 누르면 좋아요가 취소된다")
     fun `좋아요 취소 테스트`() {
         // given
-        val productId = product1.id
+        val productId = product1.id!!
         val existingLike = ProductLike.create(member1, product1)
         ReflectionTestUtils.setField(existingLike, "id", 1L)
 
         `when`(memberUtil.currentMember).thenReturn(member1)
         `when`(productUtil.findProductId(productId)).thenReturn(product1)
-        `when`(productLikeRepository.findByMemberIdAndProductId(member1.id, productId))
+        `when`(productLikeRepository.findByMemberIdAndProductId(member1.id!!, productId))
             .thenReturn(Optional.of(existingLike))
 
         // when
@@ -130,7 +130,7 @@ class ProductLikeServiceTest {
     @DisplayName("상품의 좋아요 개수를 조회할 수 있다")
     fun `좋아요 개수 조회 테스트`() {
         // given
-        val productId = product1.id
+        val productId = product1.id!!
         `when`(productLikeRepository.countByProductId(productId)).thenReturn(2L)
 
         // when
@@ -144,10 +144,10 @@ class ProductLikeServiceTest {
     @DisplayName("여러 상품의 좋아요 개수를 일괄 조회할 수 있다")
     fun `여러 상품 좋아요 개수 조회 테스트`() {
         // given
-        val productIds = listOf(product1.id, product2.id)
+        val productIds = listOf(product1.id!!, product2.id!!)
         val expectedCounts = mapOf(
-            product1.id to 2L,
-            product2.id to 1L
+            product1.id!! to 2L,
+            product2.id!! to 1L
         )
         `when`(productLikeRepository.countByProductIds(productIds)).thenReturn(expectedCounts)
 
@@ -164,18 +164,18 @@ class ProductLikeServiceTest {
     @DisplayName("특정 회원이 상품에 좋아요를 눌렀는지 확인할 수 있다")
     fun `좋아요 여부 확인 테스트`() {
         // given
-        val productId = product1.id
+        val productId = product1.id!!
         val existingLike = ProductLike.create(member1, product1)
         ReflectionTestUtils.setField(existingLike, "id", 1L)
 
-        `when`(productLikeRepository.findByMemberIdAndProductId(member1.id, productId))
+        `when`(productLikeRepository.findByMemberIdAndProductId(member1.id!!, productId))
             .thenReturn(Optional.of(existingLike))
-        `when`(productLikeRepository.findByMemberIdAndProductId(member2.id, productId))
+        `when`(productLikeRepository.findByMemberIdAndProductId(member2.id!!, productId))
             .thenReturn(Optional.empty())
 
         // when
-        val isLikedByMember1 = productLikeService.isLiked(productId, member1.id)
-        val isLikedByMember2 = productLikeService.isLiked(productId, member2.id)
+        val isLikedByMember1 = productLikeService.isLiked(productId, member1.id!!)
+        val isLikedByMember2 = productLikeService.isLiked(productId, member2.id!!)
 
         // then
         assertTrue(isLikedByMember1)
@@ -186,16 +186,16 @@ class ProductLikeServiceTest {
     @DisplayName("여러 상품에 대한 좋아요 여부를 일괄 확인할 수 있다")
     fun `여러 상품 좋아요 여부 확인 테스트`() {
         // given
-        val productIds = listOf(product1.id, product2.id)
+        val productIds = listOf(product1.id!!, product2.id!!)
         val expectedStatus = mapOf(
-            product1.id to true,
-            product2.id to false
+            product1.id!! to true,
+            product2.id!! to false
         )
-        `when`(productLikeRepository.existsByMemberIdAndProductIds(member1.id, productIds))
+        `when`(productLikeRepository.existsByMemberIdAndProductIds(member1.id!!, productIds))
             .thenReturn(expectedStatus)
 
         // when
-        val likedStatus = productLikeService.getLikedStatus(productIds, member1.id)
+        val likedStatus = productLikeService.getLikedStatus(productIds, member1.id!!)
 
         // then
         assertThat(likedStatus).hasSize(2)
@@ -210,7 +210,7 @@ class ProductLikeServiceTest {
         val productId = product1.id
 
         // when
-        val isLiked = productLikeService.isLiked(productId, null)
+        val isLiked = productLikeService.isLiked(productId!!, null)
 
         // then
         assertFalse(isLiked)
@@ -222,7 +222,7 @@ class ProductLikeServiceTest {
     fun `좋아요 없는 상품 개수 테스트`() {
         // given
         val productId = product1.id
-        `when`(productLikeRepository.countByProductId(productId)).thenReturn(null)
+        `when`(productLikeRepository.countByProductId(productId!!)).thenReturn(null)
 
         // when
         val likeCount = productLikeService.getLikeCount(productId)
@@ -236,10 +236,10 @@ class ProductLikeServiceTest {
     fun `내 좋아요 상품 목록 조회 테스트`() {
         // given
         val pageable = PageRequest.of(0, 10)
-        val likedProductIds = listOf(product2.id, product1.id) // 최신순 가정
+        val likedProductIds = listOf(product2.id!!, product1.id!!) // 최신순 가정
 
         `when`(memberUtil.currentMember).thenReturn(member1)
-        `when`(productLikeRepository.findLikedProductIdsByMemberId(eq(member1.id), any(Pageable::class.java)))
+        `when`(productLikeRepository.findLikedProductIdsByMemberId(eq(member1.id!!), any(Pageable::class.java)))
             .thenReturn(PageImpl(likedProductIds, pageable, likedProductIds.size.toLong()))
 
         // ProductUtil은 정렬을 보장하지 않는다고 가정하고, 일부러 역순으로 반환
@@ -247,7 +247,7 @@ class ProductLikeServiceTest {
             .thenReturn(ProductWithImagesResult(listOf(product1, product2), mapOf()))
 
         `when`(productLikeRepository.countByProductIds(likedProductIds))
-            .thenReturn(mapOf(product1.id to 1L, product2.id to 5L))
+            .thenReturn(mapOf(product1.id!! to 1L, product2.id!! to 5L))
 
         // when
         val page = productLikeService.findMyLikedProducts(pageable)
@@ -255,12 +255,12 @@ class ProductLikeServiceTest {
         // then
         assertThat(page.totalElements).isEqualTo(2)
         assertThat(page.content).hasSize(2)
-        assertThat(page.content[0].productId()).isEqualTo(product2.id)
-        assertThat(page.content[0].isLiked()).isTrue()
-        assertThat(page.content[0].likeCount()).isEqualTo(5L)
+        assertThat(page.content[0].productId).isEqualTo(product2.id)
+        assertThat(page.content[0].isLiked).isTrue()
+        assertThat(page.content[0].likeCount).isEqualTo(5L)
 
-        assertThat(page.content[1].productId()).isEqualTo(product1.id)
-        assertThat(page.content[1].isLiked()).isTrue()
-        assertThat(page.content[1].likeCount()).isEqualTo(1L)
+        assertThat(page.content[1].productId).isEqualTo(product1.id)
+        assertThat(page.content[1].isLiked).isTrue()
+        assertThat(page.content[1].likeCount).isEqualTo(1L)
     }
 }

@@ -68,7 +68,7 @@ class OrderServiceTest {
         product.addProductColor(productColor)
         productRepository.save(product)
 
-        val principalDetails = PrincipalDetails(member.id, MemberRole.ADMIN)
+        val principalDetails = PrincipalDetails(member.id!!, MemberRole.ADMIN)
         SecurityContextHolder.getContext().authentication =
             UsernamePasswordAuthenticationToken(principalDetails, null, principalDetails.authorities)
     }
@@ -79,7 +79,7 @@ class OrderServiceTest {
         // given
         val request = OrderCreateRequest(
             listOf(
-                OrderProductRequest(product.id, 2, OptionSnapshot("blue"))
+                OrderProductRequest(product.id, 2, OptionSnapshot.createOptionSnapshot("blue"))
             )
         )
 
@@ -87,10 +87,10 @@ class OrderServiceTest {
         val response = orderService.createOrder(request)
 
         // then
-        assertNotNull(response.orderNumber())
-        assertNotNull(response.orderId())
+        assertNotNull(response.orderNumber)
+        assertNotNull(response.orderId)
 
-        val order = orderRepository.findByOrderWithItems(response.orderNumber())
+        val order = orderRepository.findByOrderWithItems(response.orderNumber)
 
         assertNotNull(order.get())
         assertEquals(1, order.get().orderItems.size)
@@ -102,7 +102,7 @@ class OrderServiceTest {
         // given
         val request = OrderCreateRequest(
             listOf(
-                OrderProductRequest(-1L, 1, OptionSnapshot("blue"))
+                OrderProductRequest(-1L, 1, OptionSnapshot.createOptionSnapshot("blue"))
             )
         )
 
@@ -117,7 +117,7 @@ class OrderServiceTest {
         for (i in 0 until 3) {
             val request = OrderCreateRequest(
                 listOf(
-                    OrderProductRequest(product.id, 1, OptionSnapshot("blue"))
+                    OrderProductRequest(product.id, 1, OptionSnapshot.createOptionSnapshot("blue"))
                 )
             )
             orderService.createOrder(request)
@@ -125,7 +125,7 @@ class OrderServiceTest {
 
         // when
         val pageable = PageRequest.of(0, 2, Sort.by("createdAt").descending())
-        val result = orderService.findOrdersByMemberId(member.id, pageable)
+        val result = orderService.findOrdersByMemberId(member.id!!, pageable)
 
         // then
         assertNotNull(result)

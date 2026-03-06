@@ -1,6 +1,6 @@
 package kr.co.lunatalk.global.jpa.converter
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import jakarta.persistence.AttributeConverter
 import jakarta.persistence.Converter
 import kr.co.lunatalk.domain.order.domain.OptionSnapshot

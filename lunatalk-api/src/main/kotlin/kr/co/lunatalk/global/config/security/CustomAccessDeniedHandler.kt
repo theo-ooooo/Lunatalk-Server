@@ -1,6 +1,6 @@
 package kr.co.lunatalk.global.config.security
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import kr.co.lunatalk.global.common.response.ErrorResponse

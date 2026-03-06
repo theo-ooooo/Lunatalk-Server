@@ -1,4 +1,4 @@
-package kr.co.lunatalk.infra.mail
+package kr.co.lunatalk.infra.config.mail
 
 import kr.co.lunatalk.domain.payment.event.PaymentCompletedEvent
 import kr.co.lunatalk.global.common.constants.UrlConstants

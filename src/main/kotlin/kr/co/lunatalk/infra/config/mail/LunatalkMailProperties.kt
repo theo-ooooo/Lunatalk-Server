@@ -1,4 +1,4 @@
-package kr.co.lunatalk.infra.mail
+package kr.co.lunatalk.infra.config.mail
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 

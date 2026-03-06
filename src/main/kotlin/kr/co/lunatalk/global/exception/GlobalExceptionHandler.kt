@@ -3,6 +3,7 @@ package kr.co.lunatalk.global.exception
 import kr.co.lunatalk.global.common.response.ErrorResponse
 import kr.co.lunatalk.global.common.response.GlobalResponse
 import org.slf4j.LoggerFactory
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.security.authorization.AuthorizationDeniedException
@@ -61,6 +62,23 @@ class GlobalExceptionHandler {
         log.error("AuthorizationDeniedException : {}", ex.message)
 
         val errorCode = ErrorCode.FORBIDDEN
+        val errorResponse = ErrorResponse.of(ex.javaClass.simpleName, errorCode.message)
+        val response = GlobalResponse.fail(errorCode.httpStatus.value(), errorResponse)
+        return ResponseEntity.status(errorCode.httpStatus).body(response)
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException::class)
+    fun handleDataIntegrityViolationException(ex: DataIntegrityViolationException): ResponseEntity<GlobalResponse> {
+        log.error("DataIntegrityViolationException : {}", ex.message)
+
+        val message = ex.message
+        val errorCode = if (message != null && (message.contains("uk_provider_provider_id") ||
+                    (message.contains("provider") && message.contains("provider_id")))) {
+            ErrorCode.OAUTH_ACCOUNT_ALREADY_EXISTS
+        } else {
+            ErrorCode.MEMBER_EXISTS
+        }
+
         val errorResponse = ErrorResponse.of(ex.javaClass.simpleName, errorCode.message)
         val response = GlobalResponse.fail(errorCode.httpStatus.value(), errorResponse)
         return ResponseEntity.status(errorCode.httpStatus).body(response)

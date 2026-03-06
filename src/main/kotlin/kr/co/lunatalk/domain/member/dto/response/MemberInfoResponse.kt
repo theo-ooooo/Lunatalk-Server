@@ -15,13 +15,16 @@ data class MemberInfoResponse(
     val nickname: String,
 
     @Schema(description = "핸드폰 번호")
-    val phone: String,
+    val phone: String?,
 
     @Schema(description = "이메일 주소")
-    val email: String,
+    val email: String?,
 
     @Schema(description = "회원 프로필 이미지 URL")
-    val profileImgUrl: String,
+    val profileImgUrl: String?,
+
+    @Schema(description = "소셜 로그인 제공자")
+    val provider: String?,
 
     @Schema(description = "가입일")
     val createdAt: LocalDateTime?
@@ -35,6 +38,7 @@ data class MemberInfoResponse(
                 phone = member.phone,
                 email = member.email,
                 profileImgUrl = member.profile.profileImageUrl,
+                provider = member.provider,
                 createdAt = member.createdAt
             )
         }

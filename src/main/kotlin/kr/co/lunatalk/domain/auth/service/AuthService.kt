@@ -70,7 +70,7 @@ class AuthService(
     }
 
     private fun passwordMatchingAndTokenPair(request: LoginRequest, member: Member): AuthTokenResponse {
-        val isMatching = matchingPassword(request.password, member.password)
+        val isMatching = matchingPassword(request.password, member.password ?: "")
 
         if (!isMatching) {
             throw CustomException(ErrorCode.AUTH_UNAUTHORIZED)

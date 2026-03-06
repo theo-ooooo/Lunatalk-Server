@@ -39,3 +39,4 @@ out/
 # Environment files
 .env
 .env.*
+.kotlin

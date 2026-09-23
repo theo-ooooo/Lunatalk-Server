@@ -82,13 +82,16 @@ class PaymentService(
 
         for (orderItem in order.orderItems) {
             val productId = orderItem.productId!!
-            val product = productRepository.findById(productId)
-                .orElseThrow { CustomException(ErrorCode.PRODUCT_NOT_FOUND) }
+            val quantity = orderItem.quantity!!
 
-            if (orderItem.quantity!! > product.quantity!!) {
+            val affectedRows = productRepository.decreaseQuantityIfAvailable(productId, quantity)
+            if (affectedRows == 0) {
+                if (!productRepository.existsById(productId)) {
+                    throw CustomException(ErrorCode.PRODUCT_NOT_FOUND)
+                }
                 throw CustomException(ErrorCode.PRODUCT_SOLD_OUT)
             }
-            product.minusProductQuantity(orderItem.quantity!!)
+
             cartItemRepository.deleteByMemberIdAndProductId(member.id!!, productId)
         }
 

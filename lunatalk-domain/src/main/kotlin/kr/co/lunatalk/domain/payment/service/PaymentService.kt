@@ -19,12 +19,13 @@ import kr.co.lunatalk.global.util.MemberUtil
 import kr.co.lunatalk.infra.config.toss.TossPaymentsProperties
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Isolation
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.client.RestClient
 import org.springframework.web.client.RestClientException
 
 @Service
-@Transactional
+@Transactional(isolation = Isolation.REPEATABLE_READ)
 class PaymentService(
     private val orderRepository: OrderRepository,
     private val paymentRepository: PaymentRepository,

@@ -17,6 +17,7 @@ import kr.co.lunatalk.global.exception.CustomException
 import kr.co.lunatalk.global.exception.ErrorCode
 import kr.co.lunatalk.global.util.MemberUtil
 import kr.co.lunatalk.infra.config.toss.TossPaymentsProperties
+import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Isolation
@@ -36,6 +37,7 @@ class PaymentService(
     private val memberUtil: MemberUtil,
     private val applicationEventPublisher: ApplicationEventPublisher
 ) {
+    private val log = LoggerFactory.getLogger(javaClass)
 
     fun confirmPayment(request: PaymentConfirmRequest): PaymentConfirmResponse {
         val member = memberUtil.currentMember
@@ -69,37 +71,59 @@ class PaymentService(
             throw CustomException(ErrorCode.PAYMENT_CONFIRM_FAILED)
         }
 
-        val payment = Payment.success(
-            order = order,
-            paymentKey = tossResponse.paymentKey!!,
-            orderNumber = tossResponse.orderId!!,
-            amount = tossResponse.totalAmount!!,
-            method = tossResponse.method,
-            approvedAt = tossResponse.getApprovedAtAsLocalDateTime()
-        )
+        return try {
+            val payment = Payment.success(
+                order = order,
+                paymentKey = tossResponse.paymentKey!!,
+                orderNumber = tossResponse.orderId!!,
+                amount = tossResponse.totalAmount!!,
+                method = tossResponse.method,
+                approvedAt = tossResponse.getApprovedAtAsLocalDateTime()
+            )
 
-        paymentRepository.save(payment)
+            paymentRepository.save(payment)
 
-        for (orderItem in order.orderItems) {
-            val productId = orderItem.productId!!
-            val quantity = orderItem.quantity!!
+            for (orderItem in order.orderItems) {
+                val productId = orderItem.productId!!
+                val quantity = orderItem.quantity!!
 
-            val affectedRows = productRepository.decreaseQuantityIfAvailable(productId, quantity)
-            if (affectedRows == 0) {
-                if (!productRepository.existsById(productId)) {
-                    throw CustomException(ErrorCode.PRODUCT_NOT_FOUND)
+                val affectedRows = productRepository.decreaseQuantityIfAvailable(productId, quantity)
+                if (affectedRows == 0) {
+                    if (!productRepository.existsById(productId)) {
+                        throw CustomException(ErrorCode.PRODUCT_NOT_FOUND)
+                    }
+                    throw CustomException(ErrorCode.PRODUCT_SOLD_OUT)
                 }
-                throw CustomException(ErrorCode.PRODUCT_SOLD_OUT)
+
+                cartItemRepository.deleteByMemberIdAndProductId(member.id!!, productId)
             }
 
-            cartItemRepository.deleteByMemberIdAndProductId(member.id!!, productId)
+            order.updateStatus(OrderStatus.PAYMENT_COMPLETED)
+            publishPaymentCompletedEvent(order)
+
+            PaymentConfirmResponse.of(order, payment)
+        } catch (e: Exception) {
+            compensateApprovedPayment(tossResponse.paymentKey!!, request.orderId)
+            throw e
         }
+    }
 
-        order.updateStatus(OrderStatus.PAYMENT_COMPLETED)
-
-        publishPaymentCompletedEvent(order)
-
-        return PaymentConfirmResponse.of(order, payment)
+    private fun compensateApprovedPayment(paymentKey: String, orderId: String) {
+        try {
+            tossPaymentsRestClient.post()
+                .uri("/v1/payments/{paymentKey}/cancel", paymentKey)
+                .headers { headers -> headers.setBasicAuth(tossPaymentsProperties.secretKey, "") }
+                .body(mapOf("cancelReason" to "Internal processing failed after payment approval"))
+                .retrieve()
+                .toBodilessEntity()
+        } catch (cancelException: Exception) {
+            log.error(
+                "Payment compensation failed. Manual reconciliation required. orderId={}, paymentKey={}",
+                orderId,
+                paymentKey,
+                cancelException
+            )
+        }
     }
 
     fun cancelPayment(request: PaymentCancelRequest): PaymentCancelResponse {

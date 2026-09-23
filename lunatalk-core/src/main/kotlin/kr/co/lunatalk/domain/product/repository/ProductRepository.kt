@@ -11,4 +11,16 @@ interface ProductRepository : JpaRepository<Product, Long>, ProductRepositoryCus
     @Modifying(clearAutomatically = true)
     @Query("UPDATE Product p SET p.category = null WHERE p.category.id = :categoryId")
     fun bulkClearCategory(@Param("categoryId") categoryId: Long)
+
+    @Modifying(flushAutomatically = true)
+    @Query("""
+        UPDATE Product p
+        SET p.quantity = p.quantity - :quantity
+        WHERE p.id = :productId
+          AND p.quantity >= :quantity
+    """)
+    fun decreaseQuantityIfAvailable(
+        @Param("productId") productId: Long,
+        @Param("quantity") quantity: Int
+    ): Int
 }

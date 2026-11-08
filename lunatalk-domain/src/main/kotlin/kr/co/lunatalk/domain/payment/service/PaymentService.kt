@@ -19,12 +19,13 @@ import kr.co.lunatalk.global.util.MemberUtil
 import kr.co.lunatalk.infra.config.toss.TossPaymentsProperties
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Isolation
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.client.RestClient
 import org.springframework.web.client.RestClientException
 
 @Service
-@Transactional
+@Transactional(isolation = Isolation.REPEATABLE_READ)
 class PaymentService(
     private val orderRepository: OrderRepository,
     private val paymentRepository: PaymentRepository,
@@ -81,13 +82,16 @@ class PaymentService(
 
         for (orderItem in order.orderItems) {
             val productId = orderItem.productId!!
-            val product = productRepository.findById(productId)
-                .orElseThrow { CustomException(ErrorCode.PRODUCT_NOT_FOUND) }
+            val quantity = orderItem.quantity!!
 
-            if (orderItem.quantity!! > product.quantity!!) {
+            val affectedRows = productRepository.decreaseQuantityIfAvailable(productId, quantity)
+            if (affectedRows == 0) {
+                if (!productRepository.existsById(productId)) {
+                    throw CustomException(ErrorCode.PRODUCT_NOT_FOUND)
+                }
                 throw CustomException(ErrorCode.PRODUCT_SOLD_OUT)
             }
-            product.minusProductQuantity(orderItem.quantity!!)
+
             cartItemRepository.deleteByMemberIdAndProductId(member.id!!, productId)
         }
 
